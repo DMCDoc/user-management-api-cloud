@@ -1,0 +1,20 @@
+{
+    "java.project.sourcePaths": [
+        "usermanagement/src/main/java",
+        "shared_common/src/main/java",
+        "user-client-javafx/src/main/java"
+    ],
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "C:\\Program Files\\OpenJDK\\jdk-17.0.1", // Chemin vers ton JDK 17
+            "default": true
+        }
+    ],
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.format.settings.profile": "VSCode-Default",
+    "java.debug.settings.onBuildFailureProceed": true
+    
+}

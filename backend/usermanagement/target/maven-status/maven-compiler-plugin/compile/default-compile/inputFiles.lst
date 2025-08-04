@@ -1,0 +1,15 @@
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\controller\DummyController.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\controller\UserController.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\exceptions\EmailAlreadyUsedException.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\exceptions\ErrorResponse.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\exceptions\UserAlreadyExistsException.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\exceptions\UserNotFoundException.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\model\Role.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\model\User.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\repository\UserRepository.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\security\JWTFilter.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\security\JWTUtils.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\security\SecurityConfig.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\security\TestSecurityConfig.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\service\UserService.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\main\java\com\example\usermanagement\UserManagementApplication.java

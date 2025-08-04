@@ -1,0 +1,7 @@
+com\example\shared\dto\LoginRequest.class
+com\example\shared\dto\UserResponse.class
+com\example\shared\util\EmailValidator.class
+com\example\shared\dto\UserDto.class
+com\example\shared\dto\RegisterRequest.class
+com\example\shared\dto\UserResponse$UserResponseBuilder.class
+com\example\shared\dto\UserDto$UserDtoBuilder.class

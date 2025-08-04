@@ -1,0 +1,6 @@
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\exceptions\EmailAlreadyUsedExceptionTest.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\exceptions\GlobalExceptionHandler.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\exceptions\GlobalExceptionHandlerTest.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\exceptions\UserAlreadyExistsExceptionTest.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\exceptions\UserNotFoundExceptionTest.java
+G:\modele\user-management-api-cloud\backend\usermanagement\src\test\java\com\example\usermanagement\security\JWTUtilsTest.java

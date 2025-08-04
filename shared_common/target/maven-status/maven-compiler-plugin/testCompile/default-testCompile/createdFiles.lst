@@ -1,0 +1,6 @@
+com\example\shared\dto\UserDtoTest.class
+com\example\shared\dto\UserResponseTest.class
+com\example\shared\dto\RegisterRequestTest.class
+com\example\shared\dto\LoginRequestTest.class
+com\example\shared\SharedCommonSanityTest.class
+com\example\shared\util\EmailValidatorTest.class

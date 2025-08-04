@@ -1,0 +1,16 @@
+com\example\usermanagement\exceptions\EmailAlreadyUsedException.class
+com\example\usermanagement\controller\UserController.class
+com\example\usermanagement\security\TestSecurityConfig.class
+com\example\usermanagement\model\User.class
+com\example\usermanagement\exceptions\ErrorResponse.class
+com\example\usermanagement\repository\UserRepository.class
+com\example\usermanagement\service\UserService.class
+com\example\usermanagement\model\Role.class
+com\example\usermanagement\exceptions\UserNotFoundException.class
+com\example\usermanagement\UserManagementApplication.class
+com\example\usermanagement\exceptions\UserAlreadyExistsException.class
+com\example\usermanagement\security\JWTFilter.class
+com\example\usermanagement\controller\DummyController.class
+com\example\usermanagement\model\User$UserBuilder.class
+com\example\usermanagement\security\SecurityConfig.class
+com\example\usermanagement\security\JWTUtils.class
