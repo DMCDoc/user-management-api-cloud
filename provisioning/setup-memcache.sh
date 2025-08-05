@@ -9,9 +9,13 @@ fi
 
 # mise à jour du système
 echo "[+] Mise à jour du système"
-dnf install -y epel-release
 dnf update -y
+dnf install -y epel-release
+dnf install -y dnf-plugins-core
+dnf config-manager --set-enabled crb
+dnf update -y --nobest --skip-broken kernel
 dnf install -y wget
+sudo dnf install -y nmap-ncat
 echo "[+] Installation de Memcached"
 dnf install -y memcached
 

@@ -1,12 +1,8 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
 
-@Component({
-  selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
-})
-export class App {
-  protected readonly title = signal('userapp-frontend');
-}
+bootstrapApplication(AppComponent, {
+  providers: [provideRouter(routes)],
+});

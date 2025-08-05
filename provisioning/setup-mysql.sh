@@ -11,6 +11,7 @@ dnf install -y epel-release
 dnf install -y dnf-plugins-core
 dnf config-manager --set-enabled crb
 dnf update -y --nobest --skip-broken kernel
+sudo dnf install -y nmap-ncat
 
 echo "[+] Installation du kernel-devel"
 dnf install -y kernel-devel
@@ -35,8 +36,6 @@ if [ -f "$ENV_FILE" ]; then
 else
     echo "[!] Fichier $ENV_FILE introuvable"
 fi
-
-
 
 # Vérifier que les variables requises existent
 required_vars=("MYSQL_ROOT_PASSWORD" 

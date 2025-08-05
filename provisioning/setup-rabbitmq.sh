@@ -41,10 +41,11 @@ for var in "${required_vars[@]}"; do
 done
 
 echo "[+] Mise à jour des paquets"
-dnf update -y
-
-echo "[+] Activation du dépôt EPEL"
+dnf update -y --nobest --skip-broken
+dnf upgrade -y --nobest --skip-broken
+dnf install -y dnf-plugins-core
 dnf install -y epel-release
+sudo dnf install -y nmap-ncat
 
 echo "[+] Installation des dépendances : Erlang + RabbitMQ"
 # Ajout du dépôt officiel pour des versions plus récentes

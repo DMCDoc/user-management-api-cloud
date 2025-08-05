@@ -47,6 +47,7 @@ dnf install -y epel-release
 dnf install -y nginx openssl
 dnf install -y policycoreutils-python-utils
 dnf install -y vim
+sudo dnf install -y nmap-ncat
 
 echo "[+] Configuration des répertoires"
 mkdir -p /etc/nginx/ssl /etc/nginx/snippets

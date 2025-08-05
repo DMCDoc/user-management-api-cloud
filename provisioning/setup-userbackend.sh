@@ -9,6 +9,28 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+# mise à jour des dépôts et du système
+echo "[+] Configuration des dépôts et mise à jour du système"
+dnf update -y --nobest --skip-broken
+dnf upgrade -y --nobest --skip-broken
+dnf install -y dnf-plugins-core
+dnf install -y epel-release
+sudo dnf install -y nmap-ncat
+
+# Attendre que MySQL soit opérationnel
+echo "Vérification de la disponibilité de MySQL..."
+while ! nc -z vm-mysql 3306; do 
+  sleep 5
+  echo "En attente de MySQL..."
+done
+
+# Attendre RabbitMQ
+echo "Vérification de RabbitMQ..."
+while ! nc -z vm-rabbit 5672; do
+  sleep 5
+  echo "En attente de RabbitMQ..."
+done
+
 # Chargement de l'environnement
 echo "[+] Chargement de l'environnement"
 

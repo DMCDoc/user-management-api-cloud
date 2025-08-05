@@ -2,6 +2,14 @@
 set -e
 export PATH=$PATH:/usr/share/elasticsearch/bin
 
+# Mise à jour du système
+echo "[+] Mise à jour du système"
+dnf update -y --nobest --skip-broken kernel
+dnf upgrade -y
+dnf install -y epel-release
+dnf config-manager --set-enabled crb
+dnf install -y nmap-ncat
+
 # mise à jour de la version
 if [[ "$1" == "--version" && -n "$2" ]]; then
     echo "[+] Mise à jour de la version dans $ENV_FILE"

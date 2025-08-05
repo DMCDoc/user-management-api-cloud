@@ -10,27 +10,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_version = "20250707.0"
 
   machines = [
-    {
-      # configuration de la VM nginx
-      name: "vm-nginx",
-      ip: "192.168.56.10",
-      ram: 512,
+   {
+      # configuration de la VM mysql
+      name: "vm-mysql",
+      ip: "192.168.56.15",
+      ram: 1024,
       cpu: 1,
       ports: [
-        { guest: 80, host: 8080, comment: "# accès HTTP proxy web" }
+        { guest: 3306, host: 13306, comment: "# accès SQL externe temporaire" }
       ],
-      setup: "setup-nginx.sh"
-    },
-    # configuration de la VM userbackend
-    {
-      name: "vm-userbackend",
-      ip: "192.168.56.11",
-      ram: 2048,
-      cpu: 2,
-      ports: [
-        { guest: 8080, host: 18080, comment: "# accès direct temporaire pour test" }
-      ],
-      setup: "setup-userbackend.sh"
+      setup: "setup-mysql.sh"
     },
     {
       # configuration de la VM rabbit
@@ -66,17 +55,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       setup: "setup-elasticsearch.sh"
     },
     {
-      # configuration de la VM mysql
-      name: "vm-mysql",
-      ip: "192.168.56.15",
-      ram: 1024,
-      cpu: 1,
-      ports: [
-        { guest: 3306, host: 13306, comment: "# accès SQL externe temporaire" }
-      ],
-      setup: "setup-mysql.sh"
-    },
-    {
       # configuration de la VM nfs
       name: "vm-nfs",
       ip: "192.168.56.16",
@@ -84,7 +62,31 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cpu: 1,
       ports: [],
       setup: "setup-nfs.sh"
-    }
+    },
+  
+    # configuration de la VM userbackend
+    {
+      name: "vm-userbackend",
+      ip: "192.168.56.11",
+      ram: 2048,
+      cpu: 2,
+      ports: [
+        { guest: 8080, host: 18080, comment: "# accès direct temporaire pour test" }
+      ],
+      setup: "setup-userbackend.sh"
+    },
+    {
+    # configuration de la VM nginx
+    name: "vm-nginx",
+    ip: "192.168.56.10",
+    ram: 512,
+      cpu: 1,
+      ports: [
+        { guest: 80, host: 8080, comment: "# accès HTTP proxy web" }
+      ],
+      setup: "setup-nginx.sh"
+    },
+# configuration base de la VM
   ]
 
   machines.each do |machine|
