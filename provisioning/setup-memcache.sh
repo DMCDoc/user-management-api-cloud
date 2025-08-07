@@ -51,7 +51,7 @@ fi
 # Vérification améliorée des variables
 declare -A config_vars=(
     ["MEMCACHED_MEMORY"]="64"
-    ["MEMCACHED_LISTEN"]="127.0.0.1"
+    ["MEMCACHED_LISTEN"]="0.0.0.0"
     ["MEMCACHED_PORT"]="11211"
 )
 

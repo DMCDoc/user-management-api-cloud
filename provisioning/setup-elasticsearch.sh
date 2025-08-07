@@ -129,15 +129,12 @@ chown -R elasticsearch:elasticsearch "$DATA_DIR"
 chmod 750 "$DATA_DIR"
 
 # Lancement de Elasticsearch
-ELASTIC_BIN="/usr/share/elasticsearch/bin/elasticsearch"
-if ! su -s /bin/bash elasticsearch -c "$ELASTIC_BIN -d -p /tmp/elastic-pid"; then
-    sleep 2
-    if [[ -f /tmp/elastic-pid ]] && ! kill -0 $(cat /tmp/elastic-pid) 2>/dev/null; then
-        echo "[!] Configuration Elasticsearch invalide. Vérifiez les logs." >&2
-        exit 1
-    fi
-    [[ -f /tmp/elastic-pid ]] && kill $(cat /tmp/elastic-pid)
-fi
+echo "[+] Démarrage et activation du service Elasticsearch"
+systemctl daemon-reexec
+systemctl daemon-reload
+systemctl start elasticsearch
+systemctl enable elasticsearch
+
 rm -f /tmp/elastic-pid
 echo "[✔] Configuration validée"
 
@@ -191,3 +188,8 @@ echo "[+] Vérification finale:"
 curl -s "http://localhost:${ELASTIC_HTTP_PORT}/_cluster/health?pretty" > /var/log/elasticsearch/health_check.json
 
 echo "[✔] Elasticsearch opérationnel sur http://$(hostname -I | awk '{print $1}'):${ELASTIC_HTTP_PORT}"
+echo "[+] Vérification post-reboot (si nécessaire)"
+if ! systemctl is-active --quiet elasticsearch; then
+    echo "[!] Elasticsearch n'est pas actif, tentative de redémarrage"
+    systemctl start elasticsearch
+fi
