@@ -1,5 +1,0 @@
-com\example\client\controller\RegisterController.class
-com\example\client\controller\LoginController.class
-com\example\client\service\ApiService.class
-com\example\client\model\LoginRequest.class
-com\example\client\MainApp.class
