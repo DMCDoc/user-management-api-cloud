@@ -1,0 +1,41 @@
+# .prettierignore
+
+### Dossiers critiques ###
+/dist
+/node_modules
+/coverage
+/.angular
+
+### Fichiers de build/compilation ###
+*.js
+*.map
+*.css
+*.d.ts
+/build
+
+### Fichiers de configuration ###
+angular.json
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.*.json
+pnpm-lock.yaml
+yarn.lock
+
+### Fichiers spéciaux ###
+Dockerfile
+Dockerfile.*
+.env
+.env.*
+
+### Dossiers d'IDE/Outils ###
+/.vscode
+/.idea
+/.husky
+/.git
+/.npm
+/.cache
+
+### Autres artefacts ###
+*.log
+*.tmp
