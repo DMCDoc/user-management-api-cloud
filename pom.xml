@@ -30,7 +30,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-boot-maven-plugin.version>3.1.6</spring-boot-maven-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mysql-connector-j.version>8.0.33</mysql-connector-j.version>
+    <postgresql.version>42.5.0</postgresql.version>
     <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
     <io.jsonwebtoken.jackson.version>0.11.5</io.jsonwebtoken.jackson.version>
     <io.github.cdimascio.dotenv-java.version>6.2.2</io.github.cdimascio.dotenv-java.version>

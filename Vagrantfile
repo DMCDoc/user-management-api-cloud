@@ -11,15 +11,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   machines = [
    {
-      # configuration de la VM mysql
-      name: "vm-mysql",
+      # configuration de la VM postgresql
+      name: "vm-postgresql",
       ip: "192.168.56.15",
       ram: 1024,
       cpu: 1,
       ports: [
-        { guest: 3306, host: 13306, comment: "# accès SQL externe temporaire" }
+        { guest: 5432, host: 15432, comment: "# accès SQL externe temporaire" }
       ],
-      setup: "setup-mysql.sh"
+      setup: "setup-postgresql.sh"
     },
     {
       # configuration de la VM rabbit

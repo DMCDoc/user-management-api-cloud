@@ -9,49 +9,43 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "users")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity 
+@Table(name = "users") 
+@Data 
+@NoArgsConstructor 
+@AllArgsConstructor 
 @Builder
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false, unique = true)
+    @NotBlank @Column(nullable = false, unique = true)
     private String username;
 
-    @NotBlank
-    @Column(nullable = false)
+    @NotBlank @Column(nullable = false)
     private String password; // Hashed
 
-    @NotBlank
-    @Email
-    @Column(nullable = false, unique = true)
+    @NotBlank @Email @Column(nullable = false, unique = true)
     private String email;
 
     @Column
     private String fullName;
 
-    @Column
-    @Builder.Default
+    @Column @Builder.Default
     private boolean enabled = true;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private Role role = Role.USER; // Rôle par défaut
+    // Relation avec les rôles
+    @ManyToMany(fetch = FetchType.EAGER) @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
-    // Implémentation des méthodes UserDetails
+    // Implémentation UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
     }
 
     @Override

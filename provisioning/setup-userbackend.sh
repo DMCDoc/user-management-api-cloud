@@ -17,11 +17,11 @@ dnf install -y dnf-plugins-core
 dnf install -y epel-release
 sudo dnf install -y nmap-ncat
 
-# Attendre que MySQL soit opérationnel
-echo "Vérification de la disponibilité de MySQL..."
-while ! nc -z vm-mysql 3306; do 
+# Attendre que PostgreSQL soit opérationnel
+echo "Vérification de la disponibilité de PostgreSQL..."
+while ! nc -z vm-postgres 5432; do
   sleep 5
-  echo "En attente de MySQL..."
+  echo "En attente de PostgreSQL..."
 done
 
 # Attendre RabbitMQ
