@@ -3,18 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.example</groupId>
-        <artifactId>user-management-api-cloud</artifactId>
-        <version>1.0</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+<parent>
+    <groupId>com.example</groupId>
+    <artifactId>user-management-api-cloud</artifactId>
+    <version>1.0.0</version>
+</parent>
 
     <artifactId>shared_common</artifactId>
     <packaging>jar</packaging>
-    <name>Shared Common</name>
+    <name>Shared_Common</name>
     <description>Shared common utilities and configurations for the User Management API Cloud project.</description>
-    <version>1.0</version>
+    
+
+    <properties>
+        <jackson.version>2.15.3</jackson.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+    </properties>
 
 
     <dependencies>
@@ -50,18 +54,7 @@
         <version>${jakarta.validation.version}</version>
     </dependency>  
 
-    <!-- JavaFX Controls -->
-    <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-controls</artifactId>
-        <version>${javafx.version}</version>
-    </dependency>
-    <!-- JavaFX FXML -->
-    <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-fxml</artifactId>
-        <version>${javafx.version}</version>
-    </dependency>
+   
 
     <!-- JUnit 5 tests -->
     <dependency>

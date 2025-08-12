@@ -1,5 +1,5 @@
 com\example\usermanagement\security\JWTUtilsTest.class
-com\example\usermanagement\exceptions\GlobalExceptionHandler$ErrorResponse.class
+com\example\usermanagement\JDBCTest.class
 com\example\usermanagement\exceptions\GlobalExceptionHandler.class
 com\example\usermanagement\exceptions\GlobalExceptionHandlerTest.class
 com\example\usermanagement\exceptions\UserNotFoundExceptionTest.class

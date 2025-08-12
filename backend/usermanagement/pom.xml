@@ -1,69 +1,70 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.example</groupId>
     <artifactId>user-management-api-cloud</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>usermanagement</artifactId>
-  <packaging>jar</packaging>
-  <name>Usermanagement Backend API</name>
+  <artifactId>backend</artifactId>
+  <name>Backend - User Management API</name>
 
   <dependencies>
-    <!-- Spring Boot starters -->
+    <!-- shared common -->
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>shared_common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
+
+    <!-- Spring Boot Security -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-
-    <!-- Spring Boot Actuator -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
     <!-- JWT -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-api</artifactId>
-      <version>${io.jsonwebtoken.version}</version>
+      <version>0.11.5</version>
     </dependency>
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-impl</artifactId>
-      <version>${io.jsonwebtoken.version}</version>
+      <version>0.11.5</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-jackson</artifactId>
-      <version>${io.jsonwebtoken.version}</version>
+      <version>0.11.5</version>
       <scope>runtime</scope>
     </dependency>
 
-    <!-- PostgreSQL Driver -->
+    <!-- Validation -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- JPA & Database -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>${postgresql.version}</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -74,18 +75,11 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Environment Variables (.env support) -->
+
+    <!-- dotenv-java -->
     <dependency>
       <groupId>io.github.cdimascio</groupId>
       <artifactId>dotenv-java</artifactId>
-      <version>2.2.0</version>
-    </dependency>
-
-    <!-- Shared module -->
-    <dependency>
-      <groupId>com.example</groupId>
-      <artifactId>shared_common</artifactId>
-      <version>1.0</version>
     </dependency>
 
     <!-- Tests -->
@@ -94,97 +88,14 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Mockito -->
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
-    <resources>
-      <!-- Fichiers YAML filtrés (ex: application.yml) -->
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>        <!-- Important -->
-        <includes>
-          <include>**/*.yml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-
-
-      <!-- Autres ressources non filtrées (HTML, JS, etc.) -->
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>static/**</include>
-          <include>templates/**</include>
-        </includes>
-      </resource>
-    </resources>
-
-    <!-- Configuration des ressources de test -->
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*</include>          <!-- Inclut tous les fichiers -->
-        </includes>
-      </testResource>
-    </testResources>
-
     <plugins>
-      <!-- Spring Boot plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <mainClass>com.example.usermanagement.UserManagementApplication</mainClass>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Plugin pour copier les ressources de test -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>copy-test-resources</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/test/resources</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
-
 </project>
