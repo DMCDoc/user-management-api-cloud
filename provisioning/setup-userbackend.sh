@@ -19,7 +19,7 @@ sudo dnf install -y nmap-ncat
 
 # Attendre que PostgreSQL soit opérationnel
 echo "Vérification de la disponibilité de PostgreSQL..."
-while ! nc -z vm-postgres 5432; do
+while ! nc -z vm-postgresql 5432; do
   sleep 5
   echo "En attente de PostgreSQL..."
 done
@@ -85,14 +85,32 @@ if [ -f "$APP_DEST" ]; then
     echo "[~] Fichier JAR existant trouvé, suppression"
     rm -f "$APP_DEST"
 fi
+# Installation de Java 21
+echo "[+] Installation de Java 21"
+sudo dnf install java-21-openjdk java-21-openjdk-devel -y
+# Configuration de Java 21
+echo "[INFO] Setting Java 21 as default..."
+sudo alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk/bin/java 1
+sudo alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-21-openjdk/bin/javac 1
+sudo alternatives --set java /usr/lib/jvm/java-21-openjdk/bin/java
+sudo alternatives --set javac /usr/lib/jvm/java-21-openjdk/bin/javac
 
-echo "[+] Installation de Java 17"
-dnf install -y java-17-openjdk
+# Forcer l'utilisation de Java 21 par défaut pour Maven
+echo "[+] Configuration JAVA_HOME pour Java 21"
+echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk" > /etc/profile.d/java21.sh
+echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/profile.d/java21.sh
+chmod +x /etc/profile.d/java21.sh
+
+# Vérification
+echo "[+] Vérification de la configuration Java"
+java -version
+javac -version
+
 
 # Vérification de la version Java
 JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | cut -d'.' -f1)
-if [[ $JAVA_VERSION -ne 17 ]]; then
-    echo "[!] Java 17 requis mais version $JAVA_VERSION détectée" >&2
+if [[ $JAVA_VERSION -ne 21 ]]; then
+    echo "[!] Java 21 requis mais version $JAVA_VERSION détectée" >&2
     exit 1
 fi
 
@@ -105,6 +123,10 @@ if ! command -v mvn &> /dev/null; then
 else
     echo "[~] Maven est déjà présent : $(mvn -v | head -n 1)"
 fi
+
+# Vérification maven
+echo "[+] Vérification de Maven"
+mvn -v
 
 echo "[+] Installation de netcat pour les vérifications réseau"
 dnf install -y nc
@@ -187,13 +209,13 @@ ls -ld /opt/backend/*
 sleep 1
 
 
-# Vérification de la connexion à la base de données MySQL
+# Vérification de la connexion à la base de données postgresql
 echo "[+] Vérification de la connexion à la base de données"
-if ! nc -z 192.168.56.15 3306; then
-    echo "[!] MySQL n'est pas accessible sur 192.168.56.15:3306" >&2
-    echo "[!] Veuillez vérifier que le service MySQL est en cours d'exécution"
+if ! nc -z 192.168.56.15 5432; then
+    echo "[!] PostgreSQL n'est pas accessible sur 192.168.56.15:5432" >&2
+    echo "[!] Veuillez vérifier que le service PostgreSQL est en cours d'exécution"
 else
-    echo "[+] MySQL est accessible"
+    echo "[+] PostgreSQL est accessible"
 fi
 sleep 3
 # Après la génération du fichier .env
@@ -285,7 +307,7 @@ echo "[+] Création du service systemd avec configuration complète"
 cat > /etc/systemd/system/backend.service <<EOF
 [Unit]
 Description=Spring Boot Backend Service
-After=network.target mysqld.service
+After=network.target postgresql.service
 
 [Service]
 User=backend

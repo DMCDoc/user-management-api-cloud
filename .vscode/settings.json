@@ -1,13 +1,13 @@
 {
     "java.project.sourcePaths": [
-        "usermanagement/src/main/java",
         "shared_common/src/main/java",
-        "user-client-javafx/src/main/java"
+        "backend/src/main/java",
+        "frontend/src/main/java",
     ],
     "java.configuration.runtimes": [
         {
-            "name": "JavaSE-17",
-            "path": "C:\\Program Files\\OpenJDK\\jdk-17.0.1", // Chemin vers ton JDK 17
+            "name": "JavaSE-22",
+            "path": "C:\\Program Files\\OpenJDK\\jdk-22.0.2", // Chemin vers ton JDK 22
             "default": true
         }
     ],

@@ -74,6 +74,10 @@ if ! systemctl is-active --quiet postgresql; then
   journalctl -u postgresql --no-pager -n 20
   exit 1
 fi
+# Forcer SCRAM-SHA-256 pour tous les nouveaux mots de passe
+echo "[+] Forçage de l'encryption SCRAM-SHA-256"
+sudo -u postgres psql -c "ALTER SYSTEM SET password_encryption = 'scram-sha-256';"
+sudo systemctl restart postgresql
 
 # entré dans le dossier temps (éviter les warning)
 cd /tmp
@@ -81,6 +85,12 @@ cd /tmp
 # --- Définition du mot de passe pour 'postgres' ---
 echo "[+] Définition du mot de passe pour l'utilisateur postgres"
 sudo -Hu postgres env HOME=/tmp psql -d postgres -c "ALTER USER postgres WITH PASSWORD '${POSTGRESQL_PASSWORD_ADMIN}';"
+# Forcer listen_addresses via ALTER SYSTEM (priorité la plus haute)
+echo "[+] Forçage de listen_addresses"
+sudo -u postgres psql -c "ALTER SYSTEM SET listen_addresses TO '*';"
+
+# redémarrage du service PostgreSQL
+sudo systemctl restart postgresql
 # Configuration des connexions distantes
 echo "[+] Configuration des connexions distantes"
 PG_CONF="/var/lib/pgsql/data/postgresql.conf"
@@ -100,19 +110,21 @@ host    all             all             127.0.0.1/32            scram-sha-256
 host    all             all             ::1/128                 scram-sha-256
 
 # Connexions distantes
+host    all             all             192.168.56.0/24         scram-sha-256
 host    all             all             0.0.0.0/0               scram-sha-256
 host    all             all             ::/0                    scram-sha-256
 
 # Réplication
-local   replication     all                                     peer
+host    replication     all             192.168.56.0/24         scram-sha-256
 host    replication     all             127.0.0.1/32            scram-sha-256
 host    replication     all             ::1/128                 scram-sha-256
 EOT
 
-
 # vérification de la configuration
 echo "[+] Vérification de la configuration PostgreSQL"
 cat $PG_HBA
+
+
 
 # Création de l'utilisateur s'il n'existe pas
 sudo -Hu postgres env HOME=/tmp psql -d postgres <<EOF
@@ -137,6 +149,9 @@ sudo -Hu postgres env HOME=/tmp psql -d postgres -tc "SELECT 1 FROM pg_database 
 # Donner les droits
 sudo -Hu postgres env HOME=/tmp psql -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${POSTGRESQL_DATABASE} TO ${POSTGRESQL_USER};"
 sudo -Hu postgres env HOME=/tmp psql -d postgres -c "ALTER DATABASE ${POSTGRESQL_DATABASE} OWNER TO ${POSTGRESQL_USER};"
+
+# redémarrage du service PostgreSQL
+sudo systemctl restart postgresql
 
 # Configuration du pare-feu
 if command -v firewall-cmd &>/dev/null; then
