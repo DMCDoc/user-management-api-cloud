@@ -2,13 +2,13 @@ package com.example.usermanagement.service;
 
 import com.example.usermanagement.security.JwtService;
 import com.example.usermanagement.model.User;
+import com.example.usermanagement.model.Role;
+import com.example.usermanagement.model.RefreshToken;
 import com.example.usermanagement.repository.UserRepository;
+import com.example.usermanagement.repository.RoleRepository;
 import com.example.usermanagement.dto.AuthResponse;
 import com.example.usermanagement.dto.LoginRequest;
 import com.example.usermanagement.dto.RegisterRequest;
-import com.example.usermanagement.model.Role;
-import com.example.usermanagement.repository.RoleRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +26,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
+    // 🔹 Inscription
     public AuthResponse register(RegisterRequest request) {
         // Récupération des rôles demandés ou affectation par défaut
         Set<Role> roles = new HashSet<>();
@@ -52,10 +54,12 @@ public class AuthenticationService {
         userRepository.save(user);
 
         String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        return new AuthResponse(accessToken, refreshToken);
+        RefreshToken refreshToken = refreshTokenService.create(user);
+
+        return new AuthResponse(accessToken, refreshToken.getToken());
     }
 
+    // 🔹 Connexion
     public AuthResponse login(LoginRequest request) {
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
@@ -64,7 +68,8 @@ public class AuthenticationService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        return new AuthResponse(accessToken, refreshToken);
+        RefreshToken refreshToken = refreshTokenService.create(user);
+
+        return new AuthResponse(accessToken, refreshToken.getToken());
     }
 }

@@ -4,10 +4,10 @@ import com.example.usermanagement.model.RefreshToken;
 import com.example.usermanagement.model.User;
 import com.example.usermanagement.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,21 +16,31 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    // Durée du refresh token (ici 30 jours)
-    private static final long REFRESH_TOKEN_DAYS = 30;
+    @Value("${security.jwt.refresh-expiration:2592000000}") // par défaut 30
+                                                            // jours (30 * 24h *
+                                                            // 60m * 60s *
+                                                            // 1000ms)
+    private long refreshTokenDurationMs;
 
     public RefreshToken create(User user) {
-        // (optionnel) révoquer les précédents refresh tokens de l’utilisateur
         refreshTokenRepository.deleteByUser(user);
 
         RefreshToken rt = RefreshToken.builder().user(user).token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plus(REFRESH_TOKEN_DAYS, ChronoUnit.DAYS)).build();
+                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs)).build();
 
         return refreshTokenRepository.save(rt);
     }
 
     public Optional<RefreshToken> findValid(String token) {
         return refreshTokenRepository.findByToken(token).filter(rt -> rt.getExpiryDate().isAfter(Instant.now()));
+    }
+
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().isBefore(Instant.now())) {
+            refreshTokenRepository.delete(token);
+            throw new RuntimeException("Refresh token expiré, veuillez vous reconnecter.");
+        }
+        return token;
     }
 
     public void revokeAll(User user) {
