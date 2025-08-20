@@ -1,16 +1,17 @@
 package com.example.usermanagement.controller;
 
-// import specific DTO classes needed from com.example.shared.dto
-import com.example.shared.dto.RegisterRequest;
-import com.example.shared.dto.LoginRequest;
-import com.example.shared.dto.UserResponse;
-import com.example.usermanagement.service.UserService;
 
+import com.example.usermanagement.dto.RegisterRequest;
+import com.example.usermanagement.dto.LoginRequest;
+import com.example.usermanagement.dto.RefreshRequest;
+import com.example.usermanagement.dto.UserResponse;
+import com.example.usermanagement.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.example.usermanagement.dto.AuthResponse;
 
 @RestController
 @RequestMapping("/users")
@@ -20,17 +21,19 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        userService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Utilisateur créé");
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(userService.login(request));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
-        System.out.println("🎯 Reçu une tentative de login avec username=" + request.getUsername());
-        String jwt = userService.login(request);
-        return ResponseEntity.ok(jwt);
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.register(request));
+    }
+
+        @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(userService.refreshToken(request));
     }
 
     @GetMapping("/profile")
