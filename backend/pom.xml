@@ -97,11 +97,22 @@
 
   <build>
     <plugins>
-      <!-- Spring Boot Maven Plugin -->
       <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <executions>
+          <execution>   
+          </execution>
+        </executions>
+        <configuration>
+        <source>${maven.compiler.source}</source>
+        <target>${maven.compiler.target}</target>
+        <release>${java.version}</release>
+          <mainClass>com.example.usermanagement.UserManagementApplication</mainClass>
+        </configuration>
       </plugin>
     </plugins>
   </build>
+
 </project>

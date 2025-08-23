@@ -17,9 +17,10 @@
 
   <properties>
     <!-- Java & Maven -->
-    <java.version>21</java.version>
-    <maven.compiler.release>${java.version}</maven.compiler.release>
-    <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+ <java.version>21</java.version>
+  <maven.compiler.source>21</maven.compiler.source>
+  <maven.compiler.target>21</maven.compiler.target>
+  <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
 
     <!-- Dépendances -->
     <spring.boot.version>3.3.3</spring.boot.version>

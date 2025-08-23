@@ -10,12 +10,13 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # mise à jour des dépôts et du système
-echo "[+] Configuration des dépôts et mise à jour du système"
-dnf update -y --nobest --skip-broken
+echo "[+] Configuration des dépôts et mise à jour du système"#dnf update -y --nobest --skip-broken
 dnf upgrade -y --nobest --skip-broken
 dnf install -y dnf-plugins-core
 dnf install -y epel-release
-sudo dnf install -y nmap-ncat
+dnf install -y nmap-ncat
+dnf install -y unzip
+dnf install -y wget
 
 # Attendre que PostgreSQL soit opérationnel
 echo "Vérification de la disponibilité de PostgreSQL..."
@@ -77,7 +78,7 @@ fi
 
 # Chemin du fichier JAR à déployer
 APP_SOURCE=${SOURCE}
-APP_DEST="/opt/backend/usermanagement-1.0.jar"
+APP_DEST="/opt/backend/backend-1.0.0.jar"
 
 # Suppression de l'ancien fichier JAR s'il existe
 echo "[+] Suppression de l'ancien fichier JAR"
@@ -88,6 +89,7 @@ fi
 # Installation de Java 21
 echo "[+] Installation de Java 21"
 sudo dnf install java-21-openjdk java-21-openjdk-devel -y
+
 # Configuration de Java 21
 echo "[INFO] Setting Java 21 as default..."
 sudo alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk/bin/java 1
@@ -114,20 +116,7 @@ if [[ $JAVA_VERSION -ne 21 ]]; then
     exit 1
 fi
 
-# Vérification de Maven
-echo "[+] Vérification de Maven"
-if ! command -v mvn &> /dev/null; then
-    echo "[~] Maven non trouvé, installation en cours..."
-    dnf install -y maven
-    echo "[+] Maven installé avec succès."
-else
-    echo "[~] Maven est déjà présent : $(mvn -v | head -n 1)"
-fi
-
-# Vérification maven
-echo "[+] Vérification de Maven"
-mvn -v
-
+# Installation de netcat pour les vérifications réseau
 echo "[+] Installation de netcat pour les vérifications réseau"
 dnf install -y nc
 
@@ -155,8 +144,13 @@ if [ -d "$APP_RESOURCES" ]; then
     cp -rp "$APP_RESOURCES"/* "$VM_SOURCE/"
     echo "[+] Ressources copiées dans $VM_SOURCE"
     fi
+    echo "[+] Déplacement des fichiers .env vers /opt/backend/"
+    mv /opt/env/*.env /opt/backend/
+    echo "[+] Changement de propriétaire des fichiers .env"
     chown -R backend:backend $VM_SOURCE
 
+
+# Permissions
 echo "[+] Attribution des permissions à l'utilisateur backend"
 chown -R backend: /opt/backend
 chmod 750 /opt/backend
@@ -199,6 +193,8 @@ chmod 600 "$ENV_DEST"
 chown backend: "$ENV_DEST"
 echo "[+] Fichier $ENV_DEST généré avec succès."
 ls -l "$ENV_DEST"
+
+
 # Vérification des droits et propiété
 echo "[+] Vérification des droits et de la propriété des ressources"
 ls -ld /env
@@ -207,7 +203,6 @@ ls -ld /opt/backend
 sleep 1
 ls -ld /opt/backend/*
 sleep 1
-
 
 # Vérification de la connexion à la base de données postgresql
 echo "[+] Vérification de la connexion à la base de données"
@@ -234,12 +229,34 @@ echo "SERVER_PORT=${SERVER_PORT}"
 echo "[+] Affichage du contenu de $ENV_DEST :"
 cat "$ENV_DEST"
 
+# installation de maven manuellement
+echo "[+] Installation de Maven"
+    wget https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+    tar -xvzf apache-maven-3.9.11-bin.tar.gz -C /opt/
+    ln -s /opt/apache-maven-3.9.11 /opt/maven
+    echo "export PATH=/opt/maven/bin:\$PATH" | sudo tee /etc/profile.d/maven.sh
+    source /etc/profile.d/maven.sh
+    chmod +x /etc/profile.d/maven.sh
+    source /etc/profile.d/maven.sh
+    echo "[+] Vérification de la version de Maven"
+    mvn -v
+
+# Vérification de Maven
+echo "[+] Vérification de Maven"
+if ! command -v mvn &> /dev/null; then
+    echo "[~] Maven non trouvé, installation en cours..."
+    dnf install -y maven
+    echo "[+] Maven installé avec succès."
+else
+    echo "[~] Maven est déjà présent : $(mvn -v | head -n 1)"
+fi
+
 # Compilation de l'application si BUILD est vrai
 echo "[+] Compilation de l'application"
 if [ "$BUILD" = true ]; then
     echo "[+] Compilation Maven dans la VM"
-    cd "/opt/backend" # Assurez-vous que le chemin est correct
-    mvn clean package -DskipTests
+    cd "/opt/" # Assurez-vous que le chemin est correct
+    mvn package spring-boot:repackage -DskipTests
     cp $SOURCE "$APP_DEST"
 fi
 # Attribution des permissions au fichier JAR
@@ -268,10 +285,12 @@ EOF
 echo "[+] Vérification du chemin de Java"
 REAL_JAVA_PATH=$(readlink -f $(which java))
 echo "Chemin réel de Java: $REAL_JAVA_PATH"
+
 # Permission du binaire Java à backend
 echo "[+] Attribution des permissions du binaire Java à l'utilisateur backend"
 chown backend:backend $REAL_JAVA_PATH
 chmod 755 $REAL_JAVA_PATH
+
 # Vérification les permissions du binaire Java
 echo "[+] Vérification des permissions du binaire Java"
 ls -l $REAL_JAVA_PATH
@@ -303,22 +322,35 @@ touch /var/log/backend.log /var/log/backend-error.log
 chown backend:backend /var/log/backend*.log
 chmod 640 /var/log/backend*.log
 
+# Création du service systemd
 echo "[+] Création du service systemd avec configuration complète"
 cat > /etc/systemd/system/backend.service <<EOF
 [Unit]
 Description=Spring Boot Backend Service
 After=network.target postgresql.service
 
+[Unit]
+Description=Spring Boot Backend Service
+Wants=postgresql.service
+After=network.target postgresql.service
+
 [Service]
 User=backend
 Group=backend
 WorkingDirectory=/opt/backend
-Environment="SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL"
-Environment="SPRING_DATASOURCE_DRIVER_CLASS_NAME=$SPRING_DATASOURCE_DRIVER_CLASS_NAME"
-Environment="JWT_SECRET=$JWT_SECRET"
-Environment="JWT_EXPIRATION=$JWT_EXPIRATION"
-Environment="SERVER_PORT=$SERVER_PORT"
-ExecStart=$REAL_JAVA_PATH -jar /opt/backend/usermanagement-1.0.jar
+
+# Variables d'environnement
+Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.56.15:5432/authdb"
+Environment="JWT_SECRET=ryC7jo+dRm+je+WH8wObgDbPRTMslE3P+APNl5he7aBqrwnnCM6nvxULrGeROgV8f3X4evcGiipvTQpngQUG6g"
+Environment="JWT_EXPIRATION=3600000"
+Environment="SERVER_PORT=8080"
+Environment="APP_ENV=dev"
+
+# Lancement
+ExecStartPre=/usr/bin/bash -c 'until nc -z -w3 192.168.56.15 5432; do echo "Waiting for DB..."; sleep 2; done'
+ExecStart=/usr/lib/jvm/java-21-openjdk/bin/java -jar /opt/backend/backend-1.0.0.jar
+
+# Redémarrage automatique
 SuccessExitStatus=143
 Restart=always
 RestartSec=5
@@ -326,8 +358,8 @@ StartLimitInterval=60s
 StartLimitBurst=3
 
 # Journalisation
-StandardOutput=file:/var/log/backend.log
-StandardError=file:/var/log/backend-error.log
+StandardOutput=append:/var/log/backend.log
+StandardError=append:/var/log/backend-error.log
 
 # Paramètres mémoire
 MemoryMax=512M
@@ -335,19 +367,21 @@ MemoryHigh=384M
 
 [Install]
 WantedBy=multi-user.target
+
 EOF
 
 # Vérifiction des permissions du fichier de service
 echo "[+] Vérification des permissions du fichier de service"
-chown backend:backend /usr/lib/jvm/java-17-openjdk-17.0.15.0.6-3.el9.x86_64/bin/java
-chmod 755 /usr/lib/jvm/java-17-openjdk-17.0.15.0.6-3.el9.x86_64/bin/java
-ls -l /usr/lib/jvm/java-17-openjdk-17.0.15.0.6-3.el9.x86_64/bin/java
+chown backend:backend /usr/lib/jvm/java-21-openjdk-21.0.8.0.9-1.el9.x86_64/bin/java
+chmod 755 /usr/lib/jvm/java-21-openjdk-21.0.8.0.9-1.el9.x86_64/bin/java
+ls -l /usr/lib/jvm/java-21-openjdk-21.0.8.0.9-1.el9.x86_64/bin/java
 stat /usr/bin/java
+
 # Vérification finale des permissions
 echo "[+] Vérification finale des permissions"
 
 ls -ld /opt/backend
-ls -l /opt/backend/usermanagement-1.0.jar
+ls -l /opt/backend/backend-1.0.0.jar
 ls -ld /env
 ls -l /env/dev.env
 ls -l /var/log/backend*
@@ -361,21 +395,31 @@ echo "[+] Vérification des variables pour Spring Boot"
 echo "SPRING_DATASOURCE_URL: $SPRING_DATASOURCE_URL"
 echo "SPRING_DATASOURCE_DRIVER_CLASS_NAME: $SPRING_DATASOURCE_DRIVER_CLASS_NAME"
 
-
+# Vérification de la configuration
 echo "[+] Vérification finale de la configuration"
 echo "Contenu du service systemd :"
 cat /etc/systemd/system/backend.service
 
-
+# Vérification des logs d'erreur
 echo "[+] Consultation des logs d'erreur"
 cat /var/log/backend-error.log
 
+# Recharger systemd
+echo "[+] Reload systemd"
+systemctl daemon-reload
+
 # Activation du service
 echo "[+] Activation du service backend.service"
-systemctl start backend.service
+
+# Activer le service pour qu'il démarre au boot
+echo "[+] Enable backend.service"
 systemctl enable backend.service
+
+# Démarrer le service
+systemctl start backend.service
 sleep 5  # Donne un peu de temps pour que le service démarre
 
+# Vérification des logs du service
  echo "[+] Vérification des logs du service"
  journalctl -u backend.service -n 10 --no-pager
 
@@ -413,6 +457,8 @@ else
     systemctl enable firewalld
     echo "[+] Firewalld démarré et activé"
 fi
+
+# ouverture des ports
 echo "[+] Ouverture du port ${SERVER_PORT};${HTTPS_PORT} dans le pare-feu"
 if command -v firewall-cmd &>/dev/null && firewall-cmd --state &>/dev/null; then
     firewall-cmd --add-port=${SERVER_PORT}/tcp --permanent

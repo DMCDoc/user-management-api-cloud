@@ -1,3 +1,8 @@
+G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\dto\LoginRequestTest.java
+G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\dto\RegisterRequestTest.java
+G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\dto\SharedCommonSanityTest.java
+G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\dto\UserDtoTest.java
+G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\dto\UserResponseTest.java
 G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\exceptions\EmailAlreadyUsedExceptionTest.java
 G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\exceptions\GlobalExceptionHandler.java
 G:\modele\user-management-api-cloud\backend\src\test\java\com\example\usermanagement\exceptions\GlobalExceptionHandlerTest.java
