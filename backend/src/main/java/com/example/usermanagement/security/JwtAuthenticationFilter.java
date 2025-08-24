@@ -28,22 +28,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
 
-        // Si pas de header → on laisse passer (Spring Security gérera)
+        // Si pas de header → on laisse passer
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            jwt = authHeader.substring(7); // enlever "Bearer "
-            username = jwtService.extractUsername(jwt);
+            final String jwt = authHeader.substring(7); // enlever "Bearer "
+            final String username = jwtService.extractUsername(jwt);
 
             // Si l’utilisateur n’est pas encore authentifié
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
@@ -60,16 +58,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Nettoyer le contexte de sécurité
             SecurityContextHolder.clearContext();
 
-            // Log utile pour debug
+            // Log utile
             System.err.println("❌ JWT invalide : " + ex.getMessage());
 
-            // Envoyer une réponse claire
+            // Envoyer une réponse claire et **stopper la chaîne ici**
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Invalid or expired JWT token\"}");
+            return; // 🚨 éviter d'appeler `filterChain.doFilter` après une
+                    // erreur
         }
 
-        // Petit log de debug (optionnel)
+        // Debug
         System.out.println("🔍 Requête interceptée : " + request.getMethod() + " " + request.getRequestURI());
     }
 }

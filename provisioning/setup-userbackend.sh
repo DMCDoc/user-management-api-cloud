@@ -166,10 +166,8 @@ if [ ! -f "$VM_SOURCE/pom.xml" ]; then
 fi
 
 # Définition du fichier .env cible selon le profil
-mkdir -p /env
-chown backend:backend /env
-chmod 700 /env
-ENV_DEST="/env/${APP_ENV}.env"
+
+ENV_DEST="/opt/backend/${APP_ENV}.env"
 echo "[+] Profil actif : $APP_ENV"
 echo "[+] Fichier .env cible : $ENV_DEST"
 
@@ -204,6 +202,14 @@ sleep 1
 ls -ld /opt/backend/*
 sleep 1
 
+# vérification des fichiers .env
+echo "[+] Vérification des fichiers .env"
+if [ ! -f "$ENV_DEST" ]; then
+    echo "[!] Fichier .env introuvable : $ENV_DEST" >&2
+    exit 1
+fi
+cat "$ENV_DEST"
+
 # Vérification de la connexion à la base de données postgresql
 echo "[+] Vérification de la connexion à la base de données"
 if ! nc -z 192.168.56.15 5432; then
@@ -216,7 +222,7 @@ sleep 3
 # Après la génération du fichier .env
 echo "[+] Exportation des variables pour Java"
 set -a
-source /env/dev.env
+source /opt/backend/${APP_ENV}.env
 set +a
 
 # Vérification
@@ -382,8 +388,6 @@ echo "[+] Vérification finale des permissions"
 
 ls -ld /opt/backend
 ls -l /opt/backend/backend-1.0.0.jar
-ls -ld /env
-ls -l /env/dev.env
 ls -l /var/log/backend*
 
 # Test manuel du démarrage
