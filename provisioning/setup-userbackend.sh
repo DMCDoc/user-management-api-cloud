@@ -195,7 +195,7 @@ ls -l "$ENV_DEST"
 
 # Vérification des droits et propiété
 echo "[+] Vérification des droits et de la propriété des ressources"
-ls -ld /env
+ls -ld /opt
 sleep 1
 ls -ld /opt/backend
 sleep 1
@@ -334,11 +334,7 @@ cat > /etc/systemd/system/backend.service <<EOF
 [Unit]
 Description=Spring Boot Backend Service
 After=network.target postgresql.service
-
-[Unit]
-Description=Spring Boot Backend Service
 Wants=postgresql.service
-After=network.target postgresql.service
 
 [Service]
 User=backend
@@ -346,33 +342,29 @@ Group=backend
 WorkingDirectory=/opt/backend
 
 # Variables d'environnement
-Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://192.168.56.15:5432/authdb"
-Environment="JWT_SECRET=ryC7jo+dRm+je+WH8wObgDbPRTMslE3P+APNl5he7aBqrwnnCM6nvxULrGeROgV8f3X4evcGiipvTQpngQUG6g"
-Environment="JWT_EXPIRATION=3600000"
-Environment="SERVER_PORT=8080"
-Environment="APP_ENV=dev"
+EnvironmentFile=/opt/backend/dev.env
 
-# Lancement
-ExecStartPre=/usr/bin/bash -c 'until nc -z -w3 192.168.56.15 5432; do echo "Waiting for DB..."; sleep 2; done'
+# Commande de lancement
 ExecStart=/usr/lib/jvm/java-21-openjdk/bin/java -jar /opt/backend/backend-1.0.0.jar
 
-# Redémarrage automatique
+# Temps maximum pour démarrer (2 minutes)
+TimeoutStartSec=120
+
+# Restart automatique
 SuccessExitStatus=143
 Restart=always
 RestartSec=5
 StartLimitInterval=60s
 StartLimitBurst=3
 
-# Journalisation
-StandardOutput=append:/var/log/backend.log
-StandardError=append:/var/log/backend-error.log
-
-# Paramètres mémoire
-MemoryMax=512M
+# Limites ressources
+MemoryMax=2048M
 MemoryHigh=384M
+# CPUQuota=50%
 
 [Install]
 WantedBy=multi-user.target
+
 
 EOF
 
@@ -427,30 +419,6 @@ sleep 5  # Donne un peu de temps pour que le service démarre
  echo "[+] Vérification des logs du service"
  journalctl -u backend.service -n 10 --no-pager
 
-# Vérification du démarrage
-timeout=30
-start_time=$(date +%s)
-echo "[+] Attente du démarrage de l'application (max ${timeout}s)..."
-while :; do
-    if systemctl is-active --quiet backend && \
-       curl -s "http://localhost:${SERVER_PORT}/actuator/health" | grep -q "UP"; then
-        break
-    fi
-    
-    if [ $(($(date +%s) - start_time)) -gt $timeout ]; then
-        echo "[!] Dépassement du timeout - échec du démarrage" >&2
-        journalctl -u backend --no-pager -n 30
-        exit 1
-    fi
-    sleep 1
-done
-echo "[✔] Service backend démarré avec succès"
-
-# Attente que l'application soit opérationnelle
-echo "[+] Attente du démarrage de l'application..."
-until curl -s http://localhost:${SERVER_PORT}/actuator/health | grep -q "UP"; do
-    sleep 1
-done
 # Démarrage du firewall si nécessaire
 echo "[+] Démarrage du firewall si nécessaire"
 if command -v systemctl &>/dev/null && systemctl is-active --quiet firewalld; then
@@ -481,9 +449,14 @@ if ! systemctl is-active --quiet backend; then
 fi
 
 # Vérification de l'état de santé de l'application
-echo "[+] Vérification de l'état de santé de l'application"
-curl -s "http://localhost:${SERVER_PORT}/api/users" | jq .
-curl -s "http://localhost:${HTTPS_NGINX}/api/users" | jq .
+response=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:${SERVER_PORT}/actuator/health")
+if [ "$response" = "200" ]; then
+    echo "[✔] Backend opérationnel (HTTP 200)"
+else
+    echo "[!] Backend non accessible ou protégé (HTTP $response)"
+    exit 1
+fi
+
 
 
 # Vérification finale avec gestion d'erreur

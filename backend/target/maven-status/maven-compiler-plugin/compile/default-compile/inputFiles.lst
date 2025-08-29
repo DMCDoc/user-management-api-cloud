@@ -9,6 +9,8 @@ G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanage
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\dto\UserResponse.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\EmailAlreadyUsedException.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\ErrorResponse.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\ErrorResponseFactory.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\GlobalExceptionHandler.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\UserAlreadyExistsException.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\exceptions\UserNotFoundException.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\model\RefreshToken.java
@@ -17,6 +19,8 @@ G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanage
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\repository\RefreshTokenRepository.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\repository\RoleRepository.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\repository\UserRepository.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\CustomAccessDeniedHandler.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\CustomAuthEntryPoint.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JwtAuthenticationFilter.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JwtService.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JWTUtils.java

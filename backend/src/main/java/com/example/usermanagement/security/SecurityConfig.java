@@ -16,37 +16,37 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.example.usermanagement.model.User;
 import com.example.usermanagement.repository.UserRepository;
 
-@Configuration @Profile("!test") // Exclu ce bean si le profil "test" est actif
+@Configuration @Profile("!test") // 🔒 Exclu ce bean si le profil "test" est
+                                 // actif
 @EnableWebSecurity @RequiredArgsConstructor
-
 public class SecurityConfig {
 
     private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> {
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                    java.util.Collections.emptyList());
-        };
+        return username -> userRepository.findByUsername(username)
+                .map(user -> new org.springframework.security.core.userdetails.User(user.getUsername(),
+                        user.getPassword(), java.util.Collections.emptyList()))
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // bon niveau de sécurité
+        return new BCryptPasswordEncoder(); // 🔑 Sécurisé (force par défaut =
+                                            // 10)
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
+    public AuthenticationProvider authenticationProvider(
+        UserDetailsService userDetailsService,
+        PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
     }
 
     @Bean
@@ -57,14 +57,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter,
             CustomAuthEntryPoint authEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
+
         http.csrf(csrf -> csrf.disable())
                 .exceptionHandling(
                         ex -> ex.authenticationEntryPoint(authEntryPoint).accessDeniedHandler(accessDeniedHandler))
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/actuator/**").permitAll()
+                        .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }

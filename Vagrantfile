@@ -68,7 +68,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     {
       name: "vm-userbackend",
       ip: "192.168.56.11",
-      ram: 2048,
+      ram: 4096,
       cpu: 2,
       ports: [
         { guest: 8080, host: 18080, comment: "# accès direct temporaire pour test" }
