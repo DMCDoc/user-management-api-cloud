@@ -3,10 +3,12 @@ com\example\usermanagement\service\AuthenticationService.class
 com\example\usermanagement\model\Role$RoleBuilder.class
 com\example\usermanagement\exceptions\GlobalExceptionHandler.class
 com\example\usermanagement\repository\RoleRepository.class
+com\example\usermanagement\controller\PingController.class
 com\example\usermanagement\repository\RefreshTokenRepository.class
 com\example\usermanagement\dto\UserResponse$UserResponseBuilder.class
 com\example\usermanagement\model\User.class
 com\example\usermanagement\exceptions\ErrorResponse.class
+com\example\usermanagement\security\JwtExclusionProperties.class
 com\example\usermanagement\dto\UserResponse.class
 com\example\usermanagement\exceptions\ErrorResponseFactory.class
 com\example\usermanagement\model\Role.class
@@ -17,6 +19,7 @@ com\example\usermanagement\exceptions\UserAlreadyExistsException.class
 com\example\usermanagement\config\WebConfig.class
 com\example\usermanagement\controller\DummyController.class
 com\example\usermanagement\model\RefreshToken$RefreshTokenBuilder.class
+com\example\usermanagement\security\SecurityConfig.class
 com\example\usermanagement\model\RefreshToken.class
 com\example\usermanagement\dto\RegisterRequest.class
 com\example\usermanagement\exceptions\EmailAlreadyUsedException.class

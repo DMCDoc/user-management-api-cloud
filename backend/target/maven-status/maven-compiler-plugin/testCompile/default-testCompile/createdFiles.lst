@@ -1,0 +1,13 @@
+com\example\usermanagement\dto\UserResponseTest.class
+com\example\usermanagement\security\JWTUtilsTest.class
+com\example\usermanagement\exceptions\GlobalExceptionHandler.class
+com\example\usermanagement\exceptions\UserNotFoundExceptionTest.class
+com\example\usermanagement\security\TestSecurityConfig.class
+com\example\usermanagement\exceptions\EmailAlreadyUsedExceptionTest.class
+com\example\usermanagement\exceptions\UserAlreadyExistsExceptionTest.class
+com\example\usermanagement\dto\LoginRequestTest.class
+com\example\usermanagement\dto\RegisterRequestTest.class
+com\example\usermanagement\JDBCTest.class
+com\example\usermanagement\dto\SharedCommonSanityTest.class
+com\example\usermanagement\exceptions\GlobalExceptionHandlerTest.class
+com\example\usermanagement\dto\UserDtoTest.class

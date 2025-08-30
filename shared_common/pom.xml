@@ -40,11 +40,6 @@
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
-        <!-- Dotenv -->
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>dotenv-java</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

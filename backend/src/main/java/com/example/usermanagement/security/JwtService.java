@@ -1,8 +1,8 @@
 package com.example.usermanagement.security;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,10 @@ public class JwtService {
     private final String secretKey;
     private final long jwtExpirationMs;
 
-    public JwtService() {
-        // Charger le .env
-        String envFile = System.getenv("APP_ENV") + ".env"; // exemple: dev.env
-        Dotenv dotenv = Dotenv.configure().directory("/opt/backend").filename(envFile).load();
-        this.secretKey = dotenv.get("JWT_SECRET");
-        this.jwtExpirationMs = Long.parseLong(dotenv.get("JWT_EXPIRATION", "3600000"));
+    public JwtService(@Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.expiration:3600000}") long jwtExpirationMs) {
+        this.secretKey = secretKey;
+        this.jwtExpirationMs = jwtExpirationMs;
     }
 
     public String extractUsername(String token) {

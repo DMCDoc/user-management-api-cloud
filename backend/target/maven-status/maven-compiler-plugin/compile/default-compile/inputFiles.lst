@@ -1,6 +1,7 @@
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\config\WebConfig.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\controller\AuthController.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\controller\DummyController.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\controller\PingController.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\controller\UserController.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\dto\AuthResponse.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\dto\LoginRequest.java
@@ -22,10 +23,10 @@ G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanage
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\CustomAccessDeniedHandler.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\CustomAuthEntryPoint.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JwtAuthenticationFilter.java
+G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JwtExclusionProperties.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JwtService.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\JWTUtils.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\SecurityConfig.java
-G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\security\TestSecurityConfig.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\service\AuthenticationService.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\service\RefreshTokenService.java
 G:\modele\user-management-api-cloud\backend\src\main\java\com\example\usermanagement\service\UserService.java

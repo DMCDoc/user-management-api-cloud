@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     // Récupération des chemins exclus depuis application.properties
-    @Value("${security.jwt.exclude-paths:/api/auth/**,/actuator/health}")
+    @Value("${security.jwt.exclude-paths:/api/auth/**,/actuator/**}")
     private String[] excludedPaths;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();

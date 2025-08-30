@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -14,6 +13,9 @@
   <packaging>jar</packaging>
 
   <name>Backend</name>
+<properties>
+  <jakarta.el.version>4.0.2</jakarta.el.version>
+</properties>
 
 
   <dependencies>
@@ -27,6 +29,25 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
+
+    <!-- actuator -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+<!-- hibernate -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<!-- Hibernate Validator -->
+<dependency>
+  <groupId>org.hibernate.validator</groupId>
+  <artifactId>hibernate-validator</artifactId>
+  <version>8.0.2.Final</version>
+</dependency>
 
     <!-- Spring Data JPA -->
     <dependency>
@@ -46,18 +67,10 @@
       <scope>test</scope>
     </dependency>
 
-
     <!-- PostgreSQL Driver -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-    </dependency>
-
-    <!-- Dotenv -->
-    <dependency>
-      <groupId>io.github.cdimascio</groupId>
-      <artifactId>dotenv-java</artifactId>
-      <version>${dotenv.version}</version>
     </dependency>
 
     <!-- JWT -->
@@ -73,6 +86,20 @@
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-jackson</artifactId> 
     </dependency>
+
+<!-- Jakarta Validation -->
+<dependency>
+  <groupId>jakarta.validation</groupId>
+  <artifactId>jakarta.validation-api</artifactId>
+  <version>${jakarta.validation.version}</version>
+</dependency>
+
+<!-- Jakarta Expression Language (EL) -->
+<dependency>
+  <groupId>org.glassfish</groupId>
+  <artifactId>jakarta.el</artifactId>
+  <version>${jakarta.el.version}</version>
+</dependency>
 
     <!-- Shared Common -->
     <dependency>

@@ -17,6 +17,8 @@ dnf install -y epel-release
 dnf install -y nmap-ncat
 dnf install -y unzip
 dnf install -y wget
+sudo dnf install -y postgresql
+
 
 # Attendre que PostgreSQL soit opérationnel
 echo "Vérification de la disponibilité de PostgreSQL..."
@@ -55,7 +57,7 @@ APP_SOURCE=${SOURCE}
 APP_DEST="/opt/backend/usermanagement-1.0.jar"
 
 # Vérification des variables requises
-required_vars=(JWT_SECRET JWT_EXPIRATION SERVER_PORT SOURCE BUILD POM_SOURCE APP_RESOURCES VM_SOURCE HTTPS_NGINX)
+required_vars=(JWT_SECRET JWT_EXPIRATION SERVER_PORT SOURCE BUILD POM_SOURCE APP_RESOURCES VM_SOURCE HTTPS_NGINX SPRING_DATASOURCE_URL SPRING_DATASOURCE_DRIVER)
 missing_vars=()
 for var in "${required_vars[@]}"; do
     if [ -z "${!var}" ]; then
@@ -67,8 +69,7 @@ if [ ${#missing_vars[@]} -ne 0 ]; then
     echo "[!] Variables manquantes dans $ENV_FILE: ${missing_vars[*]}" >&2
     exit 1
 fi
-
-
+echo "[+] Toutes les variables requises sont définies."
 # Vérification des ressources de l'application
 echo "[+] Vérification des ressources de l'application dans $VM_SOURCE"
 if [  -d "$VM_SOURCE" ]; then
@@ -184,7 +185,7 @@ JWT_SECRET=$JWT_SECRET
 JWT_EXPIRATION=$JWT_EXPIRATION
 SERVER_PORT=$SERVER_PORT
 SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL
-SPRING_DATASOURCE_DRIVER_CLASS_NAME=$SPRING_DATASOURCE_DRIVER_CLASS_NAME
+SPRING_DATASOURCE_DRIVER=$SPRING_DATASOURCE_DRIVER
 EOF
 
 chmod 600 "$ENV_DEST"
@@ -333,8 +334,8 @@ echo "[+] Création du service systemd avec configuration complète"
 cat > /etc/systemd/system/backend.service <<EOF
 [Unit]
 Description=Spring Boot Backend Service
-After=network.target postgresql.service
-Wants=postgresql.service
+After=network.target mysql.service rabbitmq-server.service
+Wants=mysql.service rabbitmq-server.service
 
 [Service]
 User=backend
@@ -342,7 +343,9 @@ Group=backend
 WorkingDirectory=/opt/backend
 
 # Variables d'environnement
-EnvironmentFile=/opt/backend/dev.env
+Environment="SPRING_PROFILES_ACTIVE=dev"
+Environment="JWT_SECRET=ryC7jo+dRm+je+WH8wObgDbPRTMslE3P+APNl5he7aBqrwnnCM6nvxULrGeROgV8f3X4evcGiipvTQpngQUG6g"
+Environment="JWT_EXPIRATION=3600000"
 
 # Commande de lancement
 ExecStart=/usr/lib/jvm/java-21-openjdk/bin/java -jar /opt/backend/backend-1.0.0.jar
@@ -364,6 +367,7 @@ MemoryHigh=384M
 
 [Install]
 WantedBy=multi-user.target
+
 
 
 EOF

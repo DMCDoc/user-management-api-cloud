@@ -16,11 +16,13 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
 import com.example.usermanagement.repository.UserRepository;
 
 @Configuration @Profile("!test") // 🔒 Exclu ce bean si le profil "test" est
-                                 // actif
-@EnableWebSecurity @RequiredArgsConstructor
+// actif
+                                 
+@EnableWebSecurity @RequiredArgsConstructor 
 public class SecurityConfig {
 
     private final UserRepository userRepository;
@@ -59,12 +61,13 @@ public class SecurityConfig {
             CustomAuthEntryPoint authEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
 
         http.csrf(csrf -> csrf.disable())
-                .exceptionHandling(
-                        ex -> ex.authenticationEntryPoint(authEntryPoint).accessDeniedHandler(accessDeniedHandler))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/actuator/**").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/actuator/**", "/ping").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder()))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+               .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .exceptionHandling(
+                        ex -> ex.authenticationEntryPoint(authEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
