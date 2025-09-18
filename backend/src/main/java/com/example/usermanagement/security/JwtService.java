@@ -2,6 +2,8 @@ package com.example.usermanagement.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,10 @@ public class JwtService {
             @Value("${jwt.expiration:3600000}") long jwtExpirationMs) {
         this.secretKey = secretKey;
         this.jwtExpirationMs = jwtExpirationMs;
+        // 🚨 DEBUG : à retirer après test
+        System.out.println(
+                "🔑 JwtService loaded secretKey=" + secretKey.substring(0, 8) + "... len=" + secretKey.length());
+        System.out.println("⏳ JwtService loaded jwtExpirationMs=" + jwtExpirationMs);
     }
 
     public String extractUsername(String token) {
@@ -67,4 +73,11 @@ public class JwtService {
             return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         }
     }
+
+@PostConstruct
+public void checkConfig() {
+    System.out.println(">>> JwtService config : secret=" 
+        + (secretKey != null) + " expiration=" + jwtExpirationMs);
+}
+
 }

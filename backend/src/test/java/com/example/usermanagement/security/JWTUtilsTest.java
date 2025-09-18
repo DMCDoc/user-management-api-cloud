@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JWTUtilsTest {
 
     private User testUser;
-    private JWTUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     @BeforeEach
     void setUp() {
@@ -22,7 +22,7 @@ public class JWTUtilsTest {
         testUser.setUsername("testuser");
 
         // Initialisation avec le constructeur par défaut
-        jwtUtils = new JWTUtils();
+        jwtUtils = new JwtUtils();
 
         // Configuration manuelle pour les tests
         jwtUtils.setClock(Clock.systemUTC());
@@ -51,7 +51,7 @@ public class JWTUtilsTest {
     @Test
     void testTokenExpiration() {
         // Crée une nouvelle instance pour le test d'expiration
-        JWTUtils jwt = new JWTUtils();
+        JwtUtils jwt = new JwtUtils();
         jwt.jwtSecret = "secret-tres-long-pour-eviter-les-avertissements-1234567890";
         jwt.jwtExpirationMs = 1000;
         jwt.loadKey(jwt.jwtSecret);
@@ -67,7 +67,7 @@ public class JWTUtilsTest {
         assertTrue(jwt.isTokenValid(token), "Le token devrait être valide initialement");
 
         // Crée une nouvelle instance avec l'horloge avancée
-        JWTUtils expiredJwt = new JWTUtils();
+        JwtUtils expiredJwt = new JwtUtils();
         expiredJwt.jwtSecret = jwt.jwtSecret;
         expiredJwt.jwtExpirationMs = jwt.jwtExpirationMs;
         expiredJwt.loadKey(expiredJwt.jwtSecret);

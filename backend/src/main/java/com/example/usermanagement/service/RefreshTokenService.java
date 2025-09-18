@@ -6,6 +6,8 @@ import com.example.usermanagement.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -16,17 +18,20 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${security.jwt.refresh-expiration:2592000000}") // par défaut 30
-                                                            // jours (30 * 24h *
-                                                            // 60m * 60s *
-                                                            // 1000ms)
-    private long refreshTokenDurationMs;
+    @Value("${security.jwt.refresh-expiration:2592000000}")
+    private long refreshTokenDurationMs; // 30 jours par défaut
 
+    @Transactional
     public RefreshToken create(User user) {
-        refreshTokenRepository.deleteByUser(user);
+        //System.out.println(">>> deleteByUser avec user.id=" + user.getId());
+        refreshTokenRepository.deleteByUser(user); // supprime les anciens
+                                                   // tokens du user
 
-        RefreshToken rt = RefreshToken.builder().user(user).token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs)).build();
+        RefreshToken rt = RefreshToken.builder()
+                        .user(user)
+                        .token(UUID.randomUUID().toString())
+                        .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
+                        .build();
 
         return refreshTokenRepository.save(rt);
     }
@@ -43,7 +48,9 @@ public class RefreshTokenService {
         return token;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void revokeAll(User user) {
+        //System.out.println(">>> revokeAll pour user.id=" + user.getId());
         refreshTokenRepository.deleteByUser(user);
     }
 }

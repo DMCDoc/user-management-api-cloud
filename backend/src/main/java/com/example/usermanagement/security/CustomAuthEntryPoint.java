@@ -1,6 +1,7 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.exceptions.ErrorResponseFactory;
+import com.example.usermanagement.dto.ErrorResponse;
+import com.example.usermanagement.dto.ErrorResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -10,12 +11,15 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    public CustomAuthEntryPoint(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -23,8 +27,11 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        Map<String, Object> body = ErrorResponseFactory.create(HttpStatus.UNAUTHORIZED, "Invalid or missing token");
+        ErrorResponse body = ErrorResponseFactory.create(HttpStatus.UNAUTHORIZED, "Invalid or missing token",
+                request.getRequestURI());
+
         mapper.writeValue(response.getOutputStream(), body);
     }
 }
+
 // 401 Unauthorized

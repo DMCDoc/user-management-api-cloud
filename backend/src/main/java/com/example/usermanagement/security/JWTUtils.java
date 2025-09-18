@@ -15,7 +15,7 @@ import java.time.Clock;
 import java.util.Date;
 
 @Component
-public class JWTUtils {
+public class JwtUtils {
 
     // Changement de visibilité pour les tests
     protected String jwtSecret;
@@ -60,7 +60,7 @@ public class JWTUtils {
     }
 
     private void logLoadedValues() {
-        Logger logger = LoggerFactory.getLogger(JWTUtils.class);
+        Logger logger = LoggerFactory.getLogger(JwtUtils.class);
         logger.info("JWTUtils initialisé avec:");
         logger.info("   • Clé = {}", (isGeneratedKey ? "générée aléatoirement" : "chargée depuis l'environnement"));
         logger.info("   • Expiration = {} ms", jwtExpirationMs);

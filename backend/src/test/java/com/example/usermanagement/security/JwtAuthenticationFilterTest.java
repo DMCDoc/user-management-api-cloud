@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,8 +20,6 @@ class JwtAuthenticationFilterTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-
 
     @Test
     void actuatorHealth_ShouldBeAccessibleWithoutAuth() throws Exception {
@@ -43,8 +42,10 @@ class JwtAuthenticationFilterTest {
 
     @Test
     void protectedEndpoint_ShouldReturn401_WhenNoToken() throws Exception {
-        mockMvc.perform(get("/users/profile")) // endpoint réel et protégé
+        mockMvc.perform(get("/api/dummy")) // endpoint réel et protégé
+                .andDo(print())
                 .andExpect(status().isUnauthorized()); // doit échouer sans JWT
+
     }
 
 }

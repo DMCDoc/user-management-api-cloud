@@ -1,6 +1,7 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.exceptions.ErrorResponseFactory;
+import com.example.usermanagement.dto.ErrorResponse;
+import com.example.usermanagement.dto.ErrorResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,12 +11,15 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    public CustomAccessDeniedHandler(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
@@ -23,8 +27,11 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        Map<String, Object> body = ErrorResponseFactory.create(HttpStatus.FORBIDDEN, "Access denied");
+        ErrorResponse body = ErrorResponseFactory.create(HttpStatus.FORBIDDEN, "Access denied",
+                request.getRequestURI());
+
         mapper.writeValue(response.getOutputStream(), body);
     }
 }
+
 // 403 Forbidden

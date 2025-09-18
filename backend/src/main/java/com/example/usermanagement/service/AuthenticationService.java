@@ -8,6 +8,7 @@ import com.example.usermanagement.repository.UserRepository;
 import com.example.usermanagement.repository.RoleRepository;
 import com.example.usermanagement.dto.AuthResponse;
 import com.example.usermanagement.dto.LoginRequest;
+import com.example.usermanagement.dto.RefreshRequest;
 import com.example.usermanagement.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -72,4 +73,19 @@ public class AuthenticationService {
 
         return new AuthResponse(accessToken, refreshToken.getToken());
     }
+
+    // AuthenticationService.java
+public AuthResponse refresh(RefreshRequest request) {
+    RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
+            .map(refreshTokenService::verifyExpiration)
+            .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+    User user = rt.getUser();
+
+    String accessToken = jwtService.generateToken(user);
+    RefreshToken newRt = refreshTokenService.create(user);
+
+    return new AuthResponse(accessToken, newRt.getToken());
+}
+
 }

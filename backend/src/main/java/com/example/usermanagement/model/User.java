@@ -8,16 +8,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Entity 
-@Table(name = "users") 
-@Data 
-@NoArgsConstructor 
-@AllArgsConstructor 
-@Builder
+@Entity @Table(name = "users") @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class User implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,12 +29,16 @@ public class User implements UserDetails {
     @Column
     private String fullName;
 
-    @Column @Builder.Default
+    @Builder.Default @Column
     private boolean enabled = true;
 
-    // Relation avec les rôles
-    @ManyToMany(fetch = FetchType.EAGER) @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    // 🔹 Relation avec Role
+    @ManyToMany(fetch = FetchType.EAGER) @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id")) @Builder.Default
+    private Set<Role> roles = new HashSet<>();
+
+    // 🔹 Relation avec RefreshToken
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) @Builder.Default
+    private Set<RefreshToken> refreshTokens = new HashSet<>();
 
     // Implémentation UserDetails
     @Override
@@ -64,7 +62,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return username;
+    public boolean isEnabled() {
+        return enabled;
     }
 }

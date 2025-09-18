@@ -1,56 +1,89 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.model.User;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.usermanagement.dto.AuthResponse;
+import com.example.usermanagement.dto.LoginRequest;
+import com.example.usermanagement.dto.RefreshRequest;
+import com.example.usermanagement.dto.RegisterRequest;
+import com.example.usermanagement.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.UUID;
 
-@SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test") // utilisation du
-                                                              // fichier
-                                                              // application-test.properties
-class JwtSecurityIntegrationTest {
+@SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test")
+class JwtSecurityintegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private JWTUtils jwtUtils;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    private String jwtToken;
+        @Autowired
+        private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {
-        // Crée un utilisateur factice pour le test
-        User testUser = new User();
-        testUser.setUsername("testuser");
+        @AfterEach
+        void cleanup() {
+                userRepository.deleteAll(); // ⚡ nettoie après chaque test
+        }
 
-        // Génère un token valide via JWTUtils injecté par Spring
-        jwtToken = jwtUtils.generateToken(testUser);
-    }
+@Test
+        void testRegisterLoginAndRefreshFlow() throws Exception {
+                // Génère un username unique avec UUID
+                String uniqueUsername = "bob_" + UUID.randomUUID().toString().substring(0, 8);
 
-    @Test
-    void protectedEndpoint_ShouldReturn200_WhenValidToken() throws Exception {
-        mockMvc.perform(get("/users/profile") // ton endpoint protégé réel
-                .header("Authorization", "Bearer " + jwtToken)).andExpect(status().isOk()); // 200
-                                                                                            // OK
-                                                                                            // attendu
-    }
+                // 1️⃣ Register user
+                RegisterRequest register = new RegisterRequest();
+                register.setUsername(uniqueUsername);
+                register.setPassword("password123");
+                register.setFullName("Bob Marley");
+                register.setEmail(uniqueUsername + "@example.com");
 
-    @Test
-    void protectedEndpoint_ShouldReturn401_WhenNoToken() throws Exception {
-        mockMvc.perform(get("/users/profile")).andExpect(status().isUnauthorized()); // 401
-                                                                                     // attendu
-                                                                                     // si
-                                                                                     // pas
-                                                                                     // de
-                                                                                     // token
-    }
+                mockMvc.perform(post("/users/register").contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(register))).andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.accessToken").exists())
+                                .andExpect(jsonPath("$.refreshToken").exists());
 
+                // 2️⃣ Login avec bons identifiants
+                LoginRequest login = new LoginRequest();
+                login.setUsername(uniqueUsername);
+                login.setPassword("password123");
+
+                String loginResponse = mockMvc
+                                .perform(post("/users/login").contentType(MediaType.APPLICATION_JSON)
+                                                .content(objectMapper.writeValueAsString(login)))
+                                .andExpect(status().isOk()).andExpect(jsonPath("$.accessToken").exists())
+                                .andExpect(jsonPath("$.refreshToken").exists()).andDo(print()).andReturn().getResponse()
+                                .getContentAsString();
+
+                AuthResponse tokens = objectMapper.readValue(loginResponse, AuthResponse.class);
+
+                // 3️⃣ Login avec mauvais mot de passe
+                LoginRequest badLogin = new LoginRequest();
+                badLogin.setUsername(uniqueUsername);
+                badLogin.setPassword("wrongpass");
+
+                mockMvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(badLogin)))
+                                .andExpect(status().isUnauthorized());
+
+                // 4️⃣ Refresh avec refreshToken valide
+                RefreshRequest refresh = new RefreshRequest();
+                refresh.setRefreshToken(tokens.getRefreshToken());
+
+                mockMvc.perform(post("/users/refresh").contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(refresh))).andExpect(status().isOk())
+                                .andExpect(jsonPath("$.accessToken").exists())
+                                .andExpect(jsonPath("$.refreshToken").exists());
+        }
 }

@@ -1,53 +1,46 @@
 package com.example.usermanagement.security;
 
+import com.example.usermanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.example.usermanagement.security.JwtUtils;
 
-
-import com.example.usermanagement.repository.UserRepository;
-
-@Configuration @Profile("!test") // 🔒 Exclu ce bean si le profil "test" est
-// actif
-                                 
-@EnableWebSecurity @RequiredArgsConstructor 
+@Configuration @EnableWebSecurity @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final CustomAuthEntryPoint authEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final JwtService jwtService;
 
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                .map(user -> new org.springframework.security.core.userdetails.User(user.getUsername(),
-                        user.getPassword(), java.util.Collections.emptyList()))
-                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable: " + username));
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 🔑 Sécurisé (force par défaut =
-                                            // 10)
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(
-        UserDetailsService userDetailsService,
-        PasswordEncoder passwordEncoder) {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
@@ -57,18 +50,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter,
-            CustomAuthEntryPoint authEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter)
+            throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/actuator/**", "/ping").permitAll()
-                        .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder()))
-               .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .exceptionHandling(
-                        ex -> ex.authenticationEntryPoint(authEntryPoint)
-                                .accessDeniedHandler(accessDeniedHandler));
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/users/login", "/users/register", "/users/refresh", "/actuator/**", "/ping",
+                                "/api/dummy/fail/**", "/api/dummy/illegal-arg", "/api/dummy/illegal-state",
+                                "/api/dummy/unhandled")
+                        .permitAll().requestMatchers("/api/dummy/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/dummy/only-auth").authenticated().anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).exceptionHandling(
+                        ex -> ex.authenticationEntryPoint(authEntryPoint).accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
+
 }

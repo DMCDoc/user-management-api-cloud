@@ -9,13 +9,18 @@ import com.example.usermanagement.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.example.usermanagement.dto.AuthResponse;
+import lombok.extern.slf4j.Slf4j;
+
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 
 public class UserController {
 
@@ -23,8 +28,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        log.info("Tentative de connexion pour l'utilisateur : {}", request.getUsername());
         return ResponseEntity.ok(userService.login(request));
     }
+
+    
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
@@ -53,11 +61,28 @@ public class UserController {
         return ResponseEntity.ok("Profil mis à jour");
     }
 
+    // ✅ Un utilisateur connecté supprime son propre compte
+    @Transactional
     @DeleteMapping("/account")
     public ResponseEntity<String> deleteAccount(Authentication authentication) {
         String username = authentication.getName();
         userService.deleteAccount(username);
         return ResponseEntity.ok("Compte supprimé");
     }
+
+    // ✅ ADMIN peut supprimer par ID
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+        userService.deleteAccountById(id);
+        return ResponseEntity.ok("Utilisateur supprimé : " + id);
+    }
     
+    // ✅ ADMIN peut supprimer par username
+    @PreAuthorize("hasRole('ADMIN')") @DeleteMapping("/by-username/{username}")
+    public ResponseEntity<String> deleteByUsername(@PathVariable String username) {
+        userService.deleteAccount(username);
+        return ResponseEntity.ok("Utilisateur supprimé : " + username);
+    }
+
 }
