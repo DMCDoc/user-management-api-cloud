@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.example.usermanagement.security.JwtUtils;
 
 @Configuration @EnableWebSecurity @RequiredArgsConstructor
 public class SecurityConfig {
@@ -23,8 +22,6 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final CustomAuthEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final JwtService jwtService;
-
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)

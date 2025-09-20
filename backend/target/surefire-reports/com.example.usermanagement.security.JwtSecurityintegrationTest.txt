@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.example.usermanagement.security.JwtSecurityintegrationTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.011 s <<< FAILURE! -- in com.example.usermanagement.security.JwtSecurityintegrationTest
-com.example.usermanagement.security.JwtSecurityintegrationTest.testRegisterLoginAndRefreshFlow -- Time elapsed: 0.303 s <<< FAILURE!
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.962 s <<< FAILURE! -- in com.example.usermanagement.security.JwtSecurityintegrationTest
+com.example.usermanagement.security.JwtSecurityintegrationTest.testRegisterLoginAndRefreshFlow -- Time elapsed: 0.295 s <<< FAILURE!
 java.lang.AssertionError: Status expected:<200> but was:<500>
 	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
 	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)

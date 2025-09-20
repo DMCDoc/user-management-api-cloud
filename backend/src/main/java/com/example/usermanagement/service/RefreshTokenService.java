@@ -19,19 +19,15 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${security.jwt.refresh-expiration:2592000000}")
-    private long refreshTokenDurationMs; // 30 jours par défaut
+    private long refreshTokenDurationMs; // 30 jours
 
-    @Transactional
     public RefreshToken create(User user) {
-        //System.out.println(">>> deleteByUser avec user.id=" + user.getId());
-        refreshTokenRepository.deleteByUser(user); // supprime les anciens
-                                                   // tokens du user
+        System.out.println(">>> deleteByUserId=" + user.getId());
+        // ✅ supprime les anciens tokens via l’ID
+        refreshTokenRepository.deleteByUserId(user.getId());
 
-        RefreshToken rt = RefreshToken.builder()
-                        .user(user)
-                        .token(UUID.randomUUID().toString())
-                        .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
-                        .build();
+        RefreshToken rt = RefreshToken.builder().user(user).token(UUID.randomUUID().toString())
+                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs)).build();
 
         return refreshTokenRepository.save(rt);
     }
@@ -50,7 +46,8 @@ public class RefreshTokenService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void revokeAll(User user) {
-        //System.out.println(">>> revokeAll pour user.id=" + user.getId());
-        refreshTokenRepository.deleteByUser(user);
+        System.out.println(">>> revokeAll pour user.id=" + user.getId());
+        // ✅ idem ici
+        refreshTokenRepository.deleteByUserId(user.getId());
     }
 }
