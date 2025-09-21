@@ -21,6 +21,7 @@ public class RefreshTokenService {
     @Value("${security.jwt.refresh-expiration:2592000000}")
     private long refreshTokenDurationMs; // 30 jours
 
+    @Transactional
     public RefreshToken create(User user) {
         System.out.println(">>> deleteByUserId=" + user.getId());
         // ✅ supprime les anciens tokens via l’ID

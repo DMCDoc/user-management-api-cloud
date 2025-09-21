@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,11 +61,16 @@ public class UserService {
         return new AuthResponse(accessToken, refresh.getToken());
     }
 
-    public AuthResponse login(LoginRequest request) {
-        System.out.println("➡️ [UserService] Login user=" + request.getUsername());
+public AuthResponse login(LoginRequest request) {
+    System.out.println("➡️ [UserService] Login user=" + request.getUsername());
 
+    try {
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+ } catch (BadCredentialsException ex) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+    }
 
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
@@ -74,7 +80,8 @@ public class UserService {
         RefreshToken refresh = refreshTokenService.create(user);
 
         return new AuthResponse(accessToken, refresh.getToken());
-    }
+}
+
     @Transactional
     public AuthResponse refreshToken(RefreshRequest request) {
         RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
