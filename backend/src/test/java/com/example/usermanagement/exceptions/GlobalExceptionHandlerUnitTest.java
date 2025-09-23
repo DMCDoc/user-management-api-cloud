@@ -1,11 +1,14 @@
 package com.example.usermanagement.exceptions;
 
-import com.example.usermanagement.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
+import com.example.sharedcommon.dto.ErrorResponse;
+import com.example.usermanagement.api.exceptions.GlobalExceptionHandler;
+import com.example.sharedcommon.exceptions.UserAlreadyExistsException;
+import com.example.sharedcommon.exceptions.UserNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

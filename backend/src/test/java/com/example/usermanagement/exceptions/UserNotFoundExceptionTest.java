@@ -1,6 +1,9 @@
 package com.example.usermanagement.exceptions;
 
 import org.junit.jupiter.api.Test;
+
+import com.example.sharedcommon.exceptions.UserNotFoundException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserNotFoundExceptionTest {

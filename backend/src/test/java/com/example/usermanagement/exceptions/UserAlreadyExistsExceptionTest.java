@@ -1,6 +1,9 @@
 package com.example.usermanagement.exceptions;
 
 import org.junit.jupiter.api.Test;
+
+import com.example.sharedcommon.exceptions.UserAlreadyExistsException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserAlreadyExistsExceptionTest {

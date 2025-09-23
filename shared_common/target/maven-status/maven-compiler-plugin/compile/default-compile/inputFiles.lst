@@ -1,1 +1,12 @@
-G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\shared\util\EmailValidator.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\exceptions\EmailAlreadyUsedException.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\ErrorResponseFactory.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\util\EmailValidator.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\UserResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\exceptions\UserNotFoundException.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\RefreshRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\AuthResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\ErrorResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\LoginRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\exceptions\GlobalExceptionHandler.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\dto\RegisterRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\example\sharedcommon\exceptions\UserAlreadyExistsException.java

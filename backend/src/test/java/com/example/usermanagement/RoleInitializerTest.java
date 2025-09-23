@@ -1,7 +1,8 @@
 package com.example.usermanagement;
 
 import com.example.usermanagement.config.RoleInitializer;
-import com.example.usermanagement.repository.RoleRepository;
+import com.example.usermanagement.core.repository.RoleRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

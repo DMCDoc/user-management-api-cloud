@@ -3,13 +3,17 @@ package com.example.usermanagement.dto;
 
 
 import org.junit.jupiter.api.Test;
+
+import com.example.sharedcommon.dto.LoginRequest;
+import com.example.sharedcommon.dto.UserResponse;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SharedCommonSanityTest {
 
     @Test
     void testUserDto() {
-        UserResponse user = new UserResponse(null, null, null);
+        UserResponse user = new UserResponse();
         user.setUsername("alice");
         user.setEmail("alice@example.com");
         user.setFullName("Alice Wonderland");

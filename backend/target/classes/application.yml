@@ -1,21 +1,80 @@
-server:
-  port: 8080
-
 spring:
+  application:
+    name: UserManagementAPI
+  profiles:
+    active: dev   # ✅ profil par défaut (peut être override par SPRING_PROFILES_ACTIVE)
+
+  # --- Base de données ---
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://192.168.56.15:5432/authdb
     username: authuser
     password: authpass
-    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  # --- RabbitMQ ---
+  rabbitmq:
+    host: localhost
+    port: ${RABBITMQ_PORT_AMQP:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  # --- Elasticsearch ---
+  elasticsearch:
+    uris: http://localhost:${ELASTIC_HTTP_PORT:9200}
+    username: elastic
+    password: ${ELASTIC_PASSWORD:changeme}
+
+# --- Memcached ---
+memcached:
+  host: localhost
+  port: ${MEMCACHED_PORT:11211}
+
+# --- JWT ---
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: 3600000 # 1h en millisecondes
-# --- Dotenv ---
+  secret: ${JWT_SECRET:ryC7jo+dRm+je+WH8wObgDbPRTMslE3P+APNl5he7aBqrwnnCM6nvxULrGeROgV8f3X4evcGiipvTQpngQUG6g}
+  expiration: ${JWT_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+security:
+  jwt:
+    exclude-paths: /api/auth/**,/actuator/**
+
+# --- Actuator ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+# --- Logging ---
+logging:
+  file:
+    name: logs/usermanagement.log
+  level:
+    root: INFO
+    com.example.usermanagement: DEBUG
+    org.springframework: INFO
+    org.hibernate: INFO
+    org.springframework.boot.actuate: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+
+# --- Serveur ---
+server:
+  port: ${SERVER_PORT:8080}
+  address: 0.0.0.0
+  forward-headers-strategy: FRAMEWORK
+
+# --- Divers ---
 dotenv:
   enabled: true
+debug: false

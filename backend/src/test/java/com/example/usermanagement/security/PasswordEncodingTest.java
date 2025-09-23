@@ -1,9 +1,9 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.dto.RegisterRequest;
-import com.example.usermanagement.model.User;
-import com.example.usermanagement.repository.UserRepository;
-import com.example.usermanagement.service.AuthenticationService;
+import com.example.sharedcommon.dto.RegisterRequest;
+import com.example.usermanagement.core.model.User;
+import com.example.usermanagement.core.repository.UserRepository;
+import com.example.usermanagement.core.service.AuthenticationService;
 
 import jakarta.transaction.Transactional;
 

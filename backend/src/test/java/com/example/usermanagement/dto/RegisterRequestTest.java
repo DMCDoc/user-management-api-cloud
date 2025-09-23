@@ -1,6 +1,9 @@
 package com.example.usermanagement.dto;
 
 import org.junit.jupiter.api.Test;
+
+import com.example.sharedcommon.dto.RegisterRequest;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterRequestTest {

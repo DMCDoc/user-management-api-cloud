@@ -1,7 +1,8 @@
 package com.example.usermanagement.config;
 
-import com.example.usermanagement.model.Role;
-import com.example.usermanagement.repository.RoleRepository;
+import com.example.usermanagement.core.model.Role;
+import com.example.usermanagement.core.repository.RoleRepository;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

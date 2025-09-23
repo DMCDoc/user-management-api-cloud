@@ -1,10 +1,10 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.dto.AuthResponse;
-import com.example.usermanagement.dto.LoginRequest;
-import com.example.usermanagement.dto.RefreshRequest;
-import com.example.usermanagement.dto.RegisterRequest;
-import com.example.usermanagement.repository.UserRepository;
+import com.example.sharedcommon.dto.AuthResponse;
+import com.example.sharedcommon.dto.LoginRequest;
+import com.example.sharedcommon.dto.RefreshRequest;
+import com.example.sharedcommon.dto.RegisterRequest;
+import com.example.usermanagement.core.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

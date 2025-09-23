@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.usermanagement.model.User;
-import com.example.usermanagement.repository.UserRepository;
+import com.example.usermanagement.core.model.User;
+import com.example.usermanagement.core.repository.UserRepository;
 
 @SpringBootTest
 class SimpleUserRepoTest {

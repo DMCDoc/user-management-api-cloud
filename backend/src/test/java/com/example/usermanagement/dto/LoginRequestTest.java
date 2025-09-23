@@ -2,6 +2,9 @@ package com.example.usermanagement.dto;
 
 
 import org.junit.jupiter.api.Test;
+
+import com.example.sharedcommon.dto.LoginRequest;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginRequestTest {

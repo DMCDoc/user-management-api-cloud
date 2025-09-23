@@ -1,144 +1,99 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.example</groupId>
     <artifactId>user-management-api-cloud</artifactId>
     <version>1.0.0</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>backend</artifactId>
   <packaging>jar</packaging>
 
   <name>Backend</name>
-<properties>
-  <jakarta.el.version>4.0.2</jakarta.el.version>
-</properties>
-
+  <description>Application Spring Boot pour la gestion des utilisateurs</description>
 
   <dependencies>
-    <!-- Spring Boot Starter -->
+    <!-- Module commun -->
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>shared-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Starter Spring Boot Web (REST) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <!-- Spring Security -->
+
+    <!-- Starter Spring Boot Security -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
-    <!-- actuator -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-actuator</artifactId>
-</dependency>
-
-<!-- hibernate -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-
-<!-- Hibernate Validator -->
-<dependency>
-  <groupId>org.hibernate.validator</groupId>
-  <artifactId>hibernate-validator</artifactId>
-  <version>8.0.2.Final</version>
-</dependency>
-
-    <!-- Spring Data JPA -->
+    <!-- Starter Spring Boot JPA -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
-    <!--Spring Boot test-->
+
+    <!-- Base de données PostgreSQL (ou MySQL si tu veux switcher) -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Validation -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- JWT (par exemple io.jsonwebtoken) -->
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>0.11.5</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>0.11.5</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>0.11.5</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Lombok (optionnel mais pratique) -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Tests -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Spring Security Test -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- PostgreSQL Driver -->
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-    </dependency>
-
-    <!-- JWT -->
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId> 
-    </dependency>
-
-<!-- Jakarta Validation -->
-<dependency>
-  <groupId>jakarta.validation</groupId>
-  <artifactId>jakarta.validation-api</artifactId>
-  <version>${jakarta.validation.version}</version>
-</dependency>
-
-<!-- Jakarta Expression Language (EL) -->
-<dependency>
-  <groupId>org.glassfish</groupId>
-  <artifactId>jakarta.el</artifactId>
-  <version>${jakarta.el.version}</version>
-</dependency>
-
-    <!-- Shared Common -->
-    <dependency>
-      <groupId>com.example</groupId>
-      <artifactId>shared_common</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-
-    <!-- Lombok -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-
-    <!-- JUnit -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
+      <!-- Spring Boot plugin -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.plugin.version}</version>
-        <executions>
-          <execution>   
-          </execution>
-        </executions>
-        <configuration>
-        <source>${maven.compiler.source}</source>
-        <target>${maven.compiler.target}</target>
-        <release>${java.version}</release>
-          <mainClass>com.example.usermanagement.UserManagementApplication</mainClass>
-        </configuration>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

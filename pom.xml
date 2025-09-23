@@ -8,6 +8,7 @@
   <packaging>pom</packaging>
 
   <name>User Management API Cloud - Parent</name>
+  <description>Projet de gestion des utilisateurs avec Spring Boot et PostgreSQL</description>
 
   <modules>
     <module>shared_common</module>
@@ -15,104 +16,20 @@
   </modules>
 
   <properties>
-    <!-- Java & Maven -->
     <java.version>21</java.version>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
-
-    <!-- Dépendances -->
     <spring.boot.version>3.5.4</spring.boot.version>
-    <jackson.version>2.17.2</jackson.version>
-    <jakarta.validation.version>3.1.0</jakarta.validation.version>
-    <jakarta.el.version>4.0.2</jakarta.el.version>
-    <jjwt.version>0.11.5</jjwt.version>
-    <lombok.version>1.18.34</lombok.version>
-    <junit.jupiter.version>5.10.2</junit.jupiter.version>
-    <postgresql.version>42.7.3</postgresql.version>
+    <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+    <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
   <dependencyManagement>
     <dependencies>
-      <!-- Spring Boot BOM -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring.boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-
-      <!-- Jackson -->
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-
-      <!-- Jakarta Validation -->
-      <dependency>
-        <groupId>jakarta.validation</groupId>
-        <artifactId>jakarta.validation-api</artifactId>
-        <version>${jakarta.validation.version}</version>
-      </dependency>
-
-      <!-- Jakarta Expression Language (EL) -->
-      <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>jakarta.el</artifactId>
-        <version>${jakarta.el.version}</version>
-      </dependency>
-      <!-- JWT -->
-      <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-api</artifactId>
-        <version>${jjwt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-impl</artifactId>
-        <version>${jjwt.version}</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt-jackson</artifactId>
-        <version>${jjwt.version}</version>
-        <scope>runtime</scope>
-      </dependency>
-
-      <!-- Lombok -->
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <!-- JUnit -->
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>${junit.jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- PostgreSQL -->
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -1,6 +1,5 @@
 package com.example.usermanagement.exceptions;
 
-import com.example.usermanagement.controller.DummyController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,6 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.example.usermanagement.api.controller.DummyController;
+import com.example.usermanagement.api.exceptions.GlobalExceptionHandler;
 
 import java.util.stream.Stream;
 

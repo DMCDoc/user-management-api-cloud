@@ -1,8 +1,10 @@
 package com.example.usermanagement.security;
 
-import com.example.usermanagement.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.example.usermanagement.config.security.JwtUtils;
+import com.example.usermanagement.core.model.User;
 
 import java.time.Clock;
 import java.time.Duration;
