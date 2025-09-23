@@ -1,7 +1,7 @@
 package com.example.usermanagement.config.security;
 
 import com.example.sharedcommon.dto.ErrorResponse;
-import com.example.sharedcommon.dto.ErrorResponseFactory;
+import com.example.usermanagement.api.exceptions.ErrorResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
