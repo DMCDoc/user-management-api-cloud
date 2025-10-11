@@ -1,20 +1,4 @@
 {
-    "java.project.sourcePaths": [
-        "shared_common/src/main/java",
-        "backend/src/main/java",
-        "frontend/src/main/java",
-    ],
-    "java.configuration.runtimes": [
-        {
-            "name": "JavaSE-22",
-            "path": "C:\\Program Files\\OpenJDK\\jdk-22.0.2", // Chemin vers ton JDK 22
-            "default": true
-        }
-    ],
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.format.settings.url": ".vscode/java-formatter.xml",
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "java.format.settings.profile": "VSCode-Default",
-    "java.debug.settings.onBuildFailureProceed": true
-    
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.compile.nullAnalysis.mode": "automatic"
 }

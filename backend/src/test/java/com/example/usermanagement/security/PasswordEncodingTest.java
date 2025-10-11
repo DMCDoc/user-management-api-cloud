@@ -5,6 +5,7 @@ import com.example.usermanagement.core.model.User;
 import com.example.usermanagement.core.repository.UserRepository;
 import com.example.usermanagement.core.service.AuthenticationService;
 
+
 import jakarta.transaction.Transactional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = com.example.usermanagement.UserManagementApplication.class)
 @Transactional
 @Sql(statements = {
     "TRUNCATE TABLE user_roles CASCADE",

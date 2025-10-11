@@ -9,13 +9,16 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>shared-common</artifactId>
+    <artifactId>shared_common</artifactId>
     <packaging>jar</packaging>
 
     <name>Shared Common</name>
     <description>Module partagé (DTO, exceptions, utils)</description>
 
     <dependencies>
+
+
+
         <!-- DTOs JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -26,22 +29,21 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.42</version>
             <scope>provided</scope>
         </dependency>
 
         <!-- Tests (JUnit 5) -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+        <!-- Tests (Spring Security) -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.0</version>
-            <scope>test</scope>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+           
         </dependency>
     </dependencies>
 

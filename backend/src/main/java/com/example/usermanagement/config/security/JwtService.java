@@ -24,10 +24,7 @@ public class JwtService {
             @Value("${jwt.expiration:3600000}") long jwtExpirationMs) {
         this.secretKey = secretKey;
         this.jwtExpirationMs = jwtExpirationMs;
-        // 🚨 DEBUG : à retirer après test
-        System.out.println(
-                "🔑 JwtService loaded secretKey=" + secretKey.substring(0, 8) + "... len=" + secretKey.length());
-        System.out.println("⏳ JwtService loaded jwtExpirationMs=" + jwtExpirationMs);
+
     }
 
     public String extractUsername(String token) {
@@ -76,8 +73,7 @@ public class JwtService {
 
 @PostConstruct
 public void checkConfig() {
-    System.out.println(">>> JwtService config : secret=" 
-        + (secretKey != null) + " expiration=" + jwtExpirationMs);
+
 }
 
 }

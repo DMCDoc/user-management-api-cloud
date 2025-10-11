@@ -1,4 +1,26 @@
 -------------------------------------------------------------------------------
 Test set: com.example.usermanagement.security.JwtAuthenticationFilterTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.074 s -- in com.example.usermanagement.security.JwtAuthenticationFilterTest
+Tests run: 3, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.683 s <<< FAILURE! -- in com.example.usermanagement.security.JwtAuthenticationFilterTest
+com.example.usermanagement.security.JwtAuthenticationFilterTest.actuatorInfo_ShouldBeAccessibleWithoutAuth_WhenExcluded -- Time elapsed: 0.011 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<500>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.example.usermanagement.security.JwtAuthenticationFilterTest.actuatorInfo_ShouldBeAccessibleWithoutAuth_WhenExcluded(JwtAuthenticationFilterTest.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.example.usermanagement.security.JwtAuthenticationFilterTest.actuatorHealth_ShouldBeAccessibleWithoutAuth -- Time elapsed: 0.009 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<500>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.example.usermanagement.security.JwtAuthenticationFilterTest.actuatorHealth_ShouldBeAccessibleWithoutAuth(JwtAuthenticationFilterTest.java:34)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

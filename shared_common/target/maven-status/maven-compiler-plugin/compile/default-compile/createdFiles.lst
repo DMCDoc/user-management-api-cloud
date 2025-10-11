@@ -1,0 +1,12 @@
+com\example\sharedcommon\dto\RegisterRequest.class
+com\example\sharedcommon\dto\ErrorResponse.class
+com\example\sharedcommon\exceptions\EmailAlreadyUsedException.class
+com\example\sharedcommon\dto\RefreshRequest.class
+com\example\sharedcommon\util\EmailValidator.class
+com\example\sharedcommon\dto\AuthResponse$AuthResponseBuilder.class
+com\example\sharedcommon\dto\AuthResponse.class
+com\example\sharedcommon\dto\LoginRequest.class
+com\example\sharedcommon\exceptions\UserNotFoundException.class
+com\example\sharedcommon\exceptions\UserAlreadyExistsException.class
+com\example\sharedcommon\dto\UserResponse$UserResponseBuilder.class
+com\example\sharedcommon\dto\UserResponse.class

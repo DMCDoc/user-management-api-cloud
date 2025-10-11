@@ -19,7 +19,7 @@
     <!-- Module commun -->
     <dependency>
       <groupId>com.example</groupId>
-      <artifactId>shared-common</artifactId>
+      <artifactId>shared_common</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -41,7 +41,7 @@
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
 
-    <!-- Base de données PostgreSQL (ou MySQL si tu veux switcher) -->
+    <!-- Base de données PostgreSQL  -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -86,11 +86,7 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
+
 
   </dependencies>
 
@@ -100,6 +96,12 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <!-- Compiler plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+
       </plugin>
     </plugins>
   </build>

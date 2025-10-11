@@ -10,7 +10,11 @@ logging:
 
 management:
   endpoint:
+    web:
+      exposure:
+        include: health,info
     health:
+      show-details: always
       probes:
         enabled: true
   health:
@@ -18,3 +22,4 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+

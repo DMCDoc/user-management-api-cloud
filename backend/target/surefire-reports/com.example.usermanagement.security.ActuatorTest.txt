@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+Test set: com.example.usermanagement.security.ActuatorTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.975 s <<< FAILURE! -- in com.example.usermanagement.security.ActuatorTest
+com.example.usermanagement.security.ActuatorTest.health_isUp -- Time elapsed: 0.091 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 200 OK
+ but was: 500 INTERNAL_SERVER_ERROR
+	at com.example.usermanagement.security.ActuatorTest.health_isUp(ActuatorTest.java:22)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.example.usermanagement.security.ActuatorTest.info_isAccessible -- Time elapsed: 0.007 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 200 OK
+ but was: 500 INTERNAL_SERVER_ERROR
+	at com.example.usermanagement.security.ActuatorTest.info_isAccessible(ActuatorTest.java:28)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

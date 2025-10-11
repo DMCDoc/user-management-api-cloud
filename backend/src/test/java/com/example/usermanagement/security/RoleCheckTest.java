@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.example.usermanagement.UserManagementApplication;
 import com.example.usermanagement.core.repository.RoleRepository;
 
-@SpringBootTest @ActiveProfiles("test")
+@SpringBootTest(classes = UserManagementApplication.class)
+@ActiveProfiles("test")
 class RoleCheckTest {
 
     @Autowired
