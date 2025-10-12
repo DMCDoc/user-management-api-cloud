@@ -1,3 +1,6 @@
+diff --git a/.env b/.env
+new file mode 100644
+index 0000000..e69de29
 diff --git a/backend/README.md b/backend/README.md
 new file mode 100644
 index 0000000..1111111
@@ -129,27 +132,11 @@ index 0000000..1111111
 +- This README focuses on the backend only.
 +- Once the backend is stable and tested, a top-level README will describe the full stack
 +  (frontend + backend + infra).
-+- Review `backend/pom-modifications.txt` to add suggested dependencies to your `backend/pom.xml`.
-+
-+If you need, I can prepare a PR that inserts the dependencies automatically into `backend/pom.xml`.
 +
 +---
 +End of backend README.
 +
 +
-diff --git a/.env b/.env
-new file mode 100644
-index 0000000..2222222
---- /dev/null
-+++ b/.env
-@@ -0,0 +1,7 @@
-+POSTGRES_DB=usermgmt
-+POSTGRES_USER=usermgmt
-+POSTGRES_PASSWORD=usermgmt_pass
-+POSTGRES_PORT=5432
-+SPRING_PROFILES_ACTIVE=dev
-+JWT_SECRET=change-me-in-prod
-+POSTGRES_HOST=localhost
 diff --git a/backend/docker-compose.yml b/backend/docker-compose.yml
 new file mode 100644
 index 0000000..3333333
@@ -176,6 +163,69 @@ index 0000000..3333333
 +volumes:
 +  pgdata:
 +    driver: local
+diff --git a/backend/pom.xml b/backend/pom.xml
+index 1234567..7654321 100644
+--- a/backend/pom.xml
++++ b/backend/pom.xml
+@@ -25,6 +25,57 @@
+ 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+ 		</dependency>
+ 
++		<!-- Spring Security -->
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-security</artifactId>
++		</dependency>
++
++		<!-- Validation -->
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-validation</artifactId>
++		</dependency>
++
++		<!-- JJWT (JWT) -->
++		<dependency>
++			<groupId>io.jsonwebtoken</groupId>
++			<artifactId>jjwt-api</artifactId>
++			<version>0.11.5</version>
++		</dependency>
++		<dependency>
++			<groupId>io.jsonwebtoken</groupId>
++			<artifactId>jjwt-impl</artifactId>
++			<version>0.11.5</version>
++			<scope>runtime</scope>
++		</dependency>
++		<dependency>
++			<groupId>io.jsonwebtoken</groupId>
++			<artifactId>jjwt-jackson</artifactId>
++			<version>0.11.5</version>
++			<scope>runtime</scope>
++		</dependency>
++
++		<!-- PostgreSQL driver (runtime) -->
++		<dependency>
++			<groupId>org.postgresql</groupId>
++			<artifactId>postgresql</artifactId>
++			<version>42.5.1</version>
++			<scope>runtime</scope>
++		</dependency>
++
++		<!-- Testcontainers for integration tests (test scope) -->
++		<dependency>
++			<groupId>org.testcontainers</groupId>
++			<artifactId>junit-jupiter</artifactId>
++			<version>1.19.0</version>
++			<scope>test</scope>
++		</dependency>
++		<dependency>
++			<groupId>org.testcontainers</groupId>
++			<artifactId>postgresql</artifactId>
++			<version>1.19.0</version>
++			<scope>test</scope>
++		</dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
 diff --git a/backend/src/main/resources/application-dev.properties b/backend/src/main/resources/application-dev.properties
 new file mode 100644
 index 0000000..4444444
@@ -246,75 +296,3 @@ index 0000000..5555555
 +        assertTrue(found.isPresent());
 +    }
 +}
-+
-diff --git a/backend/pom-modifications.txt b/backend/pom-modifications.txt
-new file mode 100644
-index 0000000..6666666
---- /dev/null
-+++ b/backend/pom-modifications.txt
-@@ -0,0 +1,240 @@
-+Please add the following dependencies into `backend/pom.xml` inside the `<dependencies>` section.
-+Use the Maven wrapper `./mvnw` after editing.
-+
-
-+<!-- Spring Security -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-security</artifactId>
-</dependency>
-
-<!-- Validation -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
-
-<!-- JJWT (JWT) -->
-<dependency>
-  <groupId>io.jsonwebtoken</groupId>
-  <artifactId>jjwt-api</artifactId>
-  <version>0.11.5</version>
-</dependency>
-<dependency>
-  <groupId>io.jsonwebtoken</groupId>
-  <artifactId>jjwt-impl</artifactId>
-  <version>0.11.5</version>
-  <scope>runtime</scope>
-</dependency>
-<dependency>
-  <groupId>io.jsonwebtoken</groupId>
-  <artifactId>jjwt-jackson</artifactId>
-  <version>0.11.5</version>
-  <scope>runtime</scope>
-</dependency>
-
-<!-- PostgreSQL driver (runtime) -->
-<dependency>
-  <groupId>org.postgresql</groupId>
-  <artifactId>postgresql</artifactId>
-  <version>42.5.1</version>
-  <scope>runtime</scope>
-</dependency>
-
-<!-- Testcontainers for integration tests (test scope) -->
-<dependency>
-  <groupId>org.testcontainers</groupId>
-  <artifactId>junit-jupiter</artifactId>
-  <version>1.19.0</version>
-  <scope>test</scope>
-</dependency>
-<dependency>
-  <groupId>org.testcontainers</groupId>
-  <artifactId>postgresql</artifactId>
-  <version>1.19.0</version>
-  <scope>test</scope>
-</dependency>
-
-After adding, run:
-
-```bash
-./mvnw -pl backend -am clean test
-```
-
-If you want me to modify the `pom.xml` automatically in the patch instead of manual copy/paste,
-I can produce a follow-up patch that edits `backend/pom.xml` directly.
