@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.api.exceptions.ErrorResponseFactory;
-import com.example.sharedcommon.dto.ErrorResponse;
+import com.dmcdoc.sharedcommon.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

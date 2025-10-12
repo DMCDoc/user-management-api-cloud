@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.security;
 
 import com.dmcdoc.sharedcommon.dto.RegisterRequest;
-import com.dmcdocusermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.AuthenticationService;
 
@@ -17,7 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = com.example.usermanagement.UserManagementApplication.class)
+@SpringBootTest(classes = com.dmcdoc.usermanagement.UserManagementApplication.class)
 @Transactional
 @Sql(statements = {
     "TRUNCATE TABLE user_roles CASCADE",

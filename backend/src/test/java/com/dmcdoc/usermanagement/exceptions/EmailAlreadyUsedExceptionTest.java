@@ -2,7 +2,7 @@ package com.dmcdoc.usermanagement.exceptions;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.sharedcommon.exceptions.EmailAlreadyUsedException;
+import com.dmcdoc.sharedcommon.exceptions.EmailAlreadyUsedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

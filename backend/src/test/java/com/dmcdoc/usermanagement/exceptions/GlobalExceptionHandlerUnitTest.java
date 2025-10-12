@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
 import com.dmcdoc.usermanagement.api.exceptions.GlobalExceptionHandler;
-import com.example.sharedcommon.dto.ErrorResponse;
-import com.example.sharedcommon.exceptions.UserAlreadyExistsException;
-import com.example.sharedcommon.exceptions.UserNotFoundException;
+import com.dmcdoc.sharedcommon.dto.ErrorResponse;
+import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
+import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

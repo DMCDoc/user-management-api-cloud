@@ -2,7 +2,7 @@ package com.dmcdoc.usermanagement.exceptions;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.sharedcommon.exceptions.UserAlreadyExistsException;
+import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

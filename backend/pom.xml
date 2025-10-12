@@ -19,7 +19,7 @@
     <!-- Module commun -->
     <dependency>
       <groupId>com.dmcdoc</groupId>
-      <artifactId>sharedcommon</artifactId>
+      <artifactId>shared_common</artifactId>
       <version>${project.version}</version>
     </dependency>
 

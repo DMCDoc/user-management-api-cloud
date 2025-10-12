@@ -3,6 +3,7 @@ package com.dmcdoc.usermanagement.security;
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.sharedcommon.dto.RefreshRequest;
 import com.dmcdoc.sharedcommon.dto.RegisterRequest;
+import com.dmcdoc.sharedcommon.dto.LoginRequest;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;

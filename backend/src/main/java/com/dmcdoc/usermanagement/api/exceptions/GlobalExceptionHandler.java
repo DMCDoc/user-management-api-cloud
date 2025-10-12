@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.sharedcommon.dto.ErrorResponse;
-import com.example.sharedcommon.exceptions.UserAlreadyExistsException;
-import com.example.sharedcommon.exceptions.UserNotFoundException;
+import com.dmcdoc.sharedcommon.dto.ErrorResponse;
+import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
+import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
 import java.util.Map;
 import java.util.stream.Collectors;
 

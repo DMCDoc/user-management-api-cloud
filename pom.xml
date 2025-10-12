@@ -11,7 +11,7 @@
   <description>Projet de gestion des utilisateurs avec Spring Boot et PostgreSQL</description>
 
   <modules>
-    <module>sharedcommon</module>
+    <module>shared_common</module>
     <module>backend</module>
   </modules>
 
