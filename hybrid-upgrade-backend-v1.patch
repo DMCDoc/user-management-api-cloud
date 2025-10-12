@@ -133,9 +133,6 @@ index 0000000..1111111
 +- Once the backend is stable and tested, a top-level README will describe the full stack
 +  (frontend + backend + infra).
 +
-+---
-+End of backend README.
-+
 +
 diff --git a/backend/docker-compose.yml b/backend/docker-compose.yml
 new file mode 100644
