@@ -18,8 +18,8 @@
   <dependencies>
     <!-- Module commun -->
     <dependency>
-      <groupId>com.example</groupId>
-      <artifactId>shared_common</artifactId>
+      <groupId>com.dmcdoc</groupId>
+      <artifactId>sharedcommon</artifactId>
       <version>${project.version}</version>
     </dependency>
 

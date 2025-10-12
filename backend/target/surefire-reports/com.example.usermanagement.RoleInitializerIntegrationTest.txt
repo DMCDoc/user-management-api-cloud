@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.example.usermanagement.RoleInitializerIntegrationTest
--------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.729 s -- in com.example.usermanagement.RoleInitializerIntegrationTest
