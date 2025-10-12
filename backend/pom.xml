@@ -94,6 +94,19 @@
       <version>2.1.0</version>
     </dependency>
 
+    <!-- Spring Boot Mail -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
+    <!-- OAuth2 Client for social login (Google, Facebook, etc.) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    </dependency>
+
+
 
 
   </dependencies>
