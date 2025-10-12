@@ -2,7 +2,7 @@ package com.example.shared.util;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.sharedcommon.util.EmailValidator;
+import com.dmcdoc.sharedcommon.util.EmailValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
