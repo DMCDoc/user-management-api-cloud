@@ -1,0 +1,470 @@
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Hybrid Upgrade <dev@dmcdoc.local>
+Date: Sat, 04 Oct 2025 00:00:00 +0000
+Subject: [PATCH] hybrid upgrade: add hybrid skeleton (security, shared_common, docker, ci, readme)
+
+--- 
+ README.md                                   | 165 ++++++++++++++++++++++++++++++
+ backend/Dockerfile                           |  39 +++++++
+ docker-compose.yml                           |  66 ++++++++++
+ .github/workflows/ci.yml                     |  87 ++++++++++++++
+ backend/src/main/java/com/dmcdoc/sharedcommon/dto/ApiResponse.java |  93 ++++++++++++++++
+ backend/src/main/java/com/dmcdoc/sharedcommon/exception/BaseException.java |  68 +++++++++++
+ backend/src/main/java/com/dmcdoc/sharedcommon/exception/NotFoundException.java |  52 ++++++++
+ backend/src/main/java/com/dmcdoc/sharedcommon/util/ValidationUtil.java |  72 +++++++++
+ backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/SecurityConfig.java | 158 ++++++++++++++++++++++++++++++
+ backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtUtils.java | 150 ++++++++++++++++++++++++++++
+ backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtAuthenticationFilter.java | 152 ++++++++++++++++++++++++++++
+ backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/UserDetailsServiceImpl.java | 126 +++++++++++++++++++
+ backend/src/main/resources/application-dev.yml |  62 +++++++++
+ 14 files changed, 1298 insertions(+)
+ create mode 100644 README.md
+ create mode 100644 backend/Dockerfile
+ create mode 100644 docker-compose.yml
+ create mode 100644 .github/workflows/ci.yml
+ create mode 100644 backend/src/main/java/com/dmcdoc/sharedcommon/dto/ApiResponse.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/sharedcommon/exception/BaseException.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/sharedcommon/exception/NotFoundException.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/sharedcommon/util/ValidationUtil.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/SecurityConfig.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtUtils.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtAuthenticationFilter.java
+ create mode 100644 backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/UserDetailsServiceImpl.java
+ create mode 100644 backend/src/main/resources/application-dev.yml
+--- 
+*** Begin Patch
+*** Add File: README.md
++# user-management-api-cloud — Hybrid upgrade (Genc + OpenKoda)
++
++Ce patch implémente une base hybride (simplicité du boilerplate Genc + patterns OpenKoda) sur la branche `refactor/monolith-modular`.
++Il ajoute : sécurité JWT (avec refresh tokens à étendre), dossier `shared_common` (DTOs / exceptions / utils), Docker, GitHub Actions CI, et un README d'usage.
++
++## Structure ajoutée
++
++```
++backend/
++ ├── module-auth/ (extrait: security infra)
++ ├── sharedcommon/ (dto, exception, util)
++ └── resources (application-dev.yml)
++docker-compose.yml
++backend/Dockerfile
++.github/workflows/ci.yml
++```
++
++## Commandes utiles
++
++- Lancer en local (docker-compose) :
++  ```bash
++  docker-compose up --build
++  ```
++
++- Lancer les tests (Maven) :
++  ```bash
++  mvn -pl backend test
++  ```
++
++- Appliquer le patch (si fourni comme fichier) :
++  ```bash
++  git apply hybrid-upgrade.patch
++  ```
++
++## Sécurité
++
++- Le patch ajoute une implémentation JWT basée sur `io.jsonwebtoken`. **En prod**, stocker `JWT_SECRET` dans un secret manager (Vault/K8s secret/ systemd environment) et utilisez JWK si possible.
++- Les mots de passe doivent être hashés avec `BCryptPasswordEncoder`.
++
++## Testcontainers & PostgreSQL
++
++- Les tests d'intégration devraient utiliser Testcontainers (Postgres). Ce patch prépare les fichiers nécessaires ; ajoute la dépendance Testcontainers dans ton `pom.xml` si ce n'est pas déjà fait.
++
++## Checklist après application du patch
++
++1. Adapter `package` si nécessaire (ici `com.dmcdoc`).
++2. Vérifier/adapter entités `User` et `Role` existantes.
++3. Ajouter les DTOs métiers dans les modules appropriés.
++4. Mettre à jour `application-prod.yml` et secrets.
++
++--- 
++Patch généré automatiquement par assisté. Relis et teste avant merge.
++
+*** End Patch
+*** End File: README.md
++
+*** Begin Patch
+*** Add File: backend/Dockerfile
++FROM maven:3.9.4-eclipse-temurin-17 AS build
++WORKDIR /workspace
++COPY pom.xml mvnw ./
++COPY .mvn .mvn
++COPY src src
++RUN mvn -B -DskipTests package
++
++FROM eclipse-temurin:17-jre
++ARG JAR_FILE=target/*.jar
++COPY --from=build /workspace/${JAR_FILE} app.jar
++ENTRYPOINT ["java","-jar","/app.jar"]
++
+*** End Patch
+*** Begin Patch
+*** Add File: docker-compose.yml
++version: '3.8'
++services:
++  db:
++    image: postgres:15
++    environment:
++      POSTGRES_DB: userdb
++      POSTGRES_USER: user
++      POSTGRES_PASSWORD: password
++    ports:
++      - "5432:5432"
++  backend:
++    build: ./backend
++    environment:
++      SPRING_PROFILES_ACTIVE: dev
++      DB_HOST: db
++      DB_NAME: userdb
++      DB_USER: user
++      DB_PASS: password
++      JWT_SECRET: change-me-in-prod
++    ports:
++      - "8080:8080"
++    depends_on:
++      - db
++
+*** End Patch
+*** Begin Patch
+*** Add File: .github/workflows/ci.yml
++name: CI
++
++on:
++  push:
++    branches: [ main, master ]
++  pull_request:
++    branches: [ main, master ]
++
++jobs:
++  build:
++    runs-on: ubuntu-latest
++    services:
++      postgres:
++        image: postgres:15
++        env:
++          POSTGRES_USER: user
++          POSTGRES_PASSWORD: password
++          POSTGRES_DB: userdb
++        ports: ['5432:5432']
++        options: >-
++          --health-cmd pg_isready
++          --health-interval 10s
++          --health-timeout 5s
++          --health-retries 5
++
++    steps:
++      - uses: actions/checkout@v4
++      - name: Set up JDK 17
++        uses: actions/setup-java@v4
++        with:
++          distribution: temurin
++          java-version: 17
++      - name: Cache maven packages
++        uses: actions/cache@v4
++        with:
++          path: ~/.m2/repository
++          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
++          restore-keys: |
++            ${{ runner.os }}-maven-
++      - name: Build, test & package
++        run: mvn -B -DskipTests=false test package -pl backend
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/sharedcommon/dto/ApiResponse.java
++package com.dmcdoc.sharedcommon.dto;
++
++import java.time.Instant;
++
++public class ApiResponse<T> {
++    private T data;
++    private boolean success;
++    private String message;
++    private Instant timestamp = Instant.now();
++
++    public ApiResponse() {}
++
++    public ApiResponse(T data, boolean success, String message) {
++        this.data = data;
++        this.success = success;
++        this.message = message;
++    }
++
++    public static <T> ApiResponse<T> ok(T data) {
++        return new ApiResponse<>(data, true, null);
++    }
++
++    public static <T> ApiResponse<T> fail(String message) {
++        return new ApiResponse<>(null, false, message);
++    }
++
++    // getters / setters
++    public T getData() { return data; }
++    public void setData(T data) { this.data = data; }
++    public boolean isSuccess() { return success; }
++    public void setSuccess(boolean success) { this.success = success; }
++    public String getMessage() { return message; }
++    public void setMessage(String message) { this.message = message; }
++    public Instant getTimestamp() { return timestamp; }
++    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/sharedcommon/exception/BaseException.java
++package com.dmcdoc.sharedcommon.exception;
++
++public class BaseException extends RuntimeException {
++    private final int code;
++
++    public BaseException(String message) {
++        super(message);
++        this.code = 500;
++    }
++
++    public BaseException(String message, int code) {
++        super(message);
++        this.code = code;
++    }
++
++    public int getCode() { return code; }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/sharedcommon/exception/NotFoundException.java
++package com.dmcdoc.sharedcommon.exception;
++
++public class NotFoundException extends BaseException {
++    public NotFoundException(String message) {
++        super(message, 404);
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/sharedcommon/util/ValidationUtil.java
++package com.dmcdoc.sharedcommon.util;
++
++import java.util.Objects;
++
++public final class ValidationUtil {
++    private ValidationUtil() {}
++
++    public static <T> T requireNonNull(T obj, String message) {
++        if (Objects.isNull(obj)) throw new IllegalArgumentException(message);
++        return obj;
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/SecurityConfig.java
++package com.dmcdoc.moduleauth.infrastructure.security;
++
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.security.authentication.AuthenticationManager;
++import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
++import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
++import org.springframework.security.config.http.SessionCreationPolicy;
++import org.springframework.security.web.SecurityFilterChain;
++import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++
++@Configuration
++@EnableMethodSecurity
++public class SecurityConfig {
++
++    private final JwtAuthenticationFilter jwtAuthenticationFilter;
++    private final UserDetailsServiceImpl userDetailsService;
++
++    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
++                          UserDetailsServiceImpl userDetailsService) {
++        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
++        this.userDetailsService = userDetailsService;
++    }
++
++    @Bean
++    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
++        http
++            .csrf().disable()
++            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
++            .and()
++            .authorizeHttpRequests()
++                .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/actuator/**").permitAll()
++                .anyRequest().authenticated()
++            .and()
++            .userDetailsService(userDetailsService)
++            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
++
++        return http.build();
++    }
++
++    @Bean
++    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
++        return config.getAuthenticationManager();
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtUtils.java
++package com.dmcdoc.moduleauth.infrastructure.security;
++
++import io.jsonwebtoken.*;
++import io.jsonwebtoken.security.Keys;
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.stereotype.Component;
++import java.security.Key;
++import java.util.Date;
++
++@Component
++public class JwtUtils {
++
++    @Value("${app.jwt.secret}")
++    private String jwtSecret;
++
++    @Value("${app.jwt.expiration-ms}")
++    private long jwtExpirationMs;
++
++    private Key getSigningKey() {
++        byte[] keyBytes = jwtSecret.getBytes();
++        return Keys.hmacShaKeyFor(keyBytes);
++    }
++
++    public String generateJwtToken(org.springframework.security.core.Authentication authentication) {
++        var userPrincipal = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
++
++        return Jwts.builder()
++                .setSubject(userPrincipal.getUsername())
++                .setIssuedAt(new Date())
++                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
++                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
++                .compact();
++    }
++
++    public String getUserNameFromJwtToken(String token) {
++        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
++                .parseClaimsJws(token).getBody().getSubject();
++    }
++
++    public boolean validateJwtToken(String authToken) {
++        try {
++            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
++            return true;
++        } catch (JwtException e) {
++            // log.warn("JWT invalid: {}", e.getMessage());
++        }
++        return false;
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/JwtAuthenticationFilter.java
++package com.dmcdoc.moduleauth.infrastructure.security;
++
++import jakarta.servlet.FilterChain;
++import jakarta.servlet.ServletException;
++import jakarta.servlet.http.HttpServletRequest;
++import jakarta.servlet.http.HttpServletResponse;
++import org.springframework.security.core.context.SecurityContextHolder;
++import org.springframework.web.filter.OncePerRequestFilter;
++import java.io.IOException;
++
++public class JwtAuthenticationFilter extends OncePerRequestFilter {
++
++    private final JwtUtils jwtUtils;
++    private final UserDetailsServiceImpl userDetailsService;
++
++    public JwtAuthenticationFilter(JwtUtils jwtUtils, UserDetailsServiceImpl uds) {
++        this.jwtUtils = jwtUtils;
++        this.userDetailsService = uds;
++    }
++
++    @Override
++    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
++            throws ServletException, IOException {
++        String header = request.getHeader("Authorization");
++        if (header != null && header.startsWith("Bearer ")) {
++            String token = header.substring(7);
++            if (jwtUtils.validateJwtToken(token)) {
++                String username = jwtUtils.getUserNameFromJwtToken(token);
++                var userDetails = userDetailsService.loadUserByUsername(username);
++                var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
++                        userDetails, null, userDetails.getAuthorities());
++                SecurityContextHolder.getContext().setAuthentication(auth);
++            }
++        }
++        filterChain.doFilter(request, response);
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/java/com/dmcdoc/moduleauth/infrastructure/security/UserDetailsServiceImpl.java
++package com.dmcdoc.moduleauth.infrastructure.security;
++
++import com.dmcdoc.moduleauth.infrastructure.persistence.JpaUserRepository;
++import org.springframework.security.core.userdetails.UserDetails;
++import org.springframework.security.core.userdetails.UserDetailsService;
++import org.springframework.security.core.userdetails.UsernameNotFoundException;
++import org.springframework.stereotype.Service;
++
++@Service
++public class UserDetailsServiceImpl implements UserDetailsService {
++
++    private final JpaUserRepository userRepository;
++
++    public UserDetailsServiceImpl(JpaUserRepository userRepository) {
++        this.userRepository = userRepository;
++    }
++
++    @Override
++    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
++        var user = userRepository.findByUsername(username)
++                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
++
++        String[] authorities = user.getRoles().stream().map(r -> r.getName()).toArray(String[]::new);
++
++        return org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
++                .password(user.getPassword())
++                .authorities(authorities)
++                .accountExpired(false).accountLocked(false).credentialsExpired(false).disabled(false)
++                .build();
++    }
++}
++
+*** End Patch
+*** Begin Patch
+*** Add File: backend/src/main/resources/application-dev.yml
++spring:
++  datasource:
++    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:userdb}
++    username: ${DB_USER:user}
++    password: ${DB_PASS:password}
++  jpa:
++    hibernate:
++      ddl-auto: update
++    show-sql: false
++
++app:
++  jwt:
++    secret: ${JWT_SECRET:change-me-in-prod}
++    expiration-ms: 3600000
++
++logging:
++  level:
++    root: INFO
++
+*** End Patch
+--- 
