@@ -1,6 +1,5 @@
 package com.dmcdoc.usermanagement.core.service;
 
-import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.sharedcommon.dto.*;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
 import com.dmcdoc.usermanagement.core.model.RefreshToken;
@@ -63,16 +62,17 @@ public class UserService {
         return new AuthResponse(accessToken, refresh.getToken());
     }
 
-public AuthResponse login(LoginRequest request) {
-    System.out.println("➡️ [UserService] Login user=" + request.getUsername());
+    public AuthResponse login(LoginRequest request) {
+        System.out.println("➡️ [UserService] Login user=" + request.getUsername());
 
-    try {
-        authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        try {
+            authenticationManager
+                    .authenticate(
+                            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
- } catch (BadCredentialsException ex) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-    }
+        } catch (BadCredentialsException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+        }
 
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
@@ -82,7 +82,27 @@ public AuthResponse login(LoginRequest request) {
         RefreshToken refresh = refreshTokenService.create(user);
 
         return new AuthResponse(accessToken, refresh.getToken());
+    }
+
+    @Transactional
+public User findOrCreateByEmailOAuth2(String email, org.springframework.security.oauth2.core.user.OAuth2User oAuth2User) {
+    return userRepository.findByEmail(email).orElseGet(() -> {
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Role USER manquant en DB"));
+
+        User user = User.builder()
+                .username(email.split("@")[0]) // nom d’utilisateur dérivé
+                .email(email)
+                .fullName((String) oAuth2User.getAttributes().getOrDefault("name", email))
+                .roles(Set.of(userRole))
+                .enabled(true)
+                .build();
+
+        userRepository.save(user);
+        return user;
+    });
 }
+
 
     @Transactional
     public AuthResponse refreshToken(RefreshRequest request) {
@@ -123,5 +143,30 @@ public AuthResponse login(LoginRequest request) {
             refreshTokenService.revokeAll(user);
             userRepository.delete(user);
         });
+    }
+    
+    public Optional<User> findByEmailOptional(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Transactional
+    public User registerWithEmailOnly(String email) {
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Role USER manquant en DB"));
+
+        User user = User.builder()
+                .username(email.split("@")[0])
+                .email(email)
+                .fullName(email)
+                .roles(Set.of(userRole))
+                .enabled(true)
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public RefreshToken createRefreshTokenForUser(User user) {
+        return refreshTokenService.create(user);
     }
 }

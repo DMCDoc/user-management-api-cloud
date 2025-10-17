@@ -5,9 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "magic_link_tokens", indexes = {
-        @Index(columnList = "token", name = "idx_token")
-})
+@Table(name = "magic_link_tokens", indexes = { @Index(columnList = "token", name = "idx_magic_token") })
 public class MagicLinkToken {
     @Id
     @Column(length = 36)

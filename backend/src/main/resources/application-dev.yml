@@ -7,6 +7,53 @@ logging:
     org.springframework.test.web.servlet: DEBUG
     org.hibernate: DEBUG
     org.springframework.boot.actuate: DEBUG
+spring:
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls.enable: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID:}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{app.magic-link.base-url}/api/auth/oauth2/google"
+            client-name: Google
+            authorization-grant-type: authorization_code
+          facebook:
+            client-id: ${OAUTH_FACEBOOK_CLIENT_ID:}
+            client-secret: ${OAUTH_FACEBOOK_CLIENT_SECRET:}
+            scope:
+              - email
+              - public_profile
+            redirect-uri: "{app.magic-link.base-url}/api/auth/oauth2/facebook"
+            client-name: Facebook
+            authorization-grant-type: authorization_code
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/authdb}
+    username: ${SPRING_DATASOURCE_USERNAME:authuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:authpass}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  magic-link:
+    expiration-minutes: 15
+    base-url: http://localhost:8080
 
 management:
   endpoint:
@@ -22,4 +69,5 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+
 

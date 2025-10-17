@@ -46,8 +46,7 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -97,6 +96,16 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
+
+                http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .anyRequest().authenticated());
+
+        http.oauth2Login(o -> o
+                .defaultSuccessUrl("/login-success", true)
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(oauth2UserService())) // optional custom user service
+        );
 
         return http.build();
     }
