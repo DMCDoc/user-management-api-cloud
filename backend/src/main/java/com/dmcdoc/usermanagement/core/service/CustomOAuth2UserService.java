@@ -1,6 +1,5 @@
 package com.dmcdoc.usermanagement.core.service;
 
-import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,18 +21,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest request) {
         OAuth2User oAuth2User = super.loadUser(request);
         String registrationId = request.getClientRegistration().getRegistrationId().toUpperCase();
+        OAuth2Provider provider = OAuth2Provider.valueOf(registrationId);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String email = extractEmail(attributes, registrationId);
 
         if (email == null) {
-            throw new IllegalArgumentException("Impossible de récupérer l'email pour le provider: " + registrationId);
+            throw new IllegalArgumentException("Impossible de récupérer l'email pour le provider : " + registrationId);
         }
 
-        log.info("OAuth2 login: provider={} email={}", registrationId, email);
-
-        // Persiste ou met à jour le compte
-        OAuth2Provider provider = OAuth2Provider.valueOf(registrationId);
+        log.info("Authentification OAuth2 réussie : provider={} email={}", provider, email);
         userService.findOrCreateByEmailOAuth2(email, provider);
 
         return oAuth2User;
@@ -42,8 +39,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private String extractEmail(Map<String, Object> attributes, String provider) {
         return switch (provider) {
             case "GOOGLE" -> (String) attributes.get("email");
-            case "GITHUB" -> (String) attributes.get("email");
             case "FACEBOOK" -> (String) attributes.get("email");
+            case "GITHUB" -> (String) attributes.get("email");
             default -> null;
         };
     }

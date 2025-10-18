@@ -1,9 +1,9 @@
 package com.dmcdoc.usermanagement.config.security;
 
+import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
 import com.dmcdoc.usermanagement.core.service.UserService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,12 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
 
-    private final String frontendRedirectUrl = "http://localhost:4200/oauth2/success"; // adapt si besoin
+    private final String frontendRedirectUrl = "http://localhost:4200/oauth2/success"; // adapte en prod
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication)
-            throws IOException, ServletException {
+            Authentication authentication) throws IOException {
 
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = (String) oauthUser.getAttributes().get("email");
@@ -42,17 +41,24 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             return;
         }
 
-        User user = userService.findOrCreateByEmailOAuth2(email, null);
+        // Récupérer provider (ex: google, github...)
+        String registrationId = (String) request
+                .getAttribute("org.springframework.security.oauth2.client.registration_id");
+        OAuth2Provider provider = registrationId != null
+                ? OAuth2Provider.valueOf(registrationId.toUpperCase())
+                : OAuth2Provider.LOCAL;
 
-        String jwt = jwtService.generateToken(user);
-        var refresh = refreshTokenService.create(user);
+        User user = userService.findOrCreateByEmailOAuth2(email, provider);
+        String accessToken = jwtService.generateToken(user);
+        var refreshToken = refreshTokenService.create(user);
 
-        log.info("OAuth2 success login for {} -> JWT issued", email);
+        log.info("Connexion OAuth2 réussie pour {} via {}", email, provider);
 
-        String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s",
+        String redirectUrl = String.format(
+                "%s?access_token=%s&refresh_token=%s",
                 frontendRedirectUrl,
-                URLEncoder.encode(jwt, StandardCharsets.UTF_8),
-                URLEncoder.encode(refresh.getToken(), StandardCharsets.UTF_8));
+                URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
+                URLEncoder.encode(refreshToken.getToken(), StandardCharsets.UTF_8));
 
         response.sendRedirect(redirectUrl);
     }

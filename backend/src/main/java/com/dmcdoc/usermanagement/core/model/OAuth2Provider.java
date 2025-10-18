@@ -1,7 +1,5 @@
 package com.dmcdoc.usermanagement.core.model;
 
 public enum OAuth2Provider {
-    LOCAL,
-    GOOGLE,
-    FACEBOOK
+    LOCAL, GOOGLE, MAGICLINK, FACEBOOK, GITHUB
 }

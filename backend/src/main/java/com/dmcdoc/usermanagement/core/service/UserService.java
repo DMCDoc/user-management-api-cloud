@@ -2,27 +2,24 @@ package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.sharedcommon.dto.*;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
-import com.dmcdoc.usermanagement.core.model.RefreshToken;
-import com.dmcdoc.usermanagement.core.model.Role;
-import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.model.*;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.web.server.ResponseStatusException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
+import java.util.*;
 
-@Service @RequiredArgsConstructor @Slf4j
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -32,51 +29,61 @@ public class UserService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
+    /*
+     * ============================================================
+     * 🔹 Enregistrement local (classique username / password)
+     * ============================================================
+     */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        System.out.println("➡️ [UserService] Register user=" + request.getUsername());
+        log.info("[UserService] Register user={}", request.getUsername());
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Nom d'utilisateur déjà pris");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Nom d'utilisateur déjà pris");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");
         }
 
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role USER manquant en DB"));
+                .orElseThrow(() -> new IllegalStateException("Role USER manquant en DB"));
 
-        User user = User.builder().username(request.getUsername()).email(request.getEmail()).roles(Set.of(userRole))
-                .fullName(request.getFullName()).password(passwordEncoder.encode(request.getPassword())).enabled(true)
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .fullName(request.getFullName())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(Set.of(userRole))
+                .enabled(true)
+                .provider(OAuth2Provider.LOCAL)
                 .build();
 
         userRepository.save(user);
-        System.out.println("✅ [UserService] User enregistré id=" + user.getId());
+        log.info("[UserService] ✅ User enregistré id={}", user.getId());
 
         String accessToken = jwtUtils.generateToken(user);
-        System.out.println("🔑 [UserService] Access token généré");
-
         RefreshToken refresh = refreshTokenService.create(user);
-        System.out.println("🔄 [UserService] Refresh token généré");
 
         return new AuthResponse(accessToken, refresh.getToken());
     }
 
+    /*
+     * ============================================================
+     * 🔹 Authentification classique
+     * ============================================================
+     */
     public AuthResponse login(LoginRequest request) {
-        System.out.println("➡️ [UserService] Login user=" + request.getUsername());
+        log.info("[UserService] Login user={}", request.getUsername());
 
         try {
-            authenticationManager
-                    .authenticate(
-                            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         } catch (BadCredentialsException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
         }
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        System.out.println("✅ [UserService] Authentifié id=" + user.getId());
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
 
         String accessToken = jwtUtils.generateToken(user);
         RefreshToken refresh = refreshTokenService.create(user);
@@ -84,67 +91,106 @@ public class UserService {
         return new AuthResponse(accessToken, refresh.getToken());
     }
 
+    /*
+     * ============================================================
+     * 🔹 OAuth2 (Google / Facebook / GitHub)
+     * ============================================================
+     */
     @Transactional
-public User findOrCreateByEmailOAuth2(String email, org.springframework.security.oauth2.core.user.OAuth2User oAuth2User) {
-    return userRepository.findByEmail(email).orElseGet(() -> {
-        Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role USER manquant en DB"));
+    public User findOrCreateByEmailOAuth2(String email, OAuth2Provider provider) {
+        return userRepository.findByEmail(email).map(existing -> {
+            if (existing.getProvider() != provider) {
+                log.info("Mise à jour du provider pour {} : {} -> {}", email, existing.getProvider(), provider);
+                existing.setProvider(provider);
+                userRepository.save(existing);
+            }
+            return existing;
+        }).orElseGet(() -> {
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseThrow(() -> new IllegalStateException("Role USER manquant en DB"));
 
-        User user = User.builder()
-                .username(email.split("@")[0]) // nom d’utilisateur dérivé
-                .email(email)
-                .fullName((String) oAuth2User.getAttributes().getOrDefault("name", email))
-                .roles(Set.of(userRole))
-                .enabled(true)
-                .build();
+            User newUser = User.builder()
+                    .username(email.split("@")[0])
+                    .email(email)
+                    .fullName(email)
+                    .roles(Set.of(userRole))
+                    .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                    .enabled(true)
+                    .provider(provider)
+                    .build();
 
-        userRepository.save(user);
-        return user;
-    });
-}
+            User saved = userRepository.save(newUser);
+            log.info("Nouvel utilisateur OAuth2 créé : {} ({})", saved.getEmail(), provider);
+            return saved;
+        });
+    }
 
-
+    /*
+     * ============================================================
+     * 🔹 Token management
+     * ============================================================
+     */
     @Transactional
     public AuthResponse refreshToken(RefreshRequest request) {
         RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("Refresh token invalide ou expiré"));
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token invalide ou expiré"));
 
-        // Génère un nouveau access token (on garde le même refresh token ici,
-        // pas de rotation)
         String newAccess = jwtUtils.generateToken(rt.getUser());
         return new AuthResponse(newAccess, rt.getToken());
     }
 
+    /*
+     * ============================================================
+     * 🔹 Profil utilisateur
+     * ============================================================
+     */
     public Optional<UserResponse> getUserProfile(String username) {
-        return userRepository.findByUsername(username).map(user -> UserResponse.builder().username(user.getUsername())
-                .email(user.getEmail()).fullName(user.getFullName()).build());
+        return userRepository.findByUsername(username)
+                .map(u -> UserResponse.builder()
+                        .username(u.getUsername())
+                        .email(u.getEmail())
+                        .fullName(u.getFullName())
+                        .build());
     }
 
     @Transactional
     public void updateProfile(String username, RegisterRequest request) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         userRepository.save(user);
     }
 
+    /*
+     * ============================================================
+     * 🔹 Suppression de compte
+     * ============================================================
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAccount(String username) {
-        System.out.println("👉 Transaction active ? " + TransactionSynchronizationManager.isActualTransactionActive());
-        userRepository.findByUsername(username).ifPresent(user -> {
-            userRepository.delete(user);
-        });
+        userRepository.findByUsername(username)
+                .ifPresent(u -> {
+                    refreshTokenService.revokeAll(u);
+                    userRepository.delete(u);
+                });
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteAccountById(Long id) {
-        userRepository.findById(id).ifPresent(user -> {
-            refreshTokenService.revokeAll(user);
-            userRepository.delete(user);
-        });
+        userRepository.findById(id)
+                .ifPresent(u -> {
+                    refreshTokenService.revokeAll(u);
+                    userRepository.delete(u);
+                });
     }
-    
+
+    /*
+     * ============================================================
+     * 🔹 Méthodes utilitaires
+     * ============================================================
+     */
     public Optional<User> findByEmailOptional(String email) {
         return userRepository.findByEmail(email);
     }
@@ -152,7 +198,7 @@ public User findOrCreateByEmailOAuth2(String email, org.springframework.security
     @Transactional
     public User registerWithEmailOnly(String email) {
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Role USER manquant en DB"));
+                .orElseThrow(() -> new IllegalStateException("Role USER manquant en DB"));
 
         User user = User.builder()
                 .username(email.split("@")[0])
@@ -160,6 +206,7 @@ public User findOrCreateByEmailOAuth2(String email, org.springframework.security
                 .fullName(email)
                 .roles(Set.of(userRole))
                 .enabled(true)
+                .provider(OAuth2Provider.LOCAL)
                 .build();
 
         return userRepository.save(user);

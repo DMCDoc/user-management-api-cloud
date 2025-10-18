@@ -4,46 +4,75 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Entity @Table(name = "users") @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User implements UserDetails {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @NotBlank @Column(nullable = false, unique = true)
+    @NotBlank
+    @Column(nullable = false, unique = true, length = 100)
     private String username;
 
-    @NotBlank @Column(nullable = false)
-    private String password; // Hashed
-
-    @NotBlank @Email @Column(nullable = false, unique = true)
+    @NotBlank
+    @Email
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column
+    @Column(length = 255)
     private String fullName;
 
-    @Builder.Default @Column
+    @Column(nullable = false)
+    private String password; // hashed password for local accounts
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30, nullable = false)
+    @Builder.Default
+    private OAuth2Provider provider = OAuth2Provider.LOCAL;
+
+    @Builder.Default
+    @Column(nullable = false)
     private boolean enabled = true;
 
-    // 🔹 Relation avec Role
-    @ManyToMany(fetch = FetchType.EAGER) @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id")) @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    // 🔹 Relation avec RefreshToken
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY) @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
-    // Implémentation UserDetails
+    @CreationTimestamp
+    @Column(updatable = false, nullable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant updatedAt;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toSet());
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -64,5 +93,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isOAuth2User() {
+        return provider != OAuth2Provider.LOCAL;
+    }
+
+    public void addRole(Role role) {
+        roles.add(role);
     }
 }

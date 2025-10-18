@@ -4,6 +4,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
+import com.dmcdoc.usermanagement.core.service.UserService;
 
 @Service
 public class OAuth2Service {
