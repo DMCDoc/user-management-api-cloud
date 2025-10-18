@@ -1,6 +1,7 @@
 package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -8,27 +9,42 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        String email = (String) oAuth2User.getAttributes().get("email");
+    public OAuth2User loadUser(OAuth2UserRequest request) {
+        OAuth2User oAuth2User = super.loadUser(request);
+        String registrationId = request.getClientRegistration().getRegistrationId().toUpperCase();
 
-        if (email == null || email.isEmpty()) {
-            log.error("OAuth2 user has no email attribute");
-            throw new RuntimeException("Email manquant dans le profil OAuth2");
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        String email = extractEmail(attributes, registrationId);
+
+        if (email == null) {
+            throw new IllegalArgumentException("Impossible de récupérer l'email pour le provider: " + registrationId);
         }
 
-        // Crée ou récupère l'utilisateur localement
-        User user = userService.findOrCreateByEmailOAuth2(email, oAuth2User);
-        log.info("OAuth2 login for user {}", email);
+        log.info("OAuth2 login: provider={} email={}", registrationId, email);
+
+        // Persiste ou met à jour le compte
+        OAuth2Provider provider = OAuth2Provider.valueOf(registrationId);
+        userService.findOrCreateByEmailOAuth2(email, provider);
 
         return oAuth2User;
+    }
+
+    private String extractEmail(Map<String, Object> attributes, String provider) {
+        return switch (provider) {
+            case "GOOGLE" -> (String) attributes.get("email");
+            case "GITHUB" -> (String) attributes.get("email");
+            case "FACEBOOK" -> (String) attributes.get("email");
+            default -> null;
+        };
     }
 }
