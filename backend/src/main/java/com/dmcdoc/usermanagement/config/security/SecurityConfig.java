@@ -18,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
+import com.dmcdoc.usermanagement.core.service.CustomOAuth2UserService;
+import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +30,9 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final CustomAuthEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final JwtService jwtService; // injecte le service JWT ici
+    private final JwtService jwtService;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${security.jwt.exclude-paths:/auth/**,/actuator/**}")
     private String[] excludedPaths;
@@ -46,7 +51,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
@@ -56,17 +62,21 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // Déclare le filtre comme bean ici — plus de cycle car Spring connaît l'ordre
-    // de création
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService uds) {
-        // on passe UserDetailsService (uds) et JwtService injecté plus haut +
-        // excludedPaths
         return new JwtAuthenticationFilter(jwtService, uds, excludedPaths);
     }
 
-    // Le JwtAuthenticationFilter bean est injecté en paramètre — pas de champ avec
-    // cycle
+    @Bean
+    public CustomOAuth2UserService customOAuth2UserService() {
+        return new CustomOAuth2UserService(userService);
+    }
+
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(userService, refreshTokenService, jwtService);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
             throws Exception {
@@ -75,7 +85,6 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/users/login", "/users/register", "/users/refresh", "/ping").permitAll();
-
                     if (excludedPaths != null) {
                         for (String p : excludedPaths) {
                             if (p != null && !p.trim().isEmpty()) {
@@ -83,29 +92,19 @@ public class SecurityConfig {
                             }
                         }
                     }
-
                     auth.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll();
-
                     auth.requestMatchers("/api/dummy/admin").hasRole("ADMIN");
                     auth.requestMatchers("/api/dummy/only-auth").authenticated();
-
                     auth.anyRequest().authenticated();
                 })
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler));
-
-                http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                .anyRequest().authenticated());
-
-        http.oauth2Login(o -> o
-                .defaultSuccessUrl("/login-success", true)
-                .userInfoEndpoint(userInfo -> userInfo
-                        .userService(oauth2UserService())) // optional custom user service
-        );
+                        .accessDeniedHandler(accessDeniedHandler))
+                .oauth2Login(o -> o
+                        .userInfoEndpoint(u -> u.userService(customOAuth2UserService()))
+                        .successHandler(oAuth2AuthenticationSuccessHandler()));
 
         return http.build();
     }
