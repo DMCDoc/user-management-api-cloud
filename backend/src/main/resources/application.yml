@@ -7,9 +7,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.56.15:5432/authdb
-    username: authuser
-    password: authpass
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/authdb}
+    username: ${SPRING_DATASOURCE_USERNAME:authuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:authpass}
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,18 +19,18 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   rabbitmq:
-    host: localhost
+    host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT_AMQP:5672}
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
   elasticsearch:
-    uris: http://localhost:${ELASTIC_HTTP_PORT:9200}
-    username: elastic
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    username: ${ELASTIC_USERNAME:elastic}
     password: ${ELASTIC_PASSWORD:changeme}
 
   mail:
-    host: ${MAIL_HOST:localhost}
+    host: ${MAIL_HOST:maildev}
     port: ${MAIL_PORT:1025}
     properties:
       mail.smtp.auth: false
@@ -57,7 +57,7 @@ spring:
               - profile
               - email
             client-name: Google
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/google"
             authorization-grant-type: authorization_code
           github:
             client-id: ${OAUTH_GITHUB_CLIENT_ID:}
@@ -65,11 +65,11 @@ spring:
             scope:
               - user:email
             client-name: GitHub
-            redirect-uri: "{baseUrl}/login/oauth2/code/github"
+            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/github"
             authorization-grant-type: authorization_code
 
 memcached:
-  host: localhost
+  host: ${MEMCACHED_HOST:localhost}
   port: ${MEMCACHED_PORT:11211}
 
 jwt:
@@ -79,12 +79,12 @@ jwt:
 
 security:
   jwt:
-    exclude-paths: /api/auth/**,/actuator/**
+    exclude-paths: /api/auth/**,/actuator/**,/oauth2/**,/login/**
 
 app:
   magic-link:
     expiration-minutes: 15
-    base-url: http://localhost:8080
+    base-url: ${APP_BASE_URL:http://localhost:8080}
 
 management:
   endpoints:

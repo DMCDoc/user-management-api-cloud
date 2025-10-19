@@ -1,8 +1,6 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.core.service.CustomOAuth2UserService;
-import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
-import com.dmcdoc.usermanagement.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +27,8 @@ public class SecurityConfig {
     private final CustomAuthEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtService jwtService;
-    private final UserService userService;
-    private final RefreshTokenService refreshTokenService;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
 
     @Value("${security.auth.username-password.enabled:true}")
     private boolean usernamePasswordEnabled;
@@ -89,20 +86,32 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler));
 
         http.authorizeHttpRequests(auth -> {
+            // public docs & health
             auth.requestMatchers("/ping", "/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll();
-            auth.requestMatchers("/users/login", "/users/register", "/users/refresh").permitAll();
+
+            // auth endpoints
+            auth.requestMatchers(
+                    "/users/login",
+                    "/users/register",
+                    "/users/refresh",
+                    "/api/auth/login",
+                    "/api/auth/register").permitAll();
 
             if (magicLinkEnabled) {
-                auth.requestMatchers("/users/magiclink/**", "/api/auth/magic/**").permitAll();
+                auth.requestMatchers("/users/magiclink/**", "/api/auth/magic/**", "/api/auth/magic/request",
+                        "/api/auth/magic/verify").permitAll();
             }
 
             if (oauth2Enabled) {
-                auth.requestMatchers("/oauth2/**", "/login/**").permitAll();
+                auth.requestMatchers("/oauth2/**", "/login/**", "/api/auth/oauth2/**", "/login/oauth2/**").permitAll();
             }
 
             auth.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll();
+
+            // example role restricted path
             auth.requestMatchers("/api/dummy/admin").hasRole("ADMIN");
             auth.requestMatchers("/api/dummy/only-auth").authenticated();
+
             auth.anyRequest().authenticated();
         });
 
@@ -117,8 +126,7 @@ public class SecurityConfig {
         if (oauth2Enabled) {
             http.oauth2Login(o -> o
                     .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                    .successHandler(
-                            new OAuth2AuthenticationSuccessHandler(userService, refreshTokenService, jwtService))
+                    .successHandler(oauth2AuthenticationSuccessHandler)
                     .failureHandler((req, res, ex) -> res.sendError(401, "OAuth2 authentication failed")));
         }
 

@@ -13,6 +13,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authuser -d authdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   maildev:
     image: maildev/maildev:2
@@ -28,8 +33,10 @@ services:
       dockerfile: Dockerfile
     container_name: userbackend
     depends_on:
-      - postgres
-      - maildev
+      postgres:
+        condition: service_healthy
+      maildev:
+        condition: service_started
     env_file:
       - .env
     environment:
@@ -37,6 +44,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/authdb
       SPRING_DATASOURCE_USERNAME: authuser
       SPRING_DATASOURCE_PASSWORD: authpass
+      APP_BASE_URL: http://localhost:8080
+      MAIL_HOST: maildev
     ports:
       - "8080:8080"
     restart: unless-stopped

@@ -2,6 +2,8 @@ package com.dmcdoc.usermanagement.core.service;
 
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
 import com.dmcdoc.usermanagement.core.service.UserService;
@@ -23,7 +25,7 @@ public class OAuth2Service {
             throw new IllegalArgumentException("Email manquant du fournisseur OAuth2");
 
         // 🔧 utilise la nouvelle méthode qu’on va ajouter juste après
-        User user = userService.findOrCreateByEmailOAuth2(email, oAuth2User);
+        User user = userService.findOrCreateByEmailOAuth2(email, OAuth2Provider.GOOGLE, OAuth2Provider.FACEBOOK);
 
         // ✅ génère le token via JwtUtils (ton implémentation existante)
         return jwtUtils.generateToken(user);
