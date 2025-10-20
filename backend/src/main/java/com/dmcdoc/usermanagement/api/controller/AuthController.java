@@ -42,6 +42,6 @@ public class AuthController {
         User user = rt.getUser();
         String newAccessToken = jwtService.generateToken(user);
 
-        return new AuthResponse(newAccessToken, rt.getToken());
+        return new AuthResponse(newAccessToken, rt.getToken(), user.getEmail());
     }
 }

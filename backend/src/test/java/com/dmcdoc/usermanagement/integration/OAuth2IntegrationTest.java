@@ -65,8 +65,10 @@ class OAuth2IntegrationTest {
 
         when(userService.findOrCreateByEmailOAuth2(email, OAuth2Provider.GOOGLE)).thenReturn(mockUser);
         when(jwtService.generateToken(mockUser)).thenReturn("mockAccessToken");
-        when(refreshTokenService.create(mockUser))
-                .thenReturn(new com.dmcdoc.usermanagement.core.model.RefreshToken("mockRefreshToken"));
+        com.dmcdoc.usermanagement.core.model.RefreshToken refreshToken =
+                mock(com.dmcdoc.usermanagement.core.model.RefreshToken.class);
+        when(refreshToken.getToken()).thenReturn("mockRefreshToken");
+        when(refreshTokenService.create(mockUser)).thenReturn(refreshToken);
 
         // when
         handler.onAuthenticationSuccess(request, response, authentication);

@@ -73,7 +73,7 @@ public class MagicLinkService {
         var refresh = refreshTokenService.create(user);
 
         log.info("Magic link verified for {} -> issued tokens", email);
-        return new AuthResponse(accessToken, refresh.getToken());
+        return new AuthResponse(accessToken, refresh.getToken(), user.getEmail());
     }
 
     /**

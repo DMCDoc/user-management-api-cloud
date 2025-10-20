@@ -36,6 +36,15 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public String extractEmail(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.getSubject();
+        } catch (JwtException e) {
+            return null;
+        }
+    }
+
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder().setSubject(userDetails.getUsername()).claim("roles", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))

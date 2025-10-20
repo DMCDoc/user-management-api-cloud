@@ -26,7 +26,7 @@ public class RefreshTokenService {
     public RefreshToken create(User user) {
         System.out.println(">>> deleteByUserId=" + user.getId());
         // ✅ supprime les anciens tokens via l’ID
-        refreshTokenRepository.deleteByUserId(user.getId());
+        refreshTokenRepository.deleteByUserId(user.getId().getMostSignificantBits());
 
         RefreshToken rt = RefreshToken.builder().user(user).token(UUID.randomUUID().toString())
                 .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs)).build();
@@ -50,6 +50,6 @@ public class RefreshTokenService {
     public void revokeAll(User user) {
         System.out.println(">>> revokeAll pour user.id=" + user.getId());
         // ✅ idem ici
-        refreshTokenRepository.deleteByUserId(user.getId());
+        refreshTokenRepository.deleteByUserId(user.getId().getMostSignificantBits());
     }
 }

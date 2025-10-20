@@ -64,7 +64,7 @@ public class UserService {
         String accessToken = jwtUtils.generateToken(user);
         RefreshToken refresh = refreshTokenService.create(user);
 
-        return new AuthResponse(accessToken, refresh.getToken());
+        return new AuthResponse(accessToken, refresh.getToken(), user.getEmail());
     }
 
     /*
@@ -88,7 +88,7 @@ public class UserService {
         String accessToken = jwtUtils.generateToken(user);
         RefreshToken refresh = refreshTokenService.create(user);
 
-        return new AuthResponse(accessToken, refresh.getToken());
+        return new AuthResponse(accessToken, refresh.getToken(), user.getEmail());
     }
 
     /*
@@ -137,7 +137,7 @@ public class UserService {
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token invalide ou expiré"));
 
         String newAccess = jwtUtils.generateToken(rt.getUser());
-        return new AuthResponse(newAccess, rt.getToken());
+        return new AuthResponse(newAccess, rt.getToken(), rt.getUser().getEmail());
     }
 
     /*

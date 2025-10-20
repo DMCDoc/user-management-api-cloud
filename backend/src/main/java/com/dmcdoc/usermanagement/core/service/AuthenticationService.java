@@ -58,7 +58,7 @@ public class AuthenticationService {
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
 
-        return new AuthResponse(accessToken, refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
     }
 
     // 🔹 Connexion
@@ -72,7 +72,7 @@ public class AuthenticationService {
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
 
-        return new AuthResponse(accessToken, refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
     }
 
     // AuthenticationService.java
@@ -86,7 +86,7 @@ public AuthResponse refresh(RefreshRequest request) {
     String accessToken = jwtService.generateToken(user);
     RefreshToken newRt = refreshTokenService.create(user);
 
-    return new AuthResponse(accessToken, newRt.getToken());
+    return new AuthResponse(accessToken, newRt.getToken(), user.getEmail());
 }
 
 }

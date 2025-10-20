@@ -29,4 +29,11 @@ public class MailService {
             throw new RuntimeException("Erreur d’envoi de mail", e);
         }
     }
+
+    public void sendMagicLink(String to, String link) {
+        String subject = "Connexion par lien magique";
+        String body = "Cliquez ici pour vous connecter : " + link;
+        sendMail(to, subject, body);
+    }
+
 }
