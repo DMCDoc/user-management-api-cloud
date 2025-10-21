@@ -1,9 +1,10 @@
-FROM eclipse-temurin:21-jdk-jammy
-
-ARG JAR_FILE=target/*.jar
+FROM maven:4.0.0-rc-4-amazoncorretto-25-debian-trixie
 WORKDIR /app
-COPY ${JAR_FILE} app.jar
+COPY . .
+RUN mvn clean package -DskipTests
 
-ENV JAVA_OPTS=""
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

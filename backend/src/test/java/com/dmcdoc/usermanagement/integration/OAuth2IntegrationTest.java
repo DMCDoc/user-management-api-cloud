@@ -58,6 +58,7 @@ class OAuth2IntegrationTest {
         User mockUser = new User();
         mockUser.setEmail(email);
         mockUser.setProvider(OAuth2Provider.GOOGLE);
+       
 
         when(authentication.getPrincipal()).thenReturn(oauthUser);
         when(request.getAttribute("org.springframework.security.oauth2.client.registration_id"))

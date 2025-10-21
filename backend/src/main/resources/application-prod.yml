@@ -35,6 +35,12 @@ spring:
     uris: http://${ELASTIC_HOST:192.168.56.14}:${ELASTIC_HTTP_PORT:9200}
     username: ${ELASTIC_USERNAME:elastic}
     password: ${ELASTIC_PASSWORD:changeme}
+  
+  springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
   security:
     oauth2:
@@ -78,7 +84,7 @@ management:
         include: health,info,metrics
   endpoint:
     health:
-      show-details: never
+      show-details: always
 
 logging:
   level:

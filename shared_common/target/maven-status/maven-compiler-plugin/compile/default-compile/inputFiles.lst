@@ -1,0 +1,10 @@
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\exceptions\EmailAlreadyUsedException.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\util\EmailValidator.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\RegisterRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\UserResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\LoginRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\ErrorResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\exceptions\UserNotFoundException.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\AuthResponse.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\RefreshRequest.java
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\exceptions\UserAlreadyExistsException.java

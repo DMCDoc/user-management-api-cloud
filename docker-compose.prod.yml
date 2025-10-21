@@ -29,7 +29,7 @@ services:
         max-file: "3"
 
   maildev:
-    image: maildev/maildev:2
+    image: maildev/maildev:latest
     container_name: um_maildev
     restart: unless-stopped
     ports:
@@ -68,7 +68,7 @@ services:
         max-file: "3"
 
   memcached:
-    image: memcached:1.6
+    image: memcached:latest
     container_name: um_memcached
     restart: unless-stopped
     command: ["-m", "64"]
@@ -113,7 +113,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: backend.dockerfile
     container_name: um_backend
     restart: unless-stopped
     env_file:
