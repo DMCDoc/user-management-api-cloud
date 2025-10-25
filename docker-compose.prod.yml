@@ -7,7 +7,7 @@ x-retries: &retries
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: um_postgres
     restart: unless-stopped
     environment:
@@ -112,7 +112,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./
       dockerfile: backend.dockerfile
     container_name: um_backend
     restart: unless-stopped

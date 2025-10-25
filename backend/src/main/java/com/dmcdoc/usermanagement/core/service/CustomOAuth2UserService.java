@@ -1,8 +1,8 @@
 package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -11,11 +11,15 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
+
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final UserService userService;
+    private final @Lazy UserService userService;
+
+    public CustomOAuth2UserService(@Lazy UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {

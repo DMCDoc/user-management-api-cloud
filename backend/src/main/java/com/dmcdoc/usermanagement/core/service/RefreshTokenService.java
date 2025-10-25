@@ -3,7 +3,6 @@ package com.dmcdoc.usermanagement.core.service;
 import com.dmcdoc.usermanagement.core.model.RefreshToken;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.RefreshTokenRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service @RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
@@ -25,17 +25,20 @@ public class RefreshTokenService {
     @Transactional
     public RefreshToken create(User user) {
         System.out.println(">>> deleteByUserId=" + user.getId());
-        // ✅ supprime les anciens tokens via l’ID
-        refreshTokenRepository.deleteByUserId(user.getId().getMostSignificantBits());
+        refreshTokenRepository.deleteByUserId(user.getId());
 
-        RefreshToken rt = RefreshToken.builder().user(user).token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs)).build();
+        RefreshToken rt = RefreshToken.builder()
+                .user(user)
+                .token(UUID.randomUUID().toString())
+                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
+                .build();
 
         return refreshTokenRepository.save(rt);
     }
 
     public Optional<RefreshToken> findValid(String token) {
-        return refreshTokenRepository.findByToken(token).filter(rt -> rt.getExpiryDate().isAfter(Instant.now()));
+        return refreshTokenRepository.findByToken(token)
+                .filter(rt -> rt.getExpiryDate().isAfter(Instant.now()));
     }
 
     public RefreshToken verifyExpiration(RefreshToken token) {
@@ -49,7 +52,6 @@ public class RefreshTokenService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void revokeAll(User user) {
         System.out.println(">>> revokeAll pour user.id=" + user.getId());
-        // ✅ idem ici
-        refreshTokenRepository.deleteByUserId(user.getId().getMostSignificantBits());
+        refreshTokenRepository.deleteByUserId(user.getId());
     }
 }

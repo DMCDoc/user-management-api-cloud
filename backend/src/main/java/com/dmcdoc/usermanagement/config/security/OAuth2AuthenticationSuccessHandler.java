@@ -1,68 +1,92 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
+import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.repository.RoleRepository;
+import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-        private final UserService userService;
+        private final UserRepository userRepository;
+        private final RoleRepository roleRepository;
         private final RefreshTokenService refreshTokenService;
         private final JwtService jwtService;
-
-        private final String frontendRedirectUrl = "${APP_BASE_URL:http://localhost:4200}/oauth2/success";
 
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request,
                         HttpServletResponse response,
-                        Authentication authentication) throws IOException {
+                        Authentication authentication)
+                        throws IOException, ServletException {
 
-                OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-                String email = (String) oauthUser.getAttributes().get("email");
+                OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+                String email = (String) oAuth2User.getAttributes().get("email");
 
                 if (email == null) {
-                        response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                                        "Email non fourni par le provider OAuth2");
-                        return;
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                        "Email manquant dans la réponse OAuth2");
                 }
 
-                // Récupérer provider correctement depuis le token
-                OAuth2Provider provider = OAuth2Provider.LOCAL;
-                if (authentication instanceof OAuth2AuthenticationToken) {
-                        String registrationId = ((OAuth2AuthenticationToken) authentication)
-                                        .getAuthorizedClientRegistrationId();
-                        provider = OAuth2Provider.valueOf(registrationId.toUpperCase());
-                }
+                String registrationId = authentication.getAuthorities()
+                                .stream()
+                                .findFirst()
+                                .map(a -> a.getAuthority().toUpperCase())
+                                .orElse("UNKNOWN");
 
-                User user = userService.findOrCreateByEmailOAuth2(email, provider);
+                OAuth2Provider provider = switch (registrationId) {
+                        case "GOOGLE" -> OAuth2Provider.GOOGLE;
+                        case "GITHUB" -> OAuth2Provider.GITHUB;
+                        case "FACEBOOK" -> OAuth2Provider.FACEBOOK;
+                        default -> OAuth2Provider.LOCAL;
+                };
 
-                String accessToken = jwtService.generateToken(user);
+                // 🔹 find or create user
+                User user = userRepository.findByEmail(email).orElseGet(() -> {
+                        Role userRole = roleRepository.findByName("ROLE_USER")
+                                        .orElseThrow(() -> new IllegalStateException("Role USER manquant en DB"));
+
+                        User newUser = User.builder()
+                                        .username(email.split("@")[0])
+                                        .email(email)
+                                        .fullName(email)
+                                        .roles(Set.of(userRole))
+                                        .password(UUID.randomUUID().toString())
+                                        .enabled(true)
+                                        .provider(provider)
+                                        .build();
+
+                        return userRepository.save(newUser);
+                });
+
+                String jwt = jwtService.generateToken(user);
                 var refreshToken = refreshTokenService.create(user);
 
-                log.info("OAuth2 login successful for {} via {}", email, provider);
+                log.info("✅ Authentification OAuth2 réussie pour {} via {}", user.getEmail(), provider);
 
-                String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s",
-                                frontendRedirectUrl,
-                                URLEncoder.encode(accessToken, StandardCharsets.UTF_8),
-                                URLEncoder.encode(refreshToken.getToken(), StandardCharsets.UTF_8));
-
-                response.sendRedirect(redirectUrl);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json");
+                response.getWriter().write(
+                                "{\"accessToken\": \"" + jwt + "\", " +
+                                                "\"refreshToken\": \"" + refreshToken.getToken() + "\"}");
+                response.getWriter().flush();
         }
 }

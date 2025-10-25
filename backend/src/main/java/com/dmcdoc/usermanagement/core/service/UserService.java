@@ -8,13 +8,11 @@ import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.*;
 
 @Service
@@ -25,7 +23,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
@@ -75,16 +72,15 @@ public class UserService {
     public AuthResponse login(LoginRequest request) {
         log.info("[UserService] Login user={}", request.getUsername());
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        } catch (BadCredentialsException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-        }
-
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
 
+        // Vérification manuelle du mot de passe
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+        }
+
+        // L'utilisateur est authentifié ici
         String accessToken = jwtUtils.generateToken(user);
         RefreshToken refresh = refreshTokenService.create(user);
 

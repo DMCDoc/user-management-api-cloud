@@ -10,7 +10,7 @@ import java.time.Instant;
 public class RefreshToken {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false, unique = true, length = 200)
     private String token;
