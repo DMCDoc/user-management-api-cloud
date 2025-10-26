@@ -1,9 +1,0 @@
-<h2>Créer un compte</h2>
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <input formControlName="username" placeholder="Username" required />
-  <input formControlName="email" type="email" placeholder="Email" required />
-  <input formControlName="fullName" placeholder="Full name" required />
-  <input formControlName="password" type="password" placeholder="Password" required />
-  <button type="submit" [disabled]="registerForm.invalid">Créer le compte</button>
-</form>
-<p>Déjà inscrit ? <a routerLink="/login">Se connecter</a></p>

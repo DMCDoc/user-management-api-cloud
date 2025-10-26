@@ -1,0 +1,7 @@
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN ./mvnw -q dependency:go-offline -DskipTests
+# code mounted at runtime for hot reload
+CMD ["./mvnw", "spring-boot:run"]

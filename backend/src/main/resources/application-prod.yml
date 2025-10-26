@@ -1,46 +1,13 @@
 spring:
-  application:
-    name: UserManagementAPI
   profiles:
     active: prod
-
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://192.168.56.15:5432/authdb}
-    username: ${SPRING_DATASOURCE_USERNAME:authuser}
-    password: ${SPRING_DATASOURCE_PASSWORD:authpass}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-
-  rabbitmq:
-    host: ${RABBITMQ_HOST:192.168.56.12}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:authmq}
-    password: ${RABBITMQ_PASSWORD:changeme}
-
-  elasticsearch:
-    uris: http://${ELASTIC_HOST:192.168.56.14}:${ELASTIC_HTTP_PORT:9200}
-    username: ${ELASTIC_USERNAME:elastic}
-    password: ${ELASTIC_PASSWORD:changeme}
-  
-  springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
 
   security:
     oauth2:
@@ -49,62 +16,37 @@ spring:
           google:
             client-id: ${OAUTH_GOOGLE_CLIENT_ID}
             client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/google"
             scope: [openid, profile, email]
-            redirect-uri: "{app.magic-link.base-url}/api/auth/oauth2/google"
-            authorization-grant-type: authorization_code
           facebook:
             client-id: ${OAUTH_FACEBOOK_CLIENT_ID}
             client-secret: ${OAUTH_FACEBOOK_CLIENT_SECRET}
+            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/facebook"
             scope: [email, public_profile]
-            redirect-uri: "{app.magic-link.base-url}/api/auth/oauth2/facebook"
-            authorization-grant-type: authorization_code
-
-memcached:
-  host: ${MEMCACHED_HOST:192.168.56.13}
-  port: ${MEMCACHED_PORT:11211}
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:3600000}
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
-
-security:
-  jwt:
-    exclude-paths: /api/auth/**,/actuator/**
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
 
 app:
   magic-link:
-    expiration-minutes: 10
-    base-url: ${APP_BASE_URL:https://auth.example.com}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-
+    base-url: ${APP_BASE_URL}
+memcached:
+  host: ${MEMCACHED_HOST}
+rabbitmq:
+  host: ${RABBITMQ_HOST}
+  port: ${RABBITMQ_PORT}
+  username: ${RABBITMQ_USER}
+  password: ${RABBITMQ_PASSWORD}
+elasticsearch:
+  uris: http://${ELASTIC_HOST}:${ELASTIC_HTTP_PORT}
+  username: ${ELASTIC_USERNAME}
+  password: ${ELASTIC_PASSWORD}
 logging:
+  file:
+    name: /var/log/usermanagement/app.log
   level:
     root: INFO
     org.springframework: WARN
     com.example.usermanagement: INFO
-  file:
-    name: /var/log/usermanagement/app.log
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
-
-server:
-  port: ${SERVER_PORT:8080}
-  address: 0.0.0.0
-  forward-headers-strategy: framework
-  compression:
-    enabled: true
-    mime-types: application/json,application/xml,text/html,text/xml,text/plain
-
-dotenv:
-  enabled: true
-
-debug: false
