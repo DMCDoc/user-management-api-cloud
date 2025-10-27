@@ -2,7 +2,7 @@
 # ÉTAPE 1: CONSTRUCTION (BUILDER)
 # Le nom "builder" est ajouté ici pour être référencé dans l'étape suivante.
 # ==================================
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM maven:latest-eclipse-temurin-21 AS builder
 WORKDIR /
 COPY . .
 RUN mvn clean package -DskipTests

@@ -22,13 +22,63 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-authuser} -d ${POSTGRES_DB:-authdb}"]
       <<: *default-health
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: um_rabbitmq_dev
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data_dev:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL","rabbitmq-diagnostics -q ping"]
+      <<: *default-health
+
+  memcached:
+    image: memcached:latest
+    container_name: um_memcached_dev
+    restart: unless-stopped
+    command: ["-m", "64"]
+    ports:
+      - "${MEMCACHED_PORT:-11211}:11211"
+    healthcheck:
+      test: ["CMD-SHELL","echo 'version' | nc -w 2 127.0.0.1 11211 >/dev/null 2>&1 || exit 1"]
+      <<: *default-health
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.1
+    container_name: um_elasticsearch_dev
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "${ELASTIC_HTTP_PORT:-9200}:9200"
+    volumes:
+      - es_data_dev:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL","curl -sSf http://127.0.0.1:${ELASTIC_HTTP_PORT:-9200}/_cluster/health || exit 1"]
+      <<: *default-health
+
   maildev:
     image: maildev/maildev:latest
     container_name: um_maildev_dev
     restart: unless-stopped
     ports:
-      - "1080:1080"
-      - "1025:1025"
+      - "${MAILDEV_WEB_PORT:-1080}:1080"
+      - "${MAILDEV_SMTP_PORT:-1025}:1025"
+    healthcheck:
+      test: ["CMD-SHELL","curl -fsS http://127.0.0.1:${MAILDEV_WEB_PORT:-1080} || exit 1"]
+      <<: *default-health
 
   backend:
     build:
@@ -43,6 +93,9 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-authdb}}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-${POSTGRES_USER:-authuser}}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-${POSTGRES_PASSWORD:-authpass}}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      MEMCACHED_HOST: ${MEMCACHED_HOST:-memcached}
+      ELASTICSEARCH_HOST: ${ELASTICSEARCH_HOST:-elasticsearch}
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
       CORS_ALLOWED_ORIGINS: http://localhost:5173
     ports:
@@ -50,12 +103,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      maildev:
+        condition: service_started
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2
     command: ["./mvnw", "spring-boot:run"]
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL","curl -fsS http://127.0.0.1:8080/actuator/health || exit 1"]
       <<: *default-health
 
   frontend:
@@ -75,8 +134,10 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5173 || exit 1"]
+      test: ["CMD-SHELL","curl -fsS http://127.0.0.1:5173 || exit 1"]
       <<: *default-health
 
 volumes:
   pg_data_dev:
+  rabbitmq_data_dev:
+  es_data_dev:
