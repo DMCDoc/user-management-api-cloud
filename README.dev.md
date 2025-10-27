@@ -1,0 +1,65 @@
+# Environnement de développement
+
+## 🏗 Structure
+```
+/project-root
+ ├── backend/                # Spring Boot
+ ├── frontend/               # React (Vite ou Create React App)
+ ├── docker-compose.dev.yml
+ ├── .env.dev
+ └── README.dev.md
+```
+
+## ⚙️ Prérequis
+- Docker & Docker Compose
+- Node.js (si build manuel du frontend)
+- JDK 21+
+- Maven 3.9+
+
+## 🔑 Variables d’environnement (.env.dev)
+Exemple minimal :
+```
+POSTGRES_USER=devuser
+POSTGRES_PASSWORD=devpass
+POSTGRES_DB=devdb
+SPRING_PROFILES_ACTIVE=dev
+JWT_SECRET=devsecret
+RABBITMQ_USER=dev
+RABBITMQ_PASS=devpass
+```
+
+## 🚀 Lancer l’environnement
+Depuis la racine :
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+## 🧠 Services inclus
+| Service | Port local | Description |
+|----------|-------------|-------------|
+| React Frontend | 5173 | Mode développement Vite |
+| Spring Boot Backend | 8080 | API |
+| PostgreSQL | 5432 | Base de données |
+| RabbitMQ | 15672 (UI) / 5672 | Broker de messages |
+| Memcached | 11211 | Cache |
+| Elasticsearch | 9200 | Moteur de recherche |
+
+## 🔄 Rebuild complet
+```bash
+docker compose -f docker-compose.dev.yml down -v
+docker compose -f docker-compose.dev.yml up --build
+```
+
+## 🧪 Tester le backend
+```bash
+cd backend
+mvn test
+```
+
+## 🧩 Notes
+- Le frontend appelle le backend via `http://localhost:8080`.
+- Le hot reload React est actif.
+- Logs visibles avec :
+  ```bash
+  docker compose -f docker-compose.dev.yml logs -f
+  ```

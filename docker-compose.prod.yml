@@ -105,7 +105,7 @@ services:
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
     healthcheck:
-      test: ["CMD-SHELL","test -f /usr/share/nginx/html/index.html || exit 1"]
+      test: ["CMD-SHELL", "test -f /usr/share/nginx/html/index.html || exit 1"]
       <<: *default-health
 
   nginx:

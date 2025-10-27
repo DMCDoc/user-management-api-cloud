@@ -1,0 +1,39 @@
+# ===========================
+# Backend Spring Boot - DEV
+# ===========================
+FROM eclipse-temurin:21-jdk AS backend
+
+WORKDIR /app
+
+# 1. Copier d'abord le wrapper Maven
+COPY ./backend/.mvn/ .mvn/
+COPY ./backend/mvnw ./
+RUN chmod +x mvnw || true
+
+# 2. Copier TOUS les fichiers pom.xml nécessaires
+# Copie du pom.xml parent (à la racine du projet)
+COPY pom.xml ./
+
+# Copie du pom.xml du module 'backend'
+# (Crée le répertoire /app/backend/ et y place le pom.xml)
+COPY ./backend/pom.xml ./backend/
+
+# Copier les pom.xml des autres modules locaux si nécessaire
+COPY ./shared_common/pom.xml ./shared_common/
+
+# (Si 'backend' dépend d'un autre module local, copiez son pom.xml aussi)
+# EX: COPY other-module/pom.xml other-module/
+
+# 3. Télécharger les dépendances (maintenant que tous les POMs sont là)
+# Cette étape sera mise en cache tant que les POMs ne changent pas
+RUN ./mvnw -pl backend -am dependency:go-offline -B
+
+# 4. Copier le reste du code source
+# 'COPY . .' copiera tout le reste, y compris le code source de /backend
+COPY ./backend/src /app/backend/src
+COPY ./shared_common/src /app/shared_common/src
+
+# (L'étape 'if [ ! -f mvnw ]' n'est plus nécessaire)
+
+# 5. Commande par défaut : exécution du projet Spring Boot en mode dev
+CMD ["backend/mvnw", "pl", "am", "backend", "spring-boot:run"]
