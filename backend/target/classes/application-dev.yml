@@ -1,14 +1,20 @@
 spring:
-  profiles:
-    active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/authdb
-    username: authuser
-    password: authpass
+    url: ${SPRING_DATASOURCE_URL} 
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
+  mail:
+    host: ${MAIL_HOST:maildev}
+    port: ${MAIL_PORT:1025}
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
   security:
+    jwt: ${JWT_SECRET}
+    exclude-paths: /api/auth/**,/actuator/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**,/ping
     oauth2:
       client:
         registration:
@@ -17,6 +23,13 @@ spring:
             client-secret: ${OAUTH_GITHUB_CLIENT_SECRET:}
             redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/github"
             scope: [user:email]
+            # ✅ AJOUTEZ des logs pour debugger
+            logging:
+              level:
+                    com.dmcdoc.usermanagement.config.security: TRACE
+                    org.springframework.security: DEBUG
+                    org.springframework.web: DEBUG
+                    com.dmcdoc.usermanagement: DEBUG
 app:
   magic-link:
     base-url: http://localhost:8080

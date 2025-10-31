@@ -6,17 +6,6 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    proxy: {
-      "/api": {
-        target: "http://backend:8080", // nom du service dans docker-compose.dev.yml
-        changeOrigin: true,
-        secure: false
-      },
-      "/actuator": {
-        target: "http://backend:8080",
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    
   }
 });

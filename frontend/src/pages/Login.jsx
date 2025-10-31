@@ -6,20 +6,36 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); // ✅ AJOUTEZ
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
-    navigate("/dashboard");
+    setError(""); // ✅ Réinitialiser les erreurs
+    try {
+      await login(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Login failed. Please check your credentials."); // ✅ Gestion d'erreur
+    }
   };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h1>Login</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>} {/* ✅ Afficher l'erreur */}
       <form onSubmit={handleSubmit}>
-        <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+        <input 
+          placeholder="Password" 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+        />
         <button type="submit">Login</button>
       </form>
     </div>

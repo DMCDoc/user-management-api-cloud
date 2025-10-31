@@ -32,6 +32,19 @@ RABBITMQ_PASS=devpass
 Depuis la racine :
 ```bash
 docker compose -f docker-compose.dev.yml up --build
+docker compose --env-file .env.dev -f docker-compose.dev.yml up -d --build
+docker-compose -f docker-compose.dev.yml run --rm frontend npm install
+
+
+check
+docker compose -f docker-compose.dev.yml ps
+docker logs -f um_backend_dev
+docker exec -it um_backend_dev sh
+mvn spring-boot:run -X
+stop
+docker-compose -f docker-compose.dev.yml down
+java tools option: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+
 ```
 
 ## 🧠 Services inclus

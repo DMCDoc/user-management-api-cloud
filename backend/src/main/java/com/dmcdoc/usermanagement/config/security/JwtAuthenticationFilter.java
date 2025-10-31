@@ -36,8 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.excludedPaths = excludedPaths != null ? excludedPaths : new String[0];
-    }
 
+    }
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
@@ -86,6 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
+        
         List<String> exclusions = Arrays.asList(excludedPaths);
         boolean excluded = exclusions.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
         if (excluded)

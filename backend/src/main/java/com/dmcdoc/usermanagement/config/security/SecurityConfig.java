@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Value("${security.auth.jwt.enabled:true}")
     private boolean jwtEnabled;
 
-    @Value("${security.jwt.exclude-paths:/api/auth/**,/actuator/**}")
+    @Value("${security.jwt.exclude-paths:/api/auth/**,/actuator/**,/ping,/swagger-ui/**,/v3/api-docs/**,/api-docs/**}")
     private String[] excludedPaths;
 
     @Bean
@@ -87,7 +87,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
             // public docs & health
-            auth.requestMatchers("/ping", "/swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll();
+            auth.requestMatchers("/ping", "/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll();
 
             // auth endpoints
             auth.requestMatchers(
@@ -106,7 +106,7 @@ public class SecurityConfig {
                 auth.requestMatchers("/oauth2/**", "/login/**", "/api/auth/oauth2/**", "/login/oauth2/**").permitAll();
             }
 
-            auth.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/actuator/**").permitAll();
 
             // example role restricted path
             auth.requestMatchers("/api/dummy/admin").hasRole("ADMIN");
