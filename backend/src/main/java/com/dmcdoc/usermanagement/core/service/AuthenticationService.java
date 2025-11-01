@@ -61,22 +61,36 @@ public class AuthenticationService {
         return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
     }
 
-    // 🔹 Connexion
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    // 🔹 Connexion par EMAIL (nouvelle méthode)
+    public AuthResponse loginByEmail(LoginRequest request) {
+        // Vérifiez que l'email est fourni
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
 
-        User user = userRepository.findByUsername(request.getUsername())
+        // Trouver l'utilisateur par email d'abord
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Vérifiez que le password est fourni
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new RuntimeException("Password is required");
+        }
+
+        // Authentifier avec le username (car Spring Security utilise username)
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
 
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
 
         return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
     }
-
     // AuthenticationService.java
 public AuthResponse refresh(RefreshRequest request) {
+
+
+
     RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
             .map(refreshTokenService::verifyExpiration)
             .orElseThrow(() -> new RuntimeException("Invalid refresh token"));

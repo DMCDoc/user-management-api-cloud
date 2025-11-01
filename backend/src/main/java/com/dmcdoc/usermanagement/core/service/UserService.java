@@ -70,21 +70,60 @@ public class UserService {
      * ============================================================
      */
     public AuthResponse login(LoginRequest request) {
-        log.info("[UserService] Login user={}", request.getUsername());
+        // Extract an identifier (username or email) using best-effort property lookup
+        String identifier = getFirstNonNullProperty(request, "getUsername", "getEmail", "getLogin", "getIdentifier");
+        log.info("[UserService] Login identifier={}", identifier != null ? identifier : "unknown");
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
+        // Vérifiez que le username/email est fourni
+        if (identifier == null || identifier.trim().isEmpty()) {
+            throw new RuntimeException("Username or email is required");
+        }
+
+        // Try to find user by username, otherwise by email
+        Optional<User> userOpt = userRepository.findByUsername(identifier);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(identifier);
+        }
+        User user = userOpt.orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
+
+        // Extract password using best-effort property lookup
+        String password = getFirstNonNullProperty(request, "getPassword", "getPass");
+        if (password == null || password.trim().isEmpty()) {
+            throw new RuntimeException("Password is required");
+        }
 
         // Vérification manuelle du mot de passe
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
         }
 
-        // L'utilisateur est authentifié ici
+        // Génération des tokens
         String accessToken = jwtUtils.generateToken(user);
-        RefreshToken refresh = refreshTokenService.create(user);
+        RefreshToken refreshToken = refreshTokenService.create(user);
 
-        return new AuthResponse(accessToken, refresh.getToken(), user.getEmail());
+        return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
+    }
+
+    // helper: attempt to read one of several getter names via reflection and return the first non-empty value
+    private String getFirstNonNullProperty(Object req, String... methodNames) {
+        if (req == null) {
+            return null;
+        }
+        for (String name : methodNames) {
+            try {
+                java.lang.reflect.Method m = req.getClass().getMethod(name);
+                Object val = m.invoke(req);
+                if (val != null) {
+                    String s = val.toString();
+                    if (!s.trim().isEmpty()) {
+                        return s;
+                    }
+                }
+            } catch (Exception ignored) {
+                // ignore missing methods / invocation errors and try next
+            }
+        }
+        return null;
     }
 
     /*

@@ -27,6 +27,9 @@ JWT_SECRET=devsecret
 RABBITMQ_USER=dev
 RABBITMQ_PASS=devpass
 ```
+generation de cle JWT 
+
+openssl rand -base64 32
 
 ## 🚀 Lancer l’environnement
 Depuis la racine :
@@ -41,6 +44,10 @@ docker compose -f docker-compose.dev.yml ps
 docker logs -f um_backend_dev
 docker exec -it um_backend_dev sh
 mvn spring-boot:run -X
+show_table docker exec um_postgres_dev psql -U authuser -d authdb -c "SELECT username, email, password FROM users;"
+# Testez les deux chemins
+curl -v http://localhost/auth/login
+curl -v http://localhost/api/auth/login
 stop
 docker-compose -f docker-compose.dev.yml down
 java tools option: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

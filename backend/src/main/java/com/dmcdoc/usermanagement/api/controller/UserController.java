@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Tentative de connexion pour l'utilisateur : {}", request.getUsername());
+        log.info("Tentative de connexion pour l'utilisateur : {}", request);
         return ResponseEntity.ok(userService.login(request));
     }
 

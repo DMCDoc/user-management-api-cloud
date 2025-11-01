@@ -13,6 +13,7 @@
 /app/src/main/java/com/dmcdoc/usermanagement/config/RoleInitializer.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/model/MagicLinkToken.java
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/OAuth2AuthenticationSuccessHandler.java
+/app/src/main/java/com/dmcdoc/usermanagement/api/controller/DebugController.java
 /app/src/main/java/com/dmcdoc/usermanagement/UserManagementApplication.java
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/JwtUtils.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/repository/MagicLinkTokenRepository.java

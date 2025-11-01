@@ -7,17 +7,17 @@ COPY ./backend/.mvn/ .mvn/
 COPY ./backend/mvnw ./
 RUN chmod +x mvnw
 
-# POMs
+# POMs d'abord
 COPY pom.xml ./
 COPY ./backend/pom.xml ./backend/
 COPY ./shared_common/pom.xml ./shared_common/
 
-# Pré-télécharger les dépendances
-RUN ./mvnw -pl backend -am dependency:go-offline -B
-
-# Copier le code source
-COPY ./backend/src /app/backend/src
+# ✅ Copier le code source de shared_common et backend
 COPY ./shared_common/src /app/shared_common/src
+COPY ./backend/src /app/backend/src
+
+# ✅ CORRECTION : Construire en utilisant le parent POM
+RUN ./mvnw clean install -DskipTests
 
 # Démarrage
 CMD ["./mvnw", "-pl", "backend", "-am", "spring-boot:run", "-DskipTests"]
