@@ -43,6 +43,7 @@ check
 docker compose -f docker-compose.dev.yml ps
 docker logs -f um_backend_dev
 docker exec -it um_backend_dev sh
+docker compose -f docker-compose.dev.yml build --no-cache backend
 mvn spring-boot:run -X
 show_table docker exec um_postgres_dev psql -U authuser -d authdb -c "SELECT username, email, password FROM users;"
 # Testez les deux chemins

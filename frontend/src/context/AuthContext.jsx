@@ -1,43 +1,61 @@
-import { createContext, useContext, useState } from "react";
-import api from "../api/api";
+import { createContext, useContext, useState, useEffect } from "react";
+import api from "../api/api.js"; // ✅ CORRECTION : Utilisation du chemin explicite avec l'extension .js
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(localStorage.getItem("token") ? {} : null);
+  // Initialiser l'état user en lisant le token ET l'email du localStorage
+  const [user, setUser] = useState(() => {
+    const token = localStorage.getItem("accessToken");
+    const email = localStorage.getItem("userEmail");
+    return token ? { email: email } : null;
+  });
+
+  // Gérer les changements de stockage externe (déconnexion dans un autre onglet)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("accessToken");
+      const email = localStorage.getItem("userEmail");
+      setUser(token ? { email: email } : null);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const login = async (email, password) => {
-  try {
-    const res = await api.post("/api/auth/login", { email, password });
-    
-    // ✅ AJOUTEZ des logs pour debugger
-    console.log("Login response:", res.data);
-    
-    // ✅ VÉRIFIEZ la structure de la réponse
-    if (res.data.token && res.data.user) {
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
-    } else {
-      throw new Error("Invalid response format");
+    try {
+      // Les requêtes passent par Nginx, qui transfère vers le backend Spring Boot
+      const res = await api.post("/api/auth/login", { email, password });
+      
+      if (res.data.accessToken && res.data.email) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("userEmail", res.data.email);
+        setUser({ email: res.data.email });
+      } else {
+        throw new Error("Format de réponse invalide depuis l'API");
+      }
+    } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
+      throw error;
     }
-  } catch (error) {
-    console.error("Login error:", error.response?.data || error.message);
-    throw error;
-  }
-};
+  };
 
   const register = async (data) => {
     try {
-      // ✅ CORRECTION : Ajoutez /api devant les endpoints
+      // data doit contenir { username, email, password }
       await api.post("/api/auth/register", data);
     } catch (error) {
-      console.error("Register error:", error);
+      console.error("Register error:", error.response?.data?.message || error.message);
       throw error;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userEmail");
     setUser(null);
   };
 

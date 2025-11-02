@@ -28,18 +28,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Tentative de connexion pour l'utilisateur : {}", request);
-        return ResponseEntity.ok(userService.login(request));
-    }
 
-    
-
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.register(request));
-    }
 
         @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {

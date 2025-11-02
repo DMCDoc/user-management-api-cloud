@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// En développement, utilisez les URLs relatives pour passer par nginx
+// Utiliser une base URL vide car Nginx gère le routage entre le front et le back
 const API_BASE_URL = '';
 
 const api = axios.create({
@@ -10,10 +10,10 @@ const api = axios.create({
   },
 });
 
-// Intercepteur pour ajouter le token
+// Intercepteur pour ajouter le token à chaque requête authentifiée
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken'); // Utiliser accessToken
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,11 +23,5 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-export const authAPI = {
-  login: (credentials) => api.post('/api/auth/login', credentials),
-  register: (userData) => api.post('/api/auth/register', userData),
-  // ... autres endpoints
-};
 
 export default api;
