@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Utiliser une base URL vide car Nginx gère le routage entre le front et le back
-const API_BASE_URL = '';
+const API_BASE_URL = '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

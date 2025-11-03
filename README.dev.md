@@ -34,7 +34,7 @@ openssl rand -base64 32
 ## 🚀 Lancer l’environnement
 Depuis la racine :
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build -d
 docker compose --env-file .env.dev -f docker-compose.dev.yml up -d --build
 docker-compose -f docker-compose.dev.yml run --rm frontend npm install
 
