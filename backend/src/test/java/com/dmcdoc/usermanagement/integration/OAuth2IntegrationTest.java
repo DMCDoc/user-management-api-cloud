@@ -7,7 +7,8 @@ import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
-import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

@@ -3,9 +3,10 @@ package com.dmcdoc.usermanagement.api.controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 
-import com.dmcdoc.usermanagement.core.service.OAuth2Service;
+import com.dmcdoc.usermanagement.core.service.auth.OAuth2Service;
+
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth/oauth2")

@@ -1,7 +1,6 @@
 package com.dmcdoc.usermanagement.api.controller;
 
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
-import com.dmcdoc.sharedcommon.dto.LoginRequest;
 import com.dmcdoc.sharedcommon.dto.RefreshRequest;
 import com.dmcdoc.sharedcommon.dto.RegisterRequest;
 import com.dmcdoc.sharedcommon.dto.UserResponse;

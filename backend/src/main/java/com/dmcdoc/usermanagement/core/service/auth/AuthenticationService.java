@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.core.service;
+package com.dmcdoc.usermanagement.core.service.auth;
 
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.sharedcommon.dto.LoginRequest;

@@ -3,8 +3,7 @@ package com.dmcdoc.usermanagement.security;
 import com.dmcdoc.sharedcommon.dto.RegisterRequest;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
-import com.dmcdoc.usermanagement.core.service.AuthenticationService;
-
+import com.dmcdoc.usermanagement.core.service.auth.AuthenticationService;
 
 import jakarta.transaction.Transactional;
 

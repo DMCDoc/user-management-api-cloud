@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.api.controller;
 
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
-import com.dmcdoc.usermanagement.core.service.MagicLinkService;
+import com.dmcdoc.usermanagement.core.service.auth.MagicLinkService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Data;

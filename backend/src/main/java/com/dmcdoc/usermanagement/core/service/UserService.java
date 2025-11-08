@@ -5,6 +5,8 @@ import com.dmcdoc.usermanagement.config.security.JwtUtils;
 import com.dmcdoc.usermanagement.core.model.*;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
+import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -7,8 +7,8 @@ import com.dmcdoc.sharedcommon.dto.RegisterRequest;
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.model.RefreshToken;
 import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.service.AuthenticationService;
-import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.auth.AuthenticationService;
+import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
 
 import lombok.RequiredArgsConstructor;

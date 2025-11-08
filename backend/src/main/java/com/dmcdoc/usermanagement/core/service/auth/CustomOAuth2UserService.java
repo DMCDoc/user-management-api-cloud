@@ -1,6 +1,8 @@
-package com.dmcdoc.usermanagement.core.service;
+package com.dmcdoc.usermanagement.core.service.auth;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
+import com.dmcdoc.usermanagement.core.service.UserService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

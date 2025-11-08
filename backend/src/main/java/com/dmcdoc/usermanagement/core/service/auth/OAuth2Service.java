@@ -1,10 +1,11 @@
-package com.dmcdoc.usermanagement.core.service;
+package com.dmcdoc.usermanagement.core.service.auth;
 
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.service.UserService;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
 
 @Service

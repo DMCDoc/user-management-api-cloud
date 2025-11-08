@@ -6,7 +6,8 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // ✅ AJOUTEZ
+  const [error, setError] = useState("");// ✅ AJOUTEZ
+  const [msg, setMsg] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,6 +19,7 @@ export default function Login() {
     } catch (err) {
       setError("Login failed. Please check your credentials."); // ✅ Gestion d'erreur
     }
+  
   };
 
   return (
@@ -38,6 +40,15 @@ export default function Login() {
         />
         <button type="submit">Login</button>
       </form>
+         <div>
+      <h2>Mot de passe oublié</h2>
+      <form onSubmit={handleSubmit}>
+        <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email" required/>
+        <button>Envoyer</button>
+      </form>
+      {msg && <p>{msg}</p>}
     </div>
+    </div>
+    
   );
 }

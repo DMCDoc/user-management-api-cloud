@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.core.service;
+package com.dmcdoc.usermanagement.core.service.auth;
 
 import com.dmcdoc.usermanagement.core.model.RefreshToken;
 import com.dmcdoc.usermanagement.core.model.User;

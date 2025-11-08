@@ -4,10 +4,10 @@ import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.usermanagement.core.model.MagicLinkToken;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.MagicLinkTokenRepository;
-import com.dmcdoc.usermanagement.core.service.MailService;
-import com.dmcdoc.usermanagement.core.service.MagicLinkService;
-import com.dmcdoc.usermanagement.core.service.RefreshTokenService;
 import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.auth.MagicLinkService;
+import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.mail.MailService;
 import com.dmcdoc.usermanagement.config.security.JwtUtils;
 
 import org.junit.jupiter.api.BeforeEach;
