@@ -38,14 +38,15 @@ services:
       <<: *default-health
 
   memcached:
-    image: memcached:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.memcached
     container_name: um_memcached_dev
     restart: unless-stopped
     command: ["-m", "64"]
     ports:
       - "${MEMCACHED_PORT:-11211}:11211"
-    healthcheck:
-      disable: true
+
       
 
   elasticsearch:
@@ -109,7 +110,7 @@ services:
       elasticsearch:
         condition: service_healthy
       maildev:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - ./backend:/app
       - ~/.m2:/root/.m2

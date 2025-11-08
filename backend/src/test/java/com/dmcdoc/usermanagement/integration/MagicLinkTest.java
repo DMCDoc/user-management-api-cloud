@@ -62,7 +62,7 @@ class MagicLinkTest {
 
         // capture l'email envoyé
         ArgumentCaptor<String> mailCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mailService, times(1)).sendMail(mailCaptor.capture(), anyString(),
+        verify(mailService, times(1)).sendHtml(mailCaptor.capture(), anyString(),
                 contains("/api/auth/magic/verify?token="));
         assertThat(mailCaptor.getValue()).isEqualTo(email);
 

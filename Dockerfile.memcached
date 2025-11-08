@@ -1,0 +1,9 @@
+FROM memcached:alpine
+
+# Installer netcat en tant que root puis revenir à l'utilisateur memcache
+USER root
+RUN apk add --no-cache netcat-openbsd
+USER memcache
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD nc -z localhost 11211 || exit 1

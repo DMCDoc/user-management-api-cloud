@@ -25,7 +25,7 @@ public class PasswordResetService {
             PasswordResetTokenRepository tokenRepo,
             MailService mailService,
             PasswordEncoder passwordEncoder,
-            @Value("${app.frontend.url}") String frontendUrl) {
+            @Value("${app.frontend.url:http://localhost}") String frontendUrl) {
         this.userRepo = userRepo;
         this.tokenRepo = tokenRepo;
         this.mailService = mailService;

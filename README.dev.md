@@ -46,6 +46,11 @@ docker exec -it um_backend_dev sh
 docker compose -f docker-compose.dev.yml build --no-cache backend
 mvn spring-boot:run -X
 show_table docker exec um_postgres_dev psql -U authuser -d authdb -c "SELECT username, email, password FROM users;"
+pw recorvery 
+curl -X POST http://localhost:8080/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email": "ton@mail.com"}'
+
 # Testez les deux chemins
 curl -v http://localhost/auth/login
 curl -v http://localhost/api/auth/login

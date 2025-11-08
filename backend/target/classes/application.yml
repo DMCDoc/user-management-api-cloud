@@ -14,15 +14,22 @@ spring:
     properties:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
-
   security:
     oauth2:
       client:
         registration: {}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  elasticsearch:
+    # La propriété standard moderne est 'uris'
+    uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}
 
 memcached:
   port: ${MEMCACHED_PORT:11211}
-
+  host: ${MEMCACHED_HOST:memcached}
 jwt:
   expiration: ${JWT_EXPIRATION:3600000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
@@ -40,5 +47,7 @@ server:
   port: ${SERVER_PORT:8080}
   address: 0.0.0.0
   forward-headers-strategy: framework
+app.frontend.url: http://localhost
+
 
 
