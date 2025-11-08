@@ -28,28 +28,6 @@ public class UserService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
-    // helper: attempt to read one of several getter names via reflection and return the first non-empty value
-    private String getFirstNonNullProperty(Object req, String... methodNames) {
-        if (req == null) {
-            return null;
-        }
-        for (String name : methodNames) {
-            try {
-                java.lang.reflect.Method m = req.getClass().getMethod(name);
-                Object val = m.invoke(req);
-                if (val != null) {
-                    String s = val.toString();
-                    if (!s.trim().isEmpty()) {
-                        return s;
-                    }
-                }
-            } catch (Exception ignored) {
-                // ignore missing methods / invocation errors and try next
-            }
-        }
-        return null;
-    }
-
     /*
      * ============================================================
      * 🔹 OAuth2 (Google / Facebook / GitHub)
