@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
 import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
 
-@RestController @RequestMapping("/api/dummy")
+@RestController @RequestMapping("/dummy")
 public class DummyController {
 
     @GetMapping("/fail/user-exists")

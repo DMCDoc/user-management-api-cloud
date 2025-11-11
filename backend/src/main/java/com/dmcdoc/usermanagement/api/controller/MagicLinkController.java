@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @RestController
-@RequestMapping("/api/auth/magic")
+@RequestMapping("/auth/magic")
 @RequiredArgsConstructor
 @Validated
 public class MagicLinkController {

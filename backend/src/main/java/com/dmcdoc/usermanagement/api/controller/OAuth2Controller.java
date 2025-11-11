@@ -9,7 +9,7 @@ import com.dmcdoc.usermanagement.core.service.auth.OAuth2Service;
 import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("/api/auth/oauth2")
+@RequestMapping("/auth/oauth2")
 public class OAuth2Controller {
 
     private final OAuth2Service oauth2Service;

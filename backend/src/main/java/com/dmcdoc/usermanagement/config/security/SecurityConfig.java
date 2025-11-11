@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,14 +49,13 @@ public class SecurityConfig {
     @Value("${security.auth.jwt.enabled:true}")
     private boolean jwtEnabled;
 
-    @Value("${security.jwt.exclude-paths:/api/auth/**,/auth/**,/debug/**,/actuator/**,/ping,/swagger-ui/**,/v3/api-docs/**,/api-docs/**}")
+    @Value("${security.jwt.exclude-paths:/api/**,/api/auth/**,/auth/**,/debug/**,/actuator/**,/ping,/swagger-ui/**,/v3/api-docs/**,/api-docs/**}")
     private String[] excludedPaths;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException(
-                        "Utilisateur introuvable: " + username));
+        return email -> userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
     @Bean
@@ -110,7 +110,9 @@ public CorsConfigurationSource corsConfigurationSource() {
                     "/users/register",
                     "/users/refresh",
                     "/api/auth/login",
-                    "/api/auth/register").permitAll();
+                    "/api/auth/register",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password").permitAll();
 
             if (magicLinkEnabled) {
                 auth.requestMatchers("/users/magiclink/**", "/api/auth/magic/**", "/api/auth/magic/request",

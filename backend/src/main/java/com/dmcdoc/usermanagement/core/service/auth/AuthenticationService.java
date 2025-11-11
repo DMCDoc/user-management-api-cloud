@@ -79,7 +79,7 @@ public class AuthenticationService {
 
         // Authentifier avec le username (car Spring Security utilise username)
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.create(user);
@@ -88,8 +88,6 @@ public class AuthenticationService {
     }
     // AuthenticationService.java
 public AuthResponse refresh(RefreshRequest request) {
-
-
 
     RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
             .map(refreshTokenService::verifyExpiration)

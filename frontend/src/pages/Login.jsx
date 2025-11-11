@@ -32,7 +32,7 @@ export default function Login() {
     setMsg(null);
 
     // Mettez ici l'URL de votre API backend
-    const API_URL = "/auth/forgot-password"; 
+    const API_URL = "/api/auth/forgot-password";
 
     try {
       const res = await fetch(API_URL, {
