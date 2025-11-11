@@ -70,7 +70,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService uds) {
-        return new JwtAuthenticationFilter(jwtService, uds, excludedPaths);
+        return new JwtAuthenticationFilter(jwtService, uds);
     }
 
     @Bean
@@ -100,6 +100,10 @@ public CorsConfigurationSource corsConfigurationSource() {
         http.authorizeHttpRequests(auth -> {
             // public docs & health
             auth.requestMatchers("/ping", "/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll();
+            // admin paths
+            auth.requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().permitAll();
+
 
             // auth endpoints
             auth.requestMatchers(
