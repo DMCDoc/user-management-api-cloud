@@ -6,6 +6,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
 import AdminPage from "./admin/AdminPage";
+import { AdminRoute } from "./auth/AdminRoute";
+
 
 export default function App() {
   return (

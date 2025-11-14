@@ -1,58 +1,61 @@
 package com.dmcdoc.usermanagement.api.controller;
 
+import com.dmcdoc.sharedcommon.dto.UserDto;
+import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.Role;
-import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.repository.RoleRepository;
-import com.dmcdoc.usermanagement.core.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import com.dmcdoc.usermanagement.core.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final AdminService adminService;
 
-    // 🔹 Récupérer tous les utilisateurs
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userRepository.findAll();
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        var users = adminService.getAllUsers().stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }
 
-    // 🔹 Ajouter un rôle à un utilisateur
-    @PostMapping("/users/{userId}/roles/{roleName}")
-    @Transactional
-    public ResponseEntity<?> addRoleToUser(@PathVariable Long userId, @PathVariable String roleName) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-
-        user.getRoles().add(role);
-        userRepository.save(user);
-        return ResponseEntity.ok("Role added successfully");
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
+        var user = adminService.getUserById(id);
+        return ResponseEntity.ok(UserMapper.toDto(user));
     }
 
-    // 🔹 Supprimer un rôle d’un utilisateur
-    @DeleteMapping("/users/{userId}/roles/{roleName}")
-    @Transactional
-    public ResponseEntity<?> removeRoleFromUser(@PathVariable Long userId, @PathVariable String roleName) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+    @PostMapping("/users/{id}/roles/{roleName}")
+    public ResponseEntity<Void> addRoleToUser(@PathVariable UUID id, @PathVariable String roleName) {
+        adminService.addRoleToUser(id, roleName);
+        return ResponseEntity.ok().build();
+    }
 
-        user.getRoles().remove(role);
-        userRepository.save(user);
-        return ResponseEntity.ok("Role removed successfully");
+    @DeleteMapping("/users/{id}/roles/{roleName}")
+    public ResponseEntity<Void> removeRoleFromUser(@PathVariable UUID id, @PathVariable String roleName) {
+        adminService.removeRoleFromUser(id, roleName);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<List<Role>> getAllRoles() {
+        return ResponseEntity.ok(adminService.getAllRoles());
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        adminService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

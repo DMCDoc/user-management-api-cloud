@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +116,7 @@ public class UserService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteAccountById(Long id) {
+    public void deleteAccountById(UUID id) {
         userRepository.findById(id)
                 .ifPresent(u -> {
                     refreshTokenService.revokeAll(u);

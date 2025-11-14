@@ -63,7 +63,7 @@ public class UserController {
     // ✅ ADMIN peut supprimer par ID
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteById(@PathVariable java.util.UUID id) {
         userService.deleteAccountById(id);
         return ResponseEntity.ok("Utilisateur supprimé : " + id);
     }
