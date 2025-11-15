@@ -82,7 +82,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./
       dockerfile: Dockerfile.backend.dev
     container_name: um_backend_dev
     restart: unless-stopped

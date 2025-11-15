@@ -18,6 +18,7 @@
 /app/src/test/java/com/dmcdoc/usermanagement/integration/OAuth2IntegrationTest.java
 /app/src/test/java/com/dmcdoc/usermanagement/security/JWTUtilsTest.java
 /app/src/test/java/com/dmcdoc/usermanagement/security/SimpleUserRepoTest.java
+/app/src/test/java/com/dmcdoc/usermanagement/core/service/admin/AdminServiceTest.java
 /app/src/test/java/com/dmcdoc/usermanagement/exceptions/EmailAlreadyUsedExceptionTest.java
 /app/src/test/java/com/dmcdoc/usermanagement/dto/SharedCommonSanityTest.java
 /app/src/test/java/com/dmcdoc/usermanagement/RoleInitializerIntegrationTest.java

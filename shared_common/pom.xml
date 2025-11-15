@@ -42,6 +42,13 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
            
+</dependency>
+
+<!-- Jakarta Validation API for DTO annotations (@Email, @Size) -->
+<dependency>
+<groupId>jakarta.validation</groupId>
+<artifactId>jakarta.validation-api</artifactId>
+<version>3.0.2</version>
         </dependency>
     </dependencies>
 

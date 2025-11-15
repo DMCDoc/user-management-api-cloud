@@ -1,27 +1,24 @@
-import axios from 'axios';
 
-
-const API_BASE_URL = '/api';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL || "", // empty means relative -> nginx proxy
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// Intercepteur pour ajouter le token à chaque requête authentifiée
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken'); // Utiliser accessToken
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// attach token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+}, (err) => Promise.reject(err));
+
+// optional response interceptor to handle 401 + refresh (not implemented here)
+// add refresh logic if you have refresh token endpoint
 
 export default api;

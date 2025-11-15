@@ -1,46 +1,123 @@
-import { updateUserRole, deleteUser } from "./Adminapi";
+import { useEffect, useState } from "react";
+import { Box, TextField, IconButton } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 
-export default function UserTable({ users }) {
-  async function handleRoleChange(id, role) {
-    await updateUserRole(id, role);
-    alert("Role mis à jour");
+import { fetchUsers, deleteUser } from "./api";
+import { adminResetPassword } from "./api";
+import EditUserDialog from "./EditUserDialog";
+
+export default function UserTable() {
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  async function loadUsers() {
+    const data = await fetchUsers(page, 20, search);
+    setUsers(data.content);
   }
 
-  async function handleDelete(id) {
-    if (confirm("Supprimer cet utilisateur ?")) {
-      await deleteUser(id);
-      alert("Utilisateur supprimé");
-      location.reload();
-    }
-  }
+  useEffect(() => {
+    loadUsers();
+  }, [page, search]);
+
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "roles", headerName: "Roles", width: 200 },
+    { field: "blocked", headerName: "Blocked", width: 120, type: "boolean" },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 160,
+      renderCell: (params) => (
+        <>
+          <IconButton
+            color="primary"
+            onClick={() => {
+              setSelectedUser(params.row);
+              setOpenEdit(true);
+            }}>
+            <EditIcon />
+          </IconButton>
+
+          <IconButton
+            color="error"
+            onClick={() => deleteUser(params.row.id).then(loadUsers)}>
+            <DeleteIcon />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
 
   return (
-    <table style={{ width: "100%", background: "white", padding: "10px" }}>
-      <thead>
-        <tr>
-          <th>ID</th><th>Email</th><th>Rôles</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {users.map((u) => (
-          <tr key={u.id}>
-            <td>{u.id}</td>
-            <td>{u.email}</td>
-            <td>{u.roles?.join(", ")}</td>
-            <td>
-              <button onClick={() => handleRoleChange(u.id, "ROLE_ADMIN")}>
-                Admin
-              </button>
-              <button onClick={() => handleRoleChange(u.id, "ROLE_USER")}>
-                User
-              </button>
-              <button onClick={() => handleDelete(u.id)}>
-                Supprimer
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <Box>
+      <TextField
+        label="Recherche utilisateur"
+        variant="outlined"
+        size="small"
+        fullWidth
+        sx={{ mb: 2 }}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div style={{ height: 500 }}>
+        <DataGrid
+          rows={users}
+          columns={columns}
+          pageSizeOptions={[20]}
+          paginationModel={{ page, pageSize: 20 }}
+          onPaginationModelChange={(p) => setPage(p.page)}
+        />
+      </div>
+
+      <EditUserDialog
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        user={selectedUser}
+        onUpdated={loadUsers}
+      />
+    </Box>
   );
+}
+
+{
+  field: "block",
+    headerName; "Block",
+    width; 100,
+    renderCell; (params) => (
+      params.row.blocked ? (
+        <IconButton color="warning" onClick={() => unblockUser(params.row.id).then(loadUsers)}>
+          <LockOpenIcon />
+        </IconButton>
+      ) : (
+        <IconButton color="warning" onClick={() => blockUser(params.row.id).then(loadUsers)}>
+          <LockIcon />
+        </IconButton>
+      )
+    );
+}
+
+{
+  field: "reset",
+    headerName; "Reset PW",
+    width; 120,
+    renderCell; (params) => (
+    <IconButton
+      color="secondary"
+      onClick={async () => {
+        const data = await adminResetPassword(params.row.id);
+        alert("New password: " + data.newPassword);
+      }}
+    >
+      <RestartAltIcon />
+    </IconButton>
+  )
 }

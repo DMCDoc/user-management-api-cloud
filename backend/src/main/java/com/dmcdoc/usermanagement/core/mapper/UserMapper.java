@@ -10,7 +10,8 @@ public class UserMapper {
         return new UserDto(
                 u.getId(),
                 u.getEmail(),
-                u.getUsername(),
+                u.getCreatedAt(),
+                !u.isEnabled(),
                 u.getRoles().stream().map(r -> r.getName()).collect(Collectors.toList()));
     }
 }

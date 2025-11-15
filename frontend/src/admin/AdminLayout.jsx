@@ -1,22 +1,45 @@
-export default function AdminLayout({ children }) {
-  return (
-    <div style={{ display: "flex", height: "100vh", background: "#f4f4f4" }}>
-      <aside
-        style={{
-          width: "220px",
-          background: "#222",
-          color: "white",
-          padding: "20px",
-        }}
-      >
-        <h2 style={{ marginBottom: "20px" }}>Admin</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          <li><a href="/admin" style={{ color: "white" }}>Dashboard</a></li>
-          <li><a href="/dashboard" style={{ color: "white" }}>Retour App</a></li>
-        </ul>
-      </aside>
+import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, AppBar, Toolbar, IconButton, Typography, Switch } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import PeopleIcon from "@mui/icons-material/People";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import HistoryIcon from "@mui/icons-material/History";
+import { Link } from "react-router-dom";
+import { useThemeMode } from "../theme/ThemeProvider";
 
-      <main style={{ flex: 1, padding: "20px" }}>{children}</main>
-    </div>
+export default function AdminLayout({ children }) {
+  const { mode, toggleMode } = useThemeMode();
+  return (
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      <AppBar position="fixed" sx={{ zIndex: 1300 }}>
+        <Toolbar>
+          <IconButton edge="start" color="inherit" sx={{ mr: 2 }}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>Admin</Typography>
+          <Switch checked={mode === "dark"} onChange={toggleMode} />
+        </Toolbar>
+      </AppBar>
+
+      <Drawer variant="permanent" sx={{ width: 220, "& .MuiDrawer-paper": { width: 220, boxSizing: "border-box", top: "64px" } }}>
+        <List>
+          <ListItemButton component={Link} to="/admin/users">
+            <ListItemIcon><PeopleIcon /></ListItemIcon>
+            <ListItemText primary="Users" />
+          </ListItemButton>
+          <ListItemButton component={Link} to="/admin/stats">
+            <ListItemIcon><BarChartIcon /></ListItemIcon>
+            <ListItemText primary="Stats" />
+          </ListItemButton>
+          <ListItemButton component={Link} to="/admin/logs">
+            <ListItemIcon><HistoryIcon /></ListItemIcon>
+            <ListItemText primary="Audit Logs" />
+          </ListItemButton>
+        </List>
+      </Drawer>
+
+      <Box component="main" sx={{ flexGrow: 1, p: 3, mt: "80px" }}>
+        {children}
+      </Box>
+    </Box>
   );
 }

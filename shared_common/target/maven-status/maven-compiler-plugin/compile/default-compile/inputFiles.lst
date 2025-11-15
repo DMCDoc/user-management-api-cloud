@@ -1,3 +1,4 @@
+G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\UserDto.java
 G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\exceptions\EmailAlreadyUsedException.java
 G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\util\EmailValidator.java
 G:\modele\user-management-api-cloud\shared_common\src\main\java\com\dmcdoc\sharedcommon\dto\RegisterRequest.java

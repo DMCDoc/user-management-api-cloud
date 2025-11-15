@@ -1,9 +1,9 @@
 package com.dmcdoc.usermanagement.core.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.dmcdoc.usermanagement.core.model.User;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +15,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     // 🔹 Pour tes tests : supprimer par username
     void deleteByUsername(String username);
+
+    // Recherche textuelle simple
+    Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email,
+            Pageable pageable);
+
+    // Count admins
+    long countByRoles_Name(String roleName);
+
+    // Count disabled
+    long countByEnabledFalse();
 }

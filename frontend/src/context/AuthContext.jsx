@@ -1,66 +1,83 @@
+
 import { createContext, useContext, useState, useEffect } from "react";
-import api from "../api/api.js"; // ✅ CORRECTION : Utilisation du chemin explicite avec l'extension .js
+import api from "../api/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Initialiser l'état user en lisant le token ET l'email du localStorage
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem("accessToken");
-    const email = localStorage.getItem("userEmail");
-    return token ? { email: email } : null;
+    const profile = localStorage.getItem("profile");
+    return token ? { accessToken: token, ...(profile ? JSON.parse(profile) : {}) } : null;
   });
 
-  // Gérer les changements de stockage externe (déconnexion dans un autre onglet)
+  // keep profile in sync when localStorage changes in other tabs
   useEffect(() => {
-    const handleStorageChange = () => {
+    const onStorage = () => {
       const token = localStorage.getItem("accessToken");
-      const email = localStorage.getItem("userEmail");
-      setUser(token ? { email: email } : null);
+      const profile = localStorage.getItem("profile");
+      setUser(token ? { accessToken: token, ...(profile ? JSON.parse(profile) : {}) } : null);
     };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
+
+  const loadProfile = async () => {
+    try {
+      const res = await api.get("/api/auth/me");
+      const profile = res.data;
+      // profile should include roles, id, username, email, etc.
+      const accessToken = localStorage.getItem("accessToken");
+      localStorage.setItem("profile", JSON.stringify(profile));
+      setUser({ accessToken, ...profile });
+      return profile;
+    } catch (e) {
+      // if profile fetch fails, logout
+      logout();
+      throw e;
+    }
+  };
 
   const login = async (email, password) => {
     try {
-      // Les requêtes passent par Nginx, qui transfère vers le backend Spring Boot
       const res = await api.post("/api/auth/login", { email, password });
-      
-      if (res.data.accessToken && res.data.email) {
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem("userEmail", res.data.email);
-        setUser({ email: res.data.email });
+      const data = res.data;
+      if (!data || !data.accessToken) throw new Error("Invalid login response");
+
+      localStorage.setItem("accessToken", data.accessToken);
+      // if backend returns user profile in login response:
+      if (data.user) {
+        localStorage.setItem("profile", JSON.stringify(data.user));
+        setUser({ accessToken: data.accessToken, ...data.user });
       } else {
-        throw new Error("Format de réponse invalide depuis l'API");
+        // otherwise load profile
+        await loadProfile();
       }
+      return true;
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       throw error;
     }
   };
 
-  const register = async (data) => {
+  const register = async (payload) => {
     try {
-      // data doit contenir { username, email, password }
-      await api.post("/api/auth/register", data);
-    } catch (error) {
-      console.error("Register error:", error.response?.data?.message || error.message);
-      throw error;
+      await api.post("/api/auth/register", payload);
+      return true;
+    } catch (err) {
+      console.error("Register error:", err.response?.data || err.message);
+      throw err;
     }
   };
 
   const logout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("userEmail");
+    localStorage.removeItem("profile");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, logout, register, loadProfile }}>
       {children}
     </AuthContext.Provider>
   );

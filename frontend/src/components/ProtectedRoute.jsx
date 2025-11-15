@@ -1,13 +1,15 @@
+
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx"; // ✅ CORRECTION : Ajout de l'extension .jsx
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  
-  // Vérifie l'état React ET le localStorage pour la persistance
-  if (!user && !localStorage.getItem("accessToken")) {
+
+  // token persistence check: we keep accessToken in user or in localStorage
+  const token = user?.accessToken || localStorage.getItem("accessToken");
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 }

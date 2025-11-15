@@ -1,17 +1,25 @@
 package com.dmcdoc.usermanagement.api.controller;
 
 import com.dmcdoc.sharedcommon.dto.UserDto;
+import com.dmcdoc.sharedcommon.dto.AdminUserUpdateRequest;
+import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.service.admin.AdminService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -22,13 +30,38 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @GetMapping("/users")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        var users = adminService.getAllUsers().stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(users);
+    // Stats
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Long>> stats() {
+        return ResponseEntity.ok(adminService.getStats());
     }
+
+    // Paginated & searchable users
+    @GetMapping("/users")
+    public ResponseEntity<Page<UserDto>> users(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<User> p = adminService.searchUsers(search, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        Page<UserDto> dto = p.map(UserMapper::toDto);
+        return ResponseEntity.ok(dto);
+    }
+
+    // Update user (partial)
+   @PatchMapping("/users/{userId}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable UUID userId, @Valid @RequestBody AdminUserUpdateRequest body){
+        User u = adminService.updateUser(userId, body);
+        return ResponseEntity.ok(UserMapper.toDto(u));
+    }
+
+    // Reset password (admin)
+    @PostMapping("/users/{userId}/reset-password")
+    public ResponseEntity<Map<String, String>> adminReset(@PathVariable UUID userId) {
+        String temp = adminService.adminResetPassword(userId);
+        // In prod, send email; here return temp for admin to copy
+        return ResponseEntity.ok(Map.of("tempPassword", temp));
+    }
+
 
     @GetMapping("/users/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
@@ -58,4 +91,26 @@ public class AdminController {
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/users/{id}/block")
+    public ResponseEntity<?> blockUser(@PathVariable UUID id) {
+        adminService.blockUser(id);
+        return ResponseEntity.ok("User blocked");
+    }
+
+    @PutMapping("/users/{id}/unblock")
+    public ResponseEntity<?> unblockUser(@PathVariable UUID id) {
+        adminService.unblockUser(id);
+        return ResponseEntity.ok("User unblocked");
+    }
+
+    @PutMapping("/users/{id}/roles")
+    public ResponseEntity<Void> updateRoles(
+            @PathVariable UUID id,
+            @RequestBody List<String> roles) {
+
+        adminService.setUserRoles(id, roles);
+        return ResponseEntity.ok().build();
+    }
+
 }

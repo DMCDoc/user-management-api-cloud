@@ -9,6 +9,7 @@
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/SecurityConfig.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/controller/AuthController.java
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/CustomAuthEntryPoint.java
+/app/src/main/java/com/dmcdoc/usermanagement/api/controller/AdminController.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/controller/PasswordResetController.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/repository/PasswordResetTokenRepository.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/model/OAuth2Provider.java
@@ -29,6 +30,8 @@
 /app/src/main/java/com/dmcdoc/usermanagement/core/service/auth/RefreshTokenService.java
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/JwtAuthenticationFilter.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/service/UserService.java
+/app/src/main/java/com/dmcdoc/usermanagement/core/service/admin/AdminService.java
+/app/src/main/java/com/dmcdoc/usermanagement/api/exceptions/ResourceNotFoundException.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/exceptions/ErrorResponseFactory.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/controller/OAuth2Controller.java
 /app/src/main/java/com/dmcdoc/usermanagement/DbInfoLogger.java
@@ -38,6 +41,7 @@
 /app/src/main/java/com/dmcdoc/usermanagement/config/security/CustomAccessDeniedHandler.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/service/mail/MailService.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/controller/UserController.java
+/app/src/main/java/com/dmcdoc/usermanagement/core/mapper/UserMapper.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/service/auth/OAuth2Service.java
 /app/src/main/java/com/dmcdoc/usermanagement/api/controller/MagicLinkController.java
 /app/src/main/java/com/dmcdoc/usermanagement/core/repository/RoleRepository.java
