@@ -1,23 +1,23 @@
-FROM maven:3.9.9-eclipse-temurin-21 AS backend
+# Utiliser une image de base avec Java 21 et Maven
+FROM maven:3.9.9-eclipse-temurin-21
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Wrapper Maven
-COPY ./backend/.mvn/ .mvn/
-COPY ./backend/mvnw ./
-RUN chmod +x mvnw
+# --- PAS DE "COPY" de code source ici ---
+# Le code sera monté par docker-compose
 
-# POMs d'abord
-COPY pom.xml ./
-COPY ./backend/pom.xml ./backend/
-COPY ./shared_common/pom.xml ./shared_common/
+# On peut pré-copier le wrapper et les POMs pour mettre en cache les dépendances
+# Assurez-vous que mvnw et .mvn sont bien à la racine du projet
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY backend/pom.xml backend/
+COPY shared_common/pom.xml shared_common/
 
-# ✅ Copier le code source de shared_common et backend
-COPY ./shared_common/src /app/shared_common/src
-COPY ./backend/src /app/backend/src
+# Télécharger les dépendances (cette étape sera mise en cache)
+RUN mvn dependency:go-offline -B
 
-# ✅ CORRECTION : Construire en utilisant le parent POM
-RUN ./mvnw clean install -DskipTests
-
-# Démarrage
-CMD ["./mvnw", "-pl", "backend", "-am", "spring-boot:run", "-DskipTests"]
+# La commande de démarrage est juste un placeholder
+# Elle sera ÉCRASÉE par docker-compose
+CMD ["./mvnw", "spring-boot:run"]

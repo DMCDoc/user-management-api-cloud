@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "./AdminLayout";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
-import { fetchStats } from "./api";
+import { fetchStats } from "./Adminapi";
 import StatsChart from "./StatsChart";
 
 export default function StatsPage(){

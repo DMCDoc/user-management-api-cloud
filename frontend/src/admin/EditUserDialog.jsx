@@ -1,7 +1,7 @@
 // src/admin/EditUserDialog.jsx
 import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControlLabel, Checkbox } from "@mui/material";
-import { fetchRoles, patchUser } from "./api";
+import { fetchRoles, patchUser } from "./Adminapi";
 
 export default function EditUserDialog({ user, onClose, onSaved }) {
   const [email, setEmail] = useState("");
