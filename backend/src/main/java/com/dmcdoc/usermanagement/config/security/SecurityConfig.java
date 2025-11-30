@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -53,30 +52,45 @@ public class SecurityConfig {
     @Value("${security.auth.jwt.enabled:true}")
     private boolean jwtEnabled;
 
-    @Value("${security.jwt.exclude-paths:/api/**,/api/auth/**,/auth/**,/debug/**,/actuator/**,/ping,/swagger-ui/**,/v3/api-docs/**,/api-docs/**}")
+    @Value("${security.jwt.exclude-paths:/api/auth/**,/swagger-ui/**,/v3/api-docs/**,/ping}")
     private String[] excludedPaths;
 
+    /*
+     * ----------------------------------------
+     * UserDetailsService
+     * -----------------------------------------
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
+    /*
+     * ----------------------------------------
+     * Password Encoder
+     * -----------------------------------------
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /*
+     * ----------------------------------------
+     * AuthenticationManager
+     * -----------------------------------------
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
         return cfg.getAuthenticationManager();
     }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService uds) {
-        return new JwtAuthenticationFilter(jwtService, uds);
-    }
-
+    /*
+     * ----------------------------------------
+     * CORS
+     * -----------------------------------------
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -90,67 +104,97 @@ public class SecurityConfig {
         return source;
     }
 
+    /*
+     * ----------------------------------------
+     * JWT Filter
+     * -----------------------------------------
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService uds) {
+        return new JwtAuthenticationFilter(jwtService, uds);
+    }
 
-        // CORS + debug allow
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/debug/**").permitAll());
+    /*
+     * ----------------------------------------
+     * SecurityFilterChain
+     * -----------------------------------------
+     */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+            JwtAuthenticationFilter jwtFilter) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        http.csrf(csrf -> csrf.disable());
+        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Ensure tenantFilter runs before JWT auth filter so TenantContext is available
-        // early.
-        http.addFilterBefore(tenantFilter, jwtAuthenticationFilter.getClass());
-        // JWT authentication runs before the UsernamePasswordAuthenticationFilter
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler));
+
+        /*
+         * ============================================================
+         * Filtres : ordre correct
+         * - TenantFilter AVANT tout -> tenant disponible partout
+         * - JWT avant UsernamePassword
+         * ============================================================
+         */
+        http.addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class);
+
         if (jwtEnabled) {
-            http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
-        // Authorizations
+        /*
+         * ============================================================
+         * Autorizations
+         * ============================================================
+         */
+        
+
         http.authorizeHttpRequests(auth -> {
-            // public docs & health
-            auth.requestMatchers("/ping", "/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll();
 
-            // admin paths (global admin)
-            auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+            // Public
+            auth.requestMatchers("/ping",
+                    "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll();
 
-            // auth open paths
-            auth.requestMatchers("/api/auth/**").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/actuator/**").permitAll();
-
-            auth.requestMatchers("/auth/**",
-                    "/auth/login",
-                    "/auth/register",
-                    "/users/login",
-                    "/users/register",
+            // Authentication public
+            auth.requestMatchers("/api/auth/**", "/auth/**",
+                    "/users/login", "/users/register",
                     "/users/refresh",
-                    "/api/auth/login",
-                    "/api/auth/register",
-                    "/api/auth/forgot-password",
-                    "/api/auth/reset-password").permitAll();
+                    "/api/auth/login", "/api/auth/register",
+                    "/api/auth/forgot-password", "/api/auth/reset-password").permitAll();
 
             if (magicLinkEnabled) {
-                auth.requestMatchers("/users/magiclink/**", "/api/auth/magic/**", "/api/auth/magic/request",
+                auth.requestMatchers(
+                        "/users/magiclink/**",
+                        "/api/auth/magic/**",
+                        "/api/auth/magic/request",
                         "/api/auth/magic/verify").permitAll();
             }
 
             if (oauth2Enabled) {
-                auth.requestMatchers("/oauth2/**", "/login/**", "/api/auth/oauth2/**", "/login/oauth2/**").permitAll();
+                auth.requestMatchers("/oauth2/**",
+                        "/login/**",
+                        "/api/auth/oauth2/**",
+                        "/login/oauth2/**").permitAll();
             }
 
-            // examples
+            // Global admin (multi-tenant compatible)
+            auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+
+            // Dummy demo
             auth.requestMatchers("/api/dummy/admin").hasRole("ADMIN");
             auth.requestMatchers("/api/dummy/only-auth").authenticated();
 
+            // Everything else requires auth
             auth.anyRequest().authenticated();
         });
 
+        /*
+         * ============================================================
+         * OAuth2 login (optionnel)
+         * ============================================================
+         */
         if (oauth2Enabled) {
             http.oauth2Login(o -> o
                     .userInfoEndpoint(u -> u.userService(customOAuth2UserService))

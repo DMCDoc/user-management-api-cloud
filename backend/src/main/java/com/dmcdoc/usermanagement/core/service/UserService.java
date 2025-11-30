@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +61,28 @@ public class UserService {
             return saved;
         });
     }
+
+    /*
+     * ============================================================
+     * 🔹 Création d'un admin pour un tenant
+     * ============================================================
+     */
+
+    public User createAdminForTenant(UUID tenantId, String email, String encodedPassword,
+                                 String firstName, String lastName) {
+
+    User u = new User();
+    u.setEmail(email.toLowerCase().trim());
+    u.setUsername(email.toLowerCase().trim());
+    u.setPassword(encodedPassword);
+    u.setTenantId(tenantId);
+    u.setFullName(firstName + " " + lastName);
+    u.setEnabled(true);
+
+    assignRolesAndSave(u, List.of("ROLE_TENANT_ADMIN"));
+    return u;
+}
+
 
     /*
      * ============================================================

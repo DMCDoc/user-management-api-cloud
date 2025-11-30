@@ -18,11 +18,10 @@ public class TenantServiceImpl implements TenantService {
     }
 
     @Override
-    public Tenant createTenant(UUID id, String name, String tenantKey, String metadata) {
+    public Tenant createTenant(String tenantKey, String name, String metadata) {
         Tenant t = new Tenant();
-        t.setId(id);
-        t.setName(name);
         t.setTenantKey(tenantKey);
+        t.setName(name);
         t.setMetadata(metadata);
         t.setActive(true);
         return repo.save(t);

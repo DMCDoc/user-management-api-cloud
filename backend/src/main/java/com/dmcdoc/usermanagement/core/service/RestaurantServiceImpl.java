@@ -18,9 +18,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Restaurant createRestaurant(UUID id, UUID tenantId, String name, String address, String metadata) {
+    public Restaurant createRestaurant(UUID tenantId, String name, String address, String metadata) {
         Restaurant r = new Restaurant();
-        r.setId(id);
         r.setTenantId(tenantId);
         r.setName(name);
         r.setAddress(address);

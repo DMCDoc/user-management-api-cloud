@@ -11,9 +11,10 @@ import java.util.UUID;
 public interface TenantService {
     Tenant save(Tenant t);
 
-    Tenant createTenant(UUID id, String name, String tenantKey, String metadata);
+    Tenant createTenant(String tenantKey, String name, String metadata);
 
     Tenant findById(UUID id);
 
     Tenant findByKey(String key);
 }
+
