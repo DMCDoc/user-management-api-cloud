@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.core.service.auth;
 
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
-import com.dmcdoc.usermanagement.config.security.JwtUtils;
+import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.model.MagicLinkToken;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.MagicLinkTokenRepository;
@@ -25,7 +25,7 @@ public class MagicLinkService {
 
     private final MagicLinkTokenRepository tokenRepo;
     private final MailService mailService;
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
 
@@ -78,7 +78,7 @@ public class MagicLinkService {
         String email = ml.getEmail();
 
         User user = userService.findOrCreateByEmailOAuth2(email, null);
-        String accessToken = jwtUtils.generateToken(user);
+        String accessToken = jwtService.generateToken(user);
         var refresh = refreshTokenService.create(user);
 
         log.info("Magic link verified for {} -> issued tokens", email);

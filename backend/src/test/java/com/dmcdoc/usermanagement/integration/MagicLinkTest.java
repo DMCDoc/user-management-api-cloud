@@ -8,7 +8,7 @@ import com.dmcdoc.usermanagement.core.service.UserService;
 import com.dmcdoc.usermanagement.core.service.auth.MagicLinkService;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import com.dmcdoc.usermanagement.core.service.mail.MailService;
-import com.dmcdoc.usermanagement.config.security.JwtUtils;
+import com.dmcdoc.usermanagement.config.security.JwtService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class MagicLinkTest {
     private MailService mailService;
 
     @Mock
-    private JwtUtils jwtUtils;
+    private JwtService jwtService;
 
     @Mock
     private UserService userService;
@@ -81,7 +81,7 @@ class MagicLinkTest {
         user.setEmail(email);
         when(userService.findOrCreateByEmailOAuth2(eq(email), isNull())).thenReturn(user);
 
-        when(jwtUtils.generateToken(any(User.class))).thenReturn("access-token");
+        when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
         var refreshMock = new com.dmcdoc.usermanagement.core.model.RefreshToken();
         refreshMock.setToken("refresh-token");
         when(refreshTokenService.create(any(User.class))).thenReturn(refreshMock);
@@ -95,7 +95,7 @@ class MagicLinkTest {
 
         verify(tokenRepo).save(ml);
         verify(userService).findOrCreateByEmailOAuth2(email, null);
-        verify(jwtUtils).generateToken(user);
+        verify(jwtService).generateToken(user);
         verify(refreshTokenService).create(user);
     }
 

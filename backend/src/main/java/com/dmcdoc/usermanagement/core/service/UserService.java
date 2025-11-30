@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.sharedcommon.dto.*;
-import com.dmcdoc.usermanagement.config.security.JwtUtils;
+import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.model.*;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
@@ -26,7 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
     /*
@@ -74,7 +74,7 @@ public class UserService {
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token invalide ou expiré"));
 
-        String newAccess = jwtUtils.generateToken(rt.getUser());
+        String newAccess = jwtService.generateToken(rt.getUser());
         return new AuthResponse(newAccess, rt.getToken(), rt.getUser().getEmail());
     }
 
@@ -153,5 +153,17 @@ public class UserService {
     @Transactional
     public RefreshToken createRefreshTokenForUser(User user) {
         return refreshTokenService.create(user);
+    }
+
+    @Transactional
+    public User assignRolesAndSave(User user, java.util.List<String> roleNames) {
+        java.util.Set<Role> rolesSet = roleNames.stream()
+                .map(name -> roleRepository.findByName(name)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "Role not found: " + name)))
+                .collect(java.util.stream.Collectors.toSet());
+
+        user.setRoles(rolesSet);
+        return userRepository.save(user);
     }
 }

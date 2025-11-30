@@ -1,9 +1,6 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,20 +21,25 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.CustomOAuth2UserService;
+import com.dmcdoc.usermanagement.tenant.TenantFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final com.dmcdoc.usermanagement.core.repository.UserRepository userRepository;
+    private final UserRepository userRepository;
     private final CustomAuthEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtService jwtService;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
+    private final TenantFilter tenantFilter;
 
     @Value("${security.auth.username-password.enabled:true}")
     private boolean usernamePasswordEnabled;
@@ -91,24 +93,38 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+
+        // CORS + debug allow
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/debug/**").permitAll());        
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/debug/**").permitAll());
+
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler));
 
+        // Ensure tenantFilter runs before JWT auth filter so TenantContext is available
+        // early.
+        http.addFilterBefore(tenantFilter, jwtAuthenticationFilter.getClass());
+        // JWT authentication runs before the UsernamePasswordAuthenticationFilter
+        if (jwtEnabled) {
+            http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+
+        // Authorizations
         http.authorizeHttpRequests(auth -> {
             // public docs & health
             auth.requestMatchers("/ping", "/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll();
-            // admin paths
+
+            // admin paths (global admin)
             auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+
+            // auth open paths
             auth.requestMatchers("/api/auth/**").permitAll();
-        
-            // auth endpoints
-            auth.requestMatchers(
-                    "/auth/**",
+            auth.requestMatchers(HttpMethod.GET, "/actuator/**").permitAll();
+
+            auth.requestMatchers("/auth/**",
                     "/auth/login",
                     "/auth/register",
                     "/users/login",
@@ -128,18 +144,12 @@ public class SecurityConfig {
                 auth.requestMatchers("/oauth2/**", "/login/**", "/api/auth/oauth2/**", "/login/oauth2/**").permitAll();
             }
 
-            auth.requestMatchers(HttpMethod.GET, "/actuator/**").permitAll();
-
-            // example role restricted path
+            // examples
             auth.requestMatchers("/api/dummy/admin").hasRole("ADMIN");
             auth.requestMatchers("/api/dummy/only-auth").authenticated();
 
             auth.anyRequest().authenticated();
         });
-
-        if (jwtEnabled) {
-            http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        }
 
         if (oauth2Enabled) {
             http.oauth2Login(o -> o
