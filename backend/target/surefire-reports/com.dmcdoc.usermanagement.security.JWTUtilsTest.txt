@@ -1,0 +1,26 @@
+-------------------------------------------------------------------------------
+Test set: com.dmcdoc.usermanagement.security.JWTUtilsTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.015 s <<< FAILURE! -- in com.dmcdoc.usermanagement.security.JWTUtilsTest
+com.dmcdoc.usermanagement.security.JWTUtilsTest.testTokenExpiration -- Time elapsed: 0.002 s <<< ERROR!
+java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+	at java.base/java.util.ImmutableCollections$MapN.<init>(ImmutableCollections.java:1193)
+	at java.base/java.util.Map.of(Map.java:1385)
+	at com.dmcdoc.usermanagement.config.security.JwtService.generateToken(JwtService.java:151)
+	at com.dmcdoc.usermanagement.security.JWTUtilsTest.testTokenExpiration(JWTUtilsTest.java:58)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.dmcdoc.usermanagement.security.JWTUtilsTest.testGenerateAndValidateToken -- Time elapsed: 0.001 s <<< ERROR!
+java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+	at java.base/java.util.ImmutableCollections$MapN.<init>(ImmutableCollections.java:1193)
+	at java.base/java.util.Map.of(Map.java:1385)
+	at com.dmcdoc.usermanagement.config.security.JwtService.generateToken(JwtService.java:151)
+	at com.dmcdoc.usermanagement.security.JWTUtilsTest.testGenerateAndValidateToken(JWTUtilsTest.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

@@ -6,25 +6,25 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_email", columnList = "email"),
+        @Index(name = "idx_users_tenant", columnList = "tenant_id")
+})
 public class User implements UserDetails {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "uuid")
     private UUID id;
 
     @NotBlank
@@ -36,46 +36,52 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(length = 255)
+    @Column(name = "full_name")
     private String fullName;
 
     @Column(nullable = false)
-    private String password; // hashed password for local accounts
+    private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 30, nullable = false)
-    @Builder.Default
-    private OAuth2Provider provider = OAuth2Provider.LOCAL;
+    @Column(name = "tenant_id", columnDefinition = "uuid")
+    private UUID tenantId; // <-- tenant scoping
 
+    @Column(name = "enabled", nullable = false)
     @Builder.Default
-    @Column(nullable = false)
     private boolean enabled = true;
 
-    @Column(name = "tenant_id", columnDefinition = "BINARY(16)")
-    private java.util.UUID tenantId;
-
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<RefreshToken> refreshTokens = new HashSet<>();
+    @Column(name = "provider")
+    @Enumerated(EnumType.STRING)
+    private OAuth2Provider provider;
 
     @CreationTimestamp
-    @Column(updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(nullable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
+    // UserDetails impl
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .map(r -> new org.springframework.security.core.authority.SimpleGrantedAuthority(r.getName()))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     @Override
@@ -96,13 +102,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public boolean isOAuth2User() {
-        return provider != OAuth2Provider.LOCAL;
-    }
-
-    public void addRole(Role role) {
-        roles.add(role);
     }
 }

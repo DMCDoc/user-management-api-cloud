@@ -2,23 +2,34 @@ package com.dmcdoc.usermanagement.core.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
+import java.util.UUID;
 
-@Entity @Table(name = "refresh_tokens", indexes = {
-        @Index(name = "idx_refresh_token", columnList = "token", unique = true) }) @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "refresh_tokens", indexes = {
+        @Index(name = "idx_refresh_user", columnList = "user_id")
+})
 public class RefreshToken {
+    @Id
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(nullable = false, unique = true, length = 200)
-    private String token;
-
-    // 🔹 Lien vers User
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private Instant expiryDate;
+    @Column(name = "token", nullable = false, unique = true, length = 255)
+    private String token;
+
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 }

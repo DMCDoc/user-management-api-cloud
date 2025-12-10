@@ -2,13 +2,25 @@ package com.dmcdoc.usermanagement.core.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.UUID;
 
-@Entity @Table(name = "roles") @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "roles", indexes = {
+        @Index(name = "idx_role_name", columnList = "name")
+})
 public class Role {
+    @Id
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "name", nullable = false, unique = true, length = 80)
+    private String name; // e.g. ROLE_SUPER_ADMIN, ROLE_TENANT_ADMIN, ROLE_STAFF, ROLE_USER
 
-    @Column(nullable = false, unique = true)
-    private String name; // ex: ROLE_USER, ROLE_ADMIN
+    @Column(name = "description")
+    private String description;
 }

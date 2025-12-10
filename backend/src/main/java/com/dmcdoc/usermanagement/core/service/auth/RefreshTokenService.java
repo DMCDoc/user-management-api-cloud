@@ -28,9 +28,10 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteByUserId(user.getId());
 
         RefreshToken rt = RefreshToken.builder()
+                .id(UUID.randomUUID())
                 .user(user)
                 .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
+                .expiresAt(Instant.now().plusMillis(refreshTokenDurationMs))
                 .build();
 
         return refreshTokenRepository.save(rt);
@@ -38,11 +39,11 @@ public class RefreshTokenService {
 
     public Optional<RefreshToken> findValid(String token) {
         return refreshTokenRepository.findByToken(token)
-                .filter(rt -> rt.getExpiryDate().isAfter(Instant.now()));
+                .filter(rt -> rt.getExpiresAt().isAfter(Instant.now()));
     }
 
     public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.getExpiryDate().isBefore(Instant.now())) {
+        if (token.getExpiresAt().isBefore(Instant.now())) {
             refreshTokenRepository.delete(token);
             throw new RuntimeException("Refresh token expiré, veuillez vous reconnecter.");
         }

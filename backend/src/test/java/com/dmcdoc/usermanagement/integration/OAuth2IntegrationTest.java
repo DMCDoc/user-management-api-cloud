@@ -111,7 +111,7 @@ void shouldReuseExistingUserIfAlreadyExists() throws Exception {
 
 
 
-        Role userRole = Role.builder().id(1L).name("ROLE_USER").build();
+        Role userRole = Role.builder().id(UUID.randomUUID()).name("ROLE_USER").build();
         User newUser = User.builder()
                 .id(UUID.randomUUID())
                 .email(email)

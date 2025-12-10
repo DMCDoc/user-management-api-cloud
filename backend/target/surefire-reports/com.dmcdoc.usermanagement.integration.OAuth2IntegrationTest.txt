@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------
+Test set: com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.285 s <<< FAILURE! -- in com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest
+com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldThrowIfEmailMissing -- Time elapsed: 0.236 s <<< ERROR!
+java.lang.IllegalArgumentException: attributes cannot be empty
+	at org.springframework.util.Assert.notEmpty(Assert.java:474)
+	at org.springframework.security.oauth2.core.user.DefaultOAuth2User.<init>(DefaultOAuth2User.java:70)
+	at com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldThrowIfEmailMissing(OAuth2IntegrationTest.java:151)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

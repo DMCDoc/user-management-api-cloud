@@ -4,36 +4,45 @@ import com.dmcdoc.usermanagement.core.model.Tenant;
 import com.dmcdoc.usermanagement.core.repository.TenantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TenantServiceImpl implements TenantService {
 
-    private final TenantRepository repo;
+    private final TenantRepository tenantRepository;
 
     @Override
-    public Tenant save(Tenant t) {
-        return repo.save(t);
+    public Tenant createTenant(UUID tenantId, String name, String tenantKey, String metadata) {
+
+        if (tenantRepository.existsByTenantKey(tenantKey)) {
+            throw new IllegalArgumentException("Tenant key already exists");
+        }
+
+        Tenant t = new Tenant();
+        t.setId(tenantId);
+        t.setName(name);
+        t.setTenantKey(tenantKey);
+        t.setMetadata(metadata);
+        return tenantRepository.save(t);
     }
 
     @Override
     public Tenant createTenant(String tenantKey, String name, String metadata) {
-        Tenant t = new Tenant();
-        t.setTenantKey(tenantKey);
-        t.setName(name);
-        t.setMetadata(metadata);
-        t.setActive(true);
-        return repo.save(t);
+        UUID id = UUID.randomUUID();
+        return createTenant(id, name, tenantKey, metadata);
     }
 
     @Override
     public Tenant findById(UUID id) {
-        return repo.findById(id).orElseThrow(() -> new RuntimeException("Tenant not found: " + id));
+        return tenantRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }
 
     @Override
-    public Tenant findByKey(String key) {
-        return repo.findByTenantKey(key).orElseThrow(() -> new RuntimeException("Tenant not found: " + key));
+    public Tenant findByKey(String tenantKey) {
+        return tenantRepository.findByTenantKey(tenantKey)
+                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }
 }

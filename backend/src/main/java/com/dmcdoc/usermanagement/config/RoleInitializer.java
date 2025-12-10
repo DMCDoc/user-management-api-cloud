@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component @RequiredArgsConstructor
 public class RoleInitializer {
@@ -20,7 +21,7 @@ public class RoleInitializer {
 
         for (String roleName : defaultRoles) {
             roleRepository.findByName(roleName).orElseGet(() -> {
-                Role role = Role.builder().name(roleName).build();
+                Role role = Role.builder().id(UUID.randomUUID()).name(roleName).build();
                 System.out.println(">>> Initialisation des rôles en DB");
                 return roleRepository.save(role);
             });

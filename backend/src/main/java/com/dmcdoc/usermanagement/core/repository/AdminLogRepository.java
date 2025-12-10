@@ -1,7 +1,9 @@
 package com.dmcdoc.usermanagement.core.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.dmcdoc.usermanagement.core.model.AdminLog;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AdminLogRepository extends JpaRepository<AdminLog, Long> {
+import java.util.UUID;
+
+public interface AdminLogRepository extends JpaRepository<AdminLog, UUID> {
 }
