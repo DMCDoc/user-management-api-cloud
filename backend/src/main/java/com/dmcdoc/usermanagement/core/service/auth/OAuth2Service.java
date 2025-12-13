@@ -24,8 +24,11 @@ public class OAuth2Service {
         if (email == null)
             throw new IllegalArgumentException("Email manquant du fournisseur OAuth2");
 
-        // 🔧 utilise la nouvelle méthode qu’on va ajouter juste après
-        User user = userService.findOrCreateByEmailOAuth2(email, OAuth2Provider.GOOGLE);
+        // 🔧 utilise la nouvelle méthode avec tenantId
+        User user = userService.findOrCreateByEmailOAuth2(
+                email,
+                OAuth2Provider.GOOGLE,
+                com.dmcdoc.usermanagement.tenant.TenantContext.getTenantId());
 
         // ✅ génère le token via JwtService
         return jwtService.generateToken(user);

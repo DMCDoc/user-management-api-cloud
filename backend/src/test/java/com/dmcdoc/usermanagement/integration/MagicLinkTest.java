@@ -79,7 +79,7 @@ class MagicLinkTest {
 
         User user = new User();
         user.setEmail(email);
-        when(userService.findOrCreateByEmailOAuth2(eq(email), isNull())).thenReturn(user);
+        when(userService.findOrCreateByEmailOAuth2(eq(email), isNull(), any())).thenReturn(user);
 
         when(jwtService.generateToken(any(User.class))).thenReturn("access-token");
         var refreshMock = new com.dmcdoc.usermanagement.core.model.RefreshToken();
@@ -94,7 +94,7 @@ class MagicLinkTest {
         assertThat(ml.isUsed()).isTrue();
 
         verify(tokenRepo).save(ml);
-        verify(userService).findOrCreateByEmailOAuth2(email, null);
+        verify(userService).findOrCreateByEmailOAuth2(eq(email), isNull(), any());
         verify(jwtService).generateToken(user);
         verify(refreshTokenService).create(user);
     }

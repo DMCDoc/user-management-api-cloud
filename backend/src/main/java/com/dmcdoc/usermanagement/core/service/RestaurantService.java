@@ -7,13 +7,11 @@ import java.util.UUID;
 
 public interface RestaurantService {
 
-    Restaurant createRestaurant(UUID tenantId, String name, String address, String metadata);
+    Restaurant create(String name, String address, String metadata);
 
-    Restaurant save(Restaurant restaurant);
+    Restaurant get(UUID id);
 
-    Restaurant findByIdAndTenant(UUID restaurantId, UUID tenantId);
+    List<Restaurant> all();
 
-    List<Restaurant> findAllByTenant(UUID tenantId);
-
-    void deleteByIdAndTenant(UUID restaurantId, UUID tenantId);
+    void delete(UUID id);
 }

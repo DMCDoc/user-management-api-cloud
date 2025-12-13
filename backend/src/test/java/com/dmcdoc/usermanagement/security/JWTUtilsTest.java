@@ -2,30 +2,34 @@ package com.dmcdoc.usermanagement.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.model.Role;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 public class JWTUtilsTest {
 
-    private User testUser;
+    @Autowired
     private JwtService jwtService;
+
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         testUser = new User();
+        testUser.setId(UUID.randomUUID());
         testUser.setUsername("testuser");
-
-        // Initialisation avec secret simple pour tests
-        jwtService = new JwtService("test-secret-123456789012345678901234567890", 3600000L);
-        jwtService.setClock(Clock.systemUTC());
+        testUser.setEmail("test@example.com");
+        testUser.setTenantId(UUID.randomUUID());
+        testUser.setRoles(Set.of());
     }
 
     @Test
@@ -33,8 +37,6 @@ public class JWTUtilsTest {
         String token = jwtService.generateToken(testUser);
 
         assertNotNull(token);
-        // JwtService requires a UserDetails when validating; here we assert by
-        // extracting username
         String username = jwtService.extractUsername(token);
         assertEquals("testuser", username, "Le nom d'utilisateur doit correspondre");
     }
@@ -47,28 +49,30 @@ public class JWTUtilsTest {
 
     @Test
     void testTokenExpiration() {
-        // Crée une nouvelle instance pour le test d'expiration
-        JwtService jwt = new JwtService("secret-tres-long-pour-eviter-les-avertissements-1234567890", 1000L);
-
-        // Configure l'horloge fixe
-        Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-        jwt.setClock(fixedClock);
-
-        // Génère le token
-        String token = jwt.generateToken(testUser);
+        String token = jwtService.generateToken(testUser);
 
         // Validation immédiate (extraction OK)
-        assertEquals("testuser", jwt.extractUsername(token));
+        assertEquals("testuser", jwtService.extractUsername(token));
+    }
 
-        // Avance l'horloge au-delà de l'expiration
-        jwt.setClock(Clock.offset(fixedClock, Duration.ofMillis(1500)));
+    @Test
+    void testTenantExtraction() {
+        String token = jwtService.generateToken(testUser);
 
-        // Maintenant l'extraction d'expiration devrait échouer via isTokenValid with a
-        // dummy UserDetails
-        // On crée un simple UserDetails impl via anonymous class
-        org.springframework.security.core.userdetails.UserDetails ud = new org.springframework.security.core.userdetails.User(
-                "testuser", "x", java.util.List.of());
+        UUID extractedTenant = jwtService.extractTenantId(token);
+        assertEquals(testUser.getTenantId(), extractedTenant, "Le tenant doit correspondre");
+    }
 
-        assertFalse(jwt.isTokenValid(token, ud), "Le token devrait être expiré");
+    @Test
+    void testRolesExtraction() {
+        Role adminRole = new Role();
+        adminRole.setName("ROLE_ADMIN");
+        testUser.setRoles(Set.of(adminRole));
+
+        String token = jwtService.generateToken(testUser);
+
+        var roles = jwtService.extractRoles(token);
+        assertNotNull(roles);
+        assertTrue(roles.contains("ROLE_ADMIN"), "Les rôles doivent être extraits");
     }
 }

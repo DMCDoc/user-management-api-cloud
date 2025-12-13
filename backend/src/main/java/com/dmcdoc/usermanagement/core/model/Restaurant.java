@@ -2,50 +2,27 @@ package com.dmcdoc.usermanagement.core.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.Instant;
 import java.util.UUID;
 
+@Entity
+@Table(name = "restaurants", uniqueConstraints = @UniqueConstraint(columnNames = { "id",
+        "tenant_id" }), indexes = @Index(name = "idx_restaurant_tenant", columnList = "tenant_id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "restaurants", indexes = {
-        @Index(name = "idx_restaurant_tenant", columnList = "tenant_id"),
-        @Index(name = "idx_restaurant_tenant_name", columnList = "tenant_id, restaurant_name")
-})
-public class Restaurant {
+public class Restaurant extends TenantAwareEntity {
+
     @Id
-    @Column(name = "id", columnDefinition = "uuid")
+    @GeneratedValue
     private UUID id;
 
-    @Column(name = "tenant_id", columnDefinition = "uuid", nullable = false)
-    private UUID tenantId;
-
-    @Column(name = "restaurant_name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "address")
     private String address;
 
-    @Column(name = "metadata", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String metadata;
-
-    @Column(name = "active", nullable = false)
-    @Builder.Default
-    private boolean active = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @Builder.Default
-    private Instant createdAt = Instant.now();
-
-    @Column(name = "updated_at", nullable = false)
-    @Builder.Default
-    private Instant updatedAt = Instant.now();
-
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = Instant.now();
-    }
 }

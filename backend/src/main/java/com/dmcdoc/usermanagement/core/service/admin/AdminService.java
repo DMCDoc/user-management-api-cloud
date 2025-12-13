@@ -6,6 +6,7 @@ import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.api.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,19 +39,21 @@ public class AdminService {
     public Map<String, Long> getStats() {
         long total = userRepository.count();
         long admins = userRepository.countByRoles_Name("ROLE_ADMIN");
-        long disabled = userRepository.countByEnabledFalse();
+        long disabled = userRepository.countByActiveFalse();
         return Map.of("totalUsers", total, "admins", admins, "disabled", disabled);
     }
 
     public User updateUser(Long unusedId /* keep old if needed */ , UUID userId, String email, String username,
             Boolean enabled, Set<String> roleNames) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (email != null)
             user.setEmail(email);
         if (username != null)
             user.setUsername(username);
         if (enabled != null)
-            user.setEnabled(enabled);
+            user.setActive(enabled);
 
         if (roleNames != null) {
             Set<Role> roles = roleNames.stream()
@@ -64,7 +67,9 @@ public class AdminService {
     }
 
     public String adminResetPassword(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         String temp = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 12);
         user.setPassword(passwordEncoder.encode(temp));
         userRepository.save(user);
@@ -76,7 +81,8 @@ public class AdminService {
     }
 
     public User getUserById(UUID userId) {
-        return userRepository.findById(userId)
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        return userRepository.findByIdAndTenantId(userId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
     }
 
@@ -123,21 +129,24 @@ public class AdminService {
     }
 
     public void blockUser(UUID id) {
-        User user = userRepository.findById(id)
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = userRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setEnabled(false);
+        user.setActive(false);
         userRepository.save(user);
     }
 
     public void unblockUser(UUID id) {
-        User user = userRepository.findById(id)
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = userRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setEnabled(true);
+        user.setActive(true);
         userRepository.save(user);
     }
 
     public String resetPassword(UUID id) {
-        User user = userRepository.findById(id)
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = userRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String tempPassword = UUID.randomUUID().toString().substring(0, 10);

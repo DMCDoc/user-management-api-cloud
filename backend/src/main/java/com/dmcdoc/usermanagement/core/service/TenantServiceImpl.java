@@ -2,7 +2,9 @@ package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.usermanagement.core.model.Tenant;
 import com.dmcdoc.usermanagement.core.repository.TenantRepository;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -36,6 +38,16 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public Tenant findById(UUID id) {
+        UUID currentTenantId = TenantContext.getTenantId();
+        if (currentTenantId == null) {
+            // Super admin access
+            return tenantRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        }
+        // Tenant-scoped access: only allow reading own tenant
+        if (!currentTenantId.equals(id)) {
+            throw new AccessDeniedException("Cannot access another tenant");
+        }
         return tenantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }

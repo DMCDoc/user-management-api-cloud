@@ -6,178 +6,92 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.core.model.Role;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.time.Clock;
 import java.util.*;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    private final String secretKeyRaw;
-    private final long jwtExpirationMs;
     private Key signingKey;
 
-    private Clock clock = Clock.systemUTC();
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JwtService(
-            @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration:3600000}") long jwtExpirationMs) {
-        this.secretKeyRaw = secretKey;
-        this.jwtExpirationMs = jwtExpirationMs;
-    }
+    @Value("${jwt.expiration:3600000}")
+    private long expirationMs;
 
-    /*
-     * ---------------------------------------------------------
-     * INITIALIZATION
-     * ---------------------------------------------------------
-     */
     @PostConstruct
-    public void init() {
-        this.signingKey = buildSigningKey(secretKeyRaw);
-
-        if (this.signingKey == null) {
-            throw new IllegalStateException("Invalid JWT signing key configuration.");
-        }
+    void init() {
+        signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    private Key buildSigningKey(String raw) {
-        try {
-            // Try Base64
-            byte[] decoded = Base64.getDecoder().decode(raw);
-            return Keys.hmacShaKeyFor(decoded);
-        } catch (Exception ignored) {
-            // Fallback to UTF-8 bytes
-            byte[] bytes = raw.getBytes(StandardCharsets.UTF_8);
-            return Keys.hmacShaKeyFor(bytes);
-        }
+    public String generateToken(User user) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("tenant", user.getTenantId().toString());
+        claims.put("roles",
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .toList());
+
+        return buildToken(claims, user.getUsername());
     }
 
-    /*
-     * ---------------------------------------------------------
-     * EXTRACTION
-     * ---------------------------------------------------------
-     */
+    private String buildToken(Map<String, Object> claims, String subject) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + expirationMs))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean isTokenValid(String token, UserDetails user) {
+        return extractUsername(token).equals(user.getUsername())
+                && !isExpired(token);
+    }
+
+    public boolean isTokenValid(String token) {
+        return !isExpired(token);
+    }
+
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public String extractEmail(String token) {
-        try {
-            return extractUsername(token);
-        } catch (JwtException e) {
-            return null;
-        }
+        return extractClaims(token).getSubject();
     }
 
     public String extractTenant(String token) {
-        try {
-            Claims claims = extractAllClaims(token);
-            Object value = claims.get("tenant");
-            return value == null ? null : value.toString();
-        } catch (JwtException e) {
-            return null;
-        }
+        return extractClaims(token).get("tenant", String.class);
+    }
+
+    public UUID extractTenantId(String token) {
+        return UUID.fromString(
+                extractClaims(token).get("tenant", String.class));
     }
 
     public List<String> extractRoles(String token) {
-        try {
-            Claims claims = extractAllClaims(token);
-            Object rolesObj = claims.get("roles");
-
-            if (rolesObj instanceof List<?> list) {
-                return list.stream()
-                        .map(Object::toString)
-                        .toList();
-            }
-
-        } catch (JwtException ignored) {
-        }
-
-        return List.of();
+        List<?> roles = extractClaims(token).get("roles", List.class);
+        return roles != null ? roles.stream()
+                .map(Object::toString)
+                .toList() : new ArrayList<>();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        return resolver.apply(extractAllClaims(token));
+    private boolean isExpired(String token) {
+        return extractClaims(token)
+                .getExpiration()
+                .before(new Date());
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(signingKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    /*
-     * ---------------------------------------------------------
-     * TOKEN VALIDATION
-     * ---------------------------------------------------------
-     */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
-
-        return username != null
-                && username.equals(userDetails.getUsername())
-                && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        Date exp = extractClaim(token, Claims::getExpiration);
-        return exp.before(Date.from(clock.instant()));
-    }
-
-    /*
-     * ---------------------------------------------------------
-     * TOKEN GENERATION
-     * ---------------------------------------------------------
-     */
-    public String generateToken(UserDetails userDetails, String tenantId) {
-
-        Map<String, Object> claims = Map.of(
-                "roles", userDetails.getAuthorities().stream().map(a -> a.getAuthority()).toList(),
-                "tenant", tenantId);
-
-        return buildToken(claims, userDetails.getUsername());
-    }
-
-    public String generateToken(com.dmcdoc.usermanagement.core.model.User user) {
-
-        List<String> roles = user.getRoles() == null ? List.of()
-                : user.getRoles().stream().map(r -> r.getName()).toList();
-
-        Map<String, Object> claims = Map.of(
-                "roles", roles,
-                "tenant", user.getTenantId() == null ? null : user.getTenantId().toString());
-
-        return buildToken(claims, user.getUsername());
-    }
-
-    public String generateTokenWithClaims(UserDetails userDetails, Map<String, Object> extraClaims) {
-        return buildToken(extraClaims, userDetails.getUsername());
-    }
-
-    private String buildToken(Map<String, Object> claims, String subject) {
-        Date now = Date.from(clock.instant());
-        Date exp = new Date(now.getTime() + jwtExpirationMs);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(signingKey, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    /*
-     * ---------------------------------------------------------
-     * TESTING UTILITIES
-     * ---------------------------------------------------------
-     */
-    public void setClock(Clock clock) {
-        this.clock = clock == null ? Clock.systemUTC() : clock;
     }
 }

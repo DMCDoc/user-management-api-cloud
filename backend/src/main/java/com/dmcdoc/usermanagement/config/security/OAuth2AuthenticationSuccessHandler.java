@@ -1,9 +1,7 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
-import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -29,7 +26,6 @@ import java.util.UUID;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         private final UserRepository userRepository;
-        private final RoleRepository roleRepository;
         private final RefreshTokenService refreshTokenService;
         private final JwtService jwtService;
 
@@ -60,18 +56,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                         default -> OAuth2Provider.LOCAL;
                 };
 
-                // 🔹 find or create user
+                // 🔹 find or create user (OAuth2 users may not have tenant_id initially)
                 User user = userRepository.findByEmail(email).orElseGet(() -> {
-                        Role userRole = roleRepository.findByName("ROLE_USER")
-                                        .orElseThrow(() -> new IllegalStateException("Role USER manquant en DB"));
-
                         User newUser = User.builder()
                                         .username(email.split("@")[0])
                                         .email(email)
                                         .fullName(email)
-                                        .roles(Set.of(userRole))
                                         .password(UUID.randomUUID().toString())
-                                        .enabled(true)
                                         .provider(provider)
                                         .build();
 

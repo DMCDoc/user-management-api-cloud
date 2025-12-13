@@ -37,7 +37,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         log.info("Authentification OAuth2 réussie : provider={} email={}", provider, email);
-        userService.findOrCreateByEmailOAuth2(email, provider);
+        userService.findOrCreateByEmailOAuth2(
+                email,
+                provider,
+                com.dmcdoc.usermanagement.tenant.TenantContext.getTenantId());
 
         return oAuth2User;
     }

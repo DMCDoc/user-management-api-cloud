@@ -1,78 +1,54 @@
 package com.dmcdoc.usermanagement.api.controller;
 
+import com.dmcdoc.sharedcommon.dto.*;
+import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import com.dmcdoc.sharedcommon.dto.AuthResponse;
-import com.dmcdoc.sharedcommon.dto.RefreshRequest;
-import com.dmcdoc.sharedcommon.dto.RegisterRequest;
-import com.dmcdoc.sharedcommon.dto.UserResponse;
-import com.dmcdoc.usermanagement.core.service.UserService;
-
-import lombok.extern.slf4j.Slf4j;
-
-
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
-@Slf4j
-
 public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> profile(
+            @AuthenticationPrincipal UserDetails principal) {
 
-
-        @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {
-        return ResponseEntity.ok(userService.refreshToken(request));
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
-        String username = authentication.getName();
-        return userService.getUserProfile(username)
+        return userService.getUserProfile(
+                principal.getUsername(),
+                TenantContext.getTenantId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/profile")
-    public ResponseEntity<String> updateProfile(
-            Authentication authentication,
+    @PutMapping("/me")
+    public ResponseEntity<Void> updateProfile(
+            @AuthenticationPrincipal UserDetails principal,
             @RequestBody RegisterRequest request) {
-        String username = authentication.getName();
-        userService.updateProfile(username, request);
-        return ResponseEntity.ok("Profil mis à jour");
+
+        userService.updateProfile(
+                principal.getUsername(),
+                TenantContext.getTenantId(),
+                request);
+
+        return ResponseEntity.noContent().build();
     }
 
-    // ✅ Un utilisateur connecté supprime son propre compte
-    @Transactional
-    @DeleteMapping("/account")
-    public ResponseEntity<String> deleteAccount(Authentication authentication) {
-        String username = authentication.getName();
-        userService.deleteAccount(username);
-        return ResponseEntity.ok("Compte supprimé");
-    }
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteAccount(
+            @AuthenticationPrincipal UserDetails principal) {
 
-    // ✅ ADMIN peut supprimer par ID
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable java.util.UUID id) {
-        userService.deleteAccountById(id);
-        return ResponseEntity.ok("Utilisateur supprimé : " + id);
-    }
-    
-    // ✅ ADMIN peut supprimer par username
-    @PreAuthorize("hasRole('ADMIN')") @DeleteMapping("/by-username/{username}")
-    public ResponseEntity<String> deleteByUsername(@PathVariable String username) {
-        userService.deleteAccount(username);
-        return ResponseEntity.ok("Utilisateur supprimé : " + username);
-    }
+        userService.deleteAccount(
+                principal.getUsername(),
+                TenantContext.getTenantId());
 
+        return ResponseEntity.noContent().build();
+    }
 }

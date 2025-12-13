@@ -77,7 +77,10 @@ public class MagicLinkService {
 
         String email = ml.getEmail();
 
-        User user = userService.findOrCreateByEmailOAuth2(email, null);
+        User user = userService.findOrCreateByEmailOAuth2(
+                email,
+                null,
+                com.dmcdoc.usermanagement.tenant.TenantContext.getTenantId());
         String accessToken = jwtService.generateToken(user);
         var refresh = refreshTokenService.create(user);
 

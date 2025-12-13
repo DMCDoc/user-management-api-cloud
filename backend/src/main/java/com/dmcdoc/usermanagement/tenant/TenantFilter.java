@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class TenantFilter extends OncePerRequestFilter {
@@ -21,27 +22,21 @@ public class TenantFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
-            // 1) priorité au header X-Tenant-ID
-            String tenant = request.getHeader("X-Tenant-ID");
+            UUID tenantId = resolveTenant(request);
 
-            // 2) fallback sur JWT
-            if (tenant == null || tenant.isBlank()) {
-                String token = resolveToken(request);
-                if (token != null) {
-                    tenant = jwtService.extractClaim(token, claims -> (String) claims.get("tenant_id"));
-                }
+            if (tenantId == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tenant missing");
+                return;
             }
 
-            if (tenant != null && !tenant.isBlank()) {
-                TenantContext.setCurrentTenant(tenant);
-            }
-
+            TenantContext.setTenantId(tenantId);
             filterChain.doFilter(request, response);
 
         } finally {
@@ -49,11 +44,35 @@ public class TenantFilter extends OncePerRequestFilter {
         }
     }
 
+    private UUID resolveTenant(HttpServletRequest request) {
+        // 1) Header
+        String header = request.getHeader("X-Tenant-ID");
+        if (header != null && !header.isBlank()) {
+            try {
+                return UUID.fromString(header);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        // 2) JWT
+        String token = resolveToken(request);
+        if (token != null) {
+            String tenant = jwtService.extractTenant(token);
+            if (tenant != null) {
+                try {
+                    return UUID.fromString(tenant);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        }
+
+        return null;
+    }
+
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
+        return (bearer != null && bearer.startsWith("Bearer "))
+                ? bearer.substring(7)
+                : null;
     }
 }

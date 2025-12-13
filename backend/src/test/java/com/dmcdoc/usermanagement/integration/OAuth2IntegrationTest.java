@@ -50,10 +50,9 @@ class OAuth2IntegrationTest {
     @BeforeEach
     void setup() throws IOException {
         userRepository = mock(UserRepository.class);
-        roleRepository = mock(RoleRepository.class);
         refreshTokenService = mock(RefreshTokenService.class);
         jwtService = mock(JwtService.class);
-        handler = new OAuth2AuthenticationSuccessHandler(userRepository, roleRepository, refreshTokenService,
+        handler = new OAuth2AuthenticationSuccessHandler(userRepository, refreshTokenService,
                 jwtService);
 
         request = mock(HttpServletRequest.class);

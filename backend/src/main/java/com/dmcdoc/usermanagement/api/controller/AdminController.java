@@ -6,7 +6,6 @@ import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.service.admin.AdminService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -42,15 +41,22 @@ public class AdminController {
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        Page<User> p = adminService.searchUsers(search, PageRequest.of(page, size, Sort.by("createdAt").descending()));
-        Page<UserDto> dto = p.map(UserMapper::toDto);
-        return ResponseEntity.ok(dto);
+
+        Page<User> p = adminService.searchUsers(
+                search,
+                PageRequest.of(page, size, Sort.by("createdAt").descending()));
+
+        return ResponseEntity.ok(p.map(UserMapper::toDto));
     }
 
+
     // Update user (partial)
-   @PatchMapping("/users/{userId}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable UUID userId, @Valid @RequestBody AdminUserUpdateRequest body){
-        User u = adminService.updateUser(userId, body);
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable UUID userId,
+            @RequestBody @Valid AdminUserUpdateRequest body) {
+
+        User u = adminService.updateUser(null, userId, body.getEmail(), body.getUsername(), body.getEnabled(), null);
         return ResponseEntity.ok(UserMapper.toDto(u));
     }
 

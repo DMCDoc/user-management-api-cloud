@@ -8,8 +8,6 @@ import java.util.UUID;
 public class TenantSecurity {
 
     public boolean isSameTenant(UUID resourceTenantId) {
-        String current = TenantContext.getCurrentTenant();
-        if (current == null) return false;
-        return resourceTenantId.equals(UUID.fromString(current));
+        return TenantContext.getTenantId().equals(resourceTenantId);
     }
 }

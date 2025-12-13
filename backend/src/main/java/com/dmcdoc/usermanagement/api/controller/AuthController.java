@@ -1,63 +1,60 @@
 package com.dmcdoc.usermanagement.api.controller;
 
-
-import com.dmcdoc.sharedcommon.dto.LoginRequest;
-import com.dmcdoc.sharedcommon.dto.RefreshRequest;
-import com.dmcdoc.sharedcommon.dto.RegisterRequest;
-import com.dmcdoc.usermanagement.config.security.JwtService;
-import com.dmcdoc.usermanagement.core.model.RefreshToken;
+import com.dmcdoc.sharedcommon.dto.*;
 import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.service.auth.AuthenticationService;
+import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
-import com.dmcdoc.sharedcommon.dto.AuthResponse;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.Map;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.UUID;
+import org.springframework.http.*;
+import org.springframework.security.authentication.*;
 import org.springframework.web.bind.annotation.*;
 
-@RestController @RequestMapping("/api/auth") @RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private final AuthenticationService authenticationService;
+
+        private final AuthenticationManager authenticationManager;
+        private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-    private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
-   
+    private final UserService userService;
 
-    // 🔹 Inscription
-    @PostMapping("/register")
-    public AuthResponse register(@RequestBody RegisterRequest request) {
-        return authenticationService.register(request);
-    }
-
-    // 🔹 Connexion
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
-        return authenticationService.loginByEmail(request);
+    public ResponseEntity<AuthResponse> login(
+                    @RequestBody LoginRequest request) {
+
+            authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                            request.getUsername(),
+                                            request.getPassword()));
+
+            UUID tenantId = TenantContext.getTenantId();
+            User user = userService.findByEmailOptional(
+                            request.getUsername(),
+                            tenantId).orElseThrow();
+
+        String accessToken = jwtService.generateToken(user);
+        var refreshToken = refreshTokenService.create(user);
+
+        return ResponseEntity.ok(
+                        new AuthResponse(
+                                        accessToken,
+                                        refreshToken.getToken(),
+                                        user.getEmail()));
     }
 
-    // 🔹 Rafraîchir l’access token
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody RefreshRequest request) {
-        RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("Invalid or expired refresh token"));
+    public ResponseEntity<AuthResponse> refresh(
+                    @RequestBody RefreshRequest request) {
 
-        User user = rt.getUser();
-        String newAccessToken = jwtService.generateToken(user);
-
-        return new AuthResponse(newAccessToken, rt.getToken(), user.getEmail());
-    }
-
-    @PostMapping("/test-password")
-    public String testPassword(@RequestBody Map<String, String> request) {
-        String rawPassword = request.get("password");
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-
-        System.out.println("Raw: " + rawPassword);
-        System.out.println("Encoded: " + encodedPassword);
-        System.out.println("Matches: " + passwordEncoder.matches(rawPassword, encodedPassword));
-
-        return "Raw: " + rawPassword + " | Encoded: " + encodedPassword;
+            UUID tenantId = TenantContext.getTenantId();
+            return ResponseEntity.ok(
+                            userService.refreshToken(
+                                            request,
+                                            tenantId));
     }
 }
