@@ -7,7 +7,7 @@ import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
-import com.dmcdoc.usermanagement.tenant.provisioning.TenantProvisioningService;
+import com.dmcdoc.usermanagement.core.service.tenant.TenantProvisioningService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -82,7 +82,9 @@ public class OAuth2AuthenticationSuccessHandler
                                 : UUID.randomUUID();
 
                 // ensure tenant schema exists (provisioning)
-                tenantProvisioningService.provisionTenant(tenantId);
+                if (user.getTenantId() == null) {
+                        tenantProvisioningService.provisionIfNeeded(tenantId, user);
+                }
 
                 // if user had no tenant assigned, attach and persist
                 if (user.getTenantId() == null) {

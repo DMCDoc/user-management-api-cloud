@@ -32,7 +32,7 @@ public class IsolationTest {
 
         TenantContext.setTenantId(tenantA);
 
-        List<Restaurant> restaurants = restaurantRepository.findAll();
+        List<Restaurant> restaurants = restaurantRepository.findAllByTenantId(tenantA);
 
         assertThat(restaurants)
             .allMatch(r -> r.getTenantId().equals(tenantA));

@@ -8,18 +8,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository
-        extends TenantAwareRepository<User, UUID> {
+                extends TenantAwareRepository<User, UUID> {
 
-    Optional<User> findByEmailAndTenantId(String email, UUID tenantId);
+        Optional<User> findByEmailAndTenantId(String email, UUID tenantId);
 
-    Optional<User> findByUsernameAndTenantId(String username, UUID tenantId);
+        Optional<User> findByUsernameAndTenantId(String username, UUID tenantId);
 
-    Optional<User> findByEmail(String email);
+        Optional<User> findByEmail(String email);
 
-    Page<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-            String username, String email, Pageable pageable);
+        boolean existsByEmailAndTenantId(String email, UUID tenantId);
 
-    long countByRoles_Name(String roleName);
+        Page<User> findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
+                        UUID tenantId,
+                        String username,
+                        UUID tenantId2,
+                        String email,
+                        Pageable pageable);
 
-    long countByActiveFalse();
+        long countByTenantIdAndRoles_Name(UUID tenantId, String roleName);
+
+        long countByTenantIdAndActiveFalse(UUID tenantId);
 }

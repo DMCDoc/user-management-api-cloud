@@ -30,16 +30,20 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder; // pour reset password
 
     public Page<User> searchUsers(String q, Pageable pageable) {
+        UUID tenantId = TenantContext.getTenantIdRequired();
         if (q == null || q.isBlank()) {
-            return userRepository.findAll(pageable);
+            return userRepository.findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
+                    tenantId, "", tenantId, "", pageable);
         }
-        return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(q, q, pageable);
+        return userRepository.findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
+                tenantId, q, tenantId, q, pageable);
     }
 
     public Map<String, Long> getStats() {
-        long total = userRepository.count();
-        long admins = userRepository.countByRoles_Name("ROLE_ADMIN");
-        long disabled = userRepository.countByActiveFalse();
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        long total = userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_USER");
+        long admins = userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_ADMIN");
+        long disabled = userRepository.countByTenantIdAndActiveFalse(tenantId);
         return Map.of("totalUsers", total, "admins", admins, "disabled", disabled);
     }
 
@@ -77,7 +81,8 @@ public class AdminService {
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        return userRepository.findAllByTenantId(tenantId);
     }
 
     public User getUserById(UUID userId) {
@@ -122,10 +127,11 @@ public class AdminService {
     }
 
     public void deleteUser(UUID userId) {
-        if (!userRepository.existsById(userId)) {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        if (!userRepository.findByIdAndTenantId(userId, tenantId).isPresent()) {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
-        userRepository.deleteById(userId);
+        userRepository.deleteByIdAndTenantId(userId, tenantId);
     }
 
     public void blockUser(UUID id) {

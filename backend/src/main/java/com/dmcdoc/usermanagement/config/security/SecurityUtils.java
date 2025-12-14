@@ -1,5 +1,9 @@
 package com.dmcdoc.usermanagement.config.security;
 
+/* Copyright (c) 2024 DMC Doc */
+/* 
+package com.dmcdoc.usermanagement.config.security;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -9,7 +13,8 @@ import org.springframework.security.core.GrantedAuthority;
  *             backward compatibility and should be removed once callers
  *             migrated.
  */
-@Deprecated
+
+/*  @Deprecated
 public final class SecurityUtils {
 
     private SecurityUtils() {
@@ -26,3 +31,4 @@ public final class SecurityUtils {
         return false;
     }
 }
+*/

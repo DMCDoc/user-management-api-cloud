@@ -1,27 +1,5 @@
 package com.dmcdoc.usermanagement.core.service.admin;
 
-import com.dmcdoc.usermanagement.api.exceptions.ResourceNotFoundException;
-import com.dmcdoc.usermanagement.core.model.Role;
-import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.repository.RoleRepository;
-import com.dmcdoc.usermanagement.core.repository.UserRepository;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 /*
  * @ExtendWith(MockitoExtension.class)
  * public class AdminServiceUnitTest {
