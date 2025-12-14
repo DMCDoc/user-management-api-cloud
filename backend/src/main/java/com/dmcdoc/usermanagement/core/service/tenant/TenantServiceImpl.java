@@ -54,6 +54,9 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public Tenant findByKey(String tenantKey) {
+        if (TenantContext.isResolved()) {
+            throw new AccessDeniedException("Tenant scoped access denied");
+        }
         return tenantRepository.findByTenantKey(tenantKey)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }

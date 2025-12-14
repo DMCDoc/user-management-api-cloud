@@ -42,12 +42,8 @@ public class SecurityConfig {
                                                 .accessDeniedHandler(accessDeniedHandler));
 
                 // 🔥 ORDRE ABSOLU
-                http.addFilterBefore(
-                                tenantFilter,
-                                UsernamePasswordAuthenticationFilter.class);
-                http.addFilterBefore(
-                                jwtAuthenticationFilter,
-                                UsernamePasswordAuthenticationFilter.class);
+                http.addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class);
+                http.addFilterAfter(jwtAuthenticationFilter, tenantFilter.getClass());
 
                 http.authorizeHttpRequests(auth -> auth
 
