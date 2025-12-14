@@ -63,7 +63,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: ../docker/Dockerfile.backend.prod
     container_name: um_backend_prod
     restart: unless-stopped
     env_file:
@@ -97,7 +97,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.prod
+      dockerfile: ../docker/Dockerfile.frontend.prod
     container_name: um_frontend_prod
     restart: unless-stopped
     depends_on:

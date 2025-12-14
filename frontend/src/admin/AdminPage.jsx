@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Box, Grid, Card, CardContent, Typography } from "@mui/material";
 import UsersPage from "./UsersPage";
-import { fetchStats } from "./Adminapi";
+import { fetchStats } from "./adminApi";
 import StatsChart from "./StatsChart";
 
 export default function AdminPage() {

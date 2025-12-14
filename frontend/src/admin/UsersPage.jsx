@@ -3,7 +3,7 @@ import AdminLayout from "./AdminLayout";
 import { Box, Button, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import EditUserDialog from "./EditUserDialog";
-import { fetchUsers, deleteUser, adminResetPassword, blockUser, unblockUser } from "./Adminapi";
+import { fetchUsers, deleteUser, adminResetPassword, blockUser, unblockUser } from "./adminApi";
 
 export default function UsersPage(){
   const [page, setPage] = useState(0);

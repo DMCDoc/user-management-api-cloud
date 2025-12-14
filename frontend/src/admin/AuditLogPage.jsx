@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "./AdminLayout";
 import { DataGrid } from "@mui/x-data-grid";
-import { fetchLogs } from "./Adminapi";
+import { fetchLogs } from "./adminApi";
 
 export default function AuditLogPage(){
   const [rows, setRows] = useState([]);
