@@ -6,8 +6,7 @@ com\dmcdoc\usermanagement\integration\MagicLinkTest.class
 com\dmcdoc\usermanagement\dto\UserDtoTest.class
 com\dmcdoc\usermanagement\core\service\admin\AdminServiceTenantAwareTest.class
 com\dmcdoc\usermanagement\dto\RegisterRequestTest.class
-com\dmcdoc\usermanagement\security\SimpleUserRepoTest.class
-com\dmcdoc\usermanagement\core\service\admin\AdminServiceUnitTest.class
+com\dmcdoc\usermanagement\tenant\TenantResolverTest.class
 com\dmcdoc\usermanagement\exceptions\UserAlreadyExistsExceptionTest.class
 com\dmcdoc\usermanagement\exceptions\UserNotFoundExceptionTest.class
 com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerTest.class
@@ -16,9 +15,9 @@ com\dmcdoc\usermanagement\security\JWTUtilsTest.class
 com\dmcdoc\usermanagement\security\LoginIntegrationTest.class
 com\dmcdoc\usermanagement\exceptions\SecurityExceptionHandlerTest.class
 com\dmcdoc\usermanagement\security\JwtSecurityIntegrationTest.class
-com\dmcdoc\usermanagement\security\PasswordEncodingTest.class
 com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerUnitTest.class
 com\dmcdoc\usermanagement\dto\UserResponseTest.class
 com\dmcdoc\usermanagement\security\JwtAuthenticationFilterTest.class
 com\dmcdoc\usermanagement\core\service\admin\AdminServiceTest.class
 com\dmcdoc\usermanagement\security\ActuatorTest.class
+com\dmcdoc\usermanagement\security\IsolationTest.class

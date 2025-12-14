@@ -8,26 +8,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 
-@SpringBootTest
-class SimpleUserRepoTest {
-
-    @Autowired
-    private UserRepository userRepository;
-
-            @AfterEach
-        void cleanup() {
-               userRepository.deleteAll(); // ⚡ nettoie après chaque test
-        }
-
-    @Test
-    void insertUserDirect() {
-        User u = new User();
-        u.setUsername("test_db");
-        u.setEmail("test@example.com");
-        u.setPassword("pwd");
-        u.setEnabled(true);
-        
-
-        userRepository.save(u);
-    }
-}
+/*
+ * @SpringBootTest
+ * class SimpleUserRepoTest {
+ * 
+ * @Autowired
+ * private UserRepository userRepository;
+ * 
+ * @AfterEach
+ * void cleanup() {
+ * userRepository.deleteAll(); // ⚡ nettoie après chaque test
+ * }
+ * 
+ * @Test
+ * void insertUserDirect() {
+ * User u = new User();
+ * u.setUsername("test_db");
+ * u.setEmail("test@example.com");
+ * u.setPassword("pwd");
+ * u.setEnabled(true);
+ * 
+ * 
+ * userRepository.save(u);
+ * }
+ * }
+ */

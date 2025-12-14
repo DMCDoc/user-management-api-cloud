@@ -4,6 +4,7 @@ import com.dmcdoc.sharedcommon.dto.RegisterTenantRequest;
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.service.*;
+import com.dmcdoc.usermanagement.core.service.tenant.TenantService;
 import com.dmcdoc.usermanagement.config.security.JwtService;
 
 import lombok.RequiredArgsConstructor;

@@ -81,6 +81,18 @@ public class JwtService {
                 .toList() : new ArrayList<>();
     }
 
+    public boolean tokenHasRole(String token, String role) {
+        if (token == null || role == null) {
+            return false;
+        }
+        List<String> roles = extractRoles(token);
+        return roles.stream().anyMatch(r -> r.equalsIgnoreCase(role));
+    }
+
+    public boolean isSuperAdmin(String token) {
+        return tokenHasRole(token, "ROLE_SUPER_ADMIN");
+    }
+
     private boolean isExpired(String token) {
         return extractClaims(token)
                 .getExpiration()

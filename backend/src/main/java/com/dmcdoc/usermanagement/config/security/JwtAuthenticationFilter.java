@@ -1,6 +1,5 @@
 package com.dmcdoc.usermanagement.config.security;
 
-import com.dmcdoc.usermanagement.tenant.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,21 +38,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         if (!jwtService.isTokenValid(token)) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
             return;
         }
 
-        // ⚠️ Tenant DOIT déjà être résolu par TenantFilter
-        if (!TenantContext.isResolved()) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Tenant not resolved");
-            return;
-        }
+
 
         String username = jwtService.extractUsername(token);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            // provisioning should be handled during OAuth2 login / onboarding
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userDetails,
