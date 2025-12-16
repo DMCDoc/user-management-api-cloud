@@ -7,3 +7,4 @@ import java.util.UUID;
 
 public interface AdminLogRepository extends JpaRepository<AdminLog, UUID> {
 }
+/*123 */
