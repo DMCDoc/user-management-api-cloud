@@ -2,7 +2,7 @@ name: CI Build & Security Scan
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, refactor/* ]
   pull_request:
 
 jobs:
