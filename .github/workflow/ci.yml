@@ -1,22 +1,34 @@
-name: CI Build
+name: CI Build & Security Scan
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ refactor/monolith-modular, develop ]
   pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Permet de checkout le code
+      security-events: write # CRUCIAL : Permet à CodeQL et Trivy de publier les résultats
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      # 1. Configuration Java
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+      
+      # 2. SAST (CodeQL) - Initialisation
+      # Doit être exécuté avant le build Maven pour intercepter les commandes de compilation.
+      - name: Initialize CodeQL (SAST)
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'java'
 
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -25,11 +37,44 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
+      # 3. Build et Tests
       - name: Build all modules
+        # La commande mvn est surveillée par CodeQL pour construire la base de données d'analyse
         run: mvn -B -DskipTests clean package
 
       - name: Run tests
         run: mvn test -pl backend
 
+      # 4. SCA (Dependency-Check) - Analyse des dépendances
+      - name: Run OWASP Dependency-Check (SCA)
+        uses: dependency-check/Dependency-Check-Action@v3 
+        with:
+          project: 'user-management-api'
+          path: './backend' # Cible le module d'application
+          format: 'ALL'
+          args: '--scan'
+          
+      # 5. Build Docker
       - name: Build Docker image
         run: docker build -t user-management-api:latest ./backend
+        
+      # 6. Container Scanning (Trivy)
+      - name: Scan Docker Image with Trivy
+        # Scanne l'image locale pour les vulnérabilités OS, Java, etc.
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-management-api:latest'
+          format: 'sarif' # Utilise le format SARIF pour l'intégration GitHub
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          
+      - name: Upload Trivy Scan Results
+        # Publie les résultats Trivy dans l'onglet 'Security' de GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        
+      # 7. SAST (CodeQL) - Analyse finale
+      # Doit être exécuté après le build et tous les autres steps
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
