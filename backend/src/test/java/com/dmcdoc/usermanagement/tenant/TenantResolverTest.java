@@ -1,7 +1,6 @@
 package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,7 +9,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class TenantResolverTest {
 

@@ -15,7 +15,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TenantProvisioningService {
+public class TenantAutoProvisioningService {
 
     private final TenantRepository tenantRepository;
     private final UserRepository userRepository;

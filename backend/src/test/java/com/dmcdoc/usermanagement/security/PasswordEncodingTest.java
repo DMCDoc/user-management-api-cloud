@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.security;
+/*package com.dmcdoc.usermanagement.security;
 
 import com.dmcdoc.sharedcommon.dto.RegisterRequest;
 import com.dmcdoc.usermanagement.core.model.User;
@@ -16,7 +16,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/*
+
  * @SpringBootTest(classes =
  * com.dmcdoc.usermanagement.UserManagementApplication.class)
  * 

@@ -1,20 +1,15 @@
-// 3️⃣ Appel depuis OAuth2 Success Handler (cas Google, etc.)
-
 package com.dmcdoc.usermanagement.config.security;
 
-import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.tenant.TenantAutoProvisioningService;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
-import com.dmcdoc.usermanagement.core.service.tenant.TenantProvisioningService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -34,7 +29,7 @@ public class OAuth2AuthenticationSuccessHandler
         private final UserRepository userRepository;
         private final RefreshTokenService refreshTokenService;
         private final JwtService jwtService;
-        private final TenantProvisioningService tenantProvisioningService;
+        private final TenantAutoProvisioningService tenantProvisioningService;
 
         @Override
         public void onAuthenticationSuccess(
@@ -49,57 +44,40 @@ public class OAuth2AuthenticationSuccessHandler
                 if (email == null) {
                         throw new ResponseStatusException(
                                         HttpStatus.BAD_REQUEST,
-                                        "Email manquant dans la réponse OAuth2");
+                                        "Email manquant dans OAuth2 response");
                 }
 
-                String registrationId = authentication.getAuthorities()
-                                .stream()
-                                .findFirst()
-                                .map(a -> a.getAuthority().toUpperCase())
-                                .orElse("UNKNOWN");
-
-                OAuth2Provider provider = switch (registrationId) {
-                        case "GOOGLE" -> OAuth2Provider.GOOGLE;
-                        case "GITHUB" -> OAuth2Provider.GITHUB;
-                        case "FACEBOOK" -> OAuth2Provider.FACEBOOK;
-                        default -> OAuth2Provider.LOCAL;
-                };
-
-                // 🔹 Find or create OAuth2 user
                 User user = userRepository.findByEmail(email)
-                                .orElseGet(() -> userRepository.save(
-                                                User.builder()
-                                                                .username(email.split("@")[0])
-                                                                .email(email)
-                                                                .fullName(email)
-                                                                .password(UUID.randomUUID().toString())
-                                                                .provider(provider)
-                                                                .build()));
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                                                "User not found"));
 
-                // 🔥 TENANT RESOLUTION + PROVISIONING
-                UUID tenantId = user.getTenantId() != null
-                                ? user.getTenantId()
-                                : UUID.randomUUID();
+                boolean isSuperAdmin = user.getRoles()
+                                .stream()
+                                .map(r -> r.getName())
+                                .anyMatch(r -> r.equals("ROLE_SUPER_ADMIN"));
 
-                // ensure tenant schema exists (provisioning)
-                if (user.getTenantId() == null) {
-                        tenantProvisioningService.provisionIfNeeded(tenantId, user);
+                UUID tenantId;
+
+                if (isSuperAdmin) {
+                        // 🔥 SUPER ADMIN → BYPASS
+                        TenantContext.enableBypass();
+                        tenantId = null;
+                } else {
+                        tenantId = user.getTenantId();
+                        if (tenantId == null) {
+                                tenantId = UUID.randomUUID();
+                                tenantProvisioningService.provisionIfNeeded(tenantId, user);
+                                user.setTenantId(tenantId);
+                                userRepository.save(user);
+                        }
+                        TenantContext.setTenantId(tenantId);
                 }
 
-                // if user had no tenant assigned, attach and persist
-                if (user.getTenantId() == null) {
-                        user.setTenantId(tenantId);
-                        userRepository.save(user);
-                }
-
-                TenantContext.setTenantId(tenantId);
-
-                // 🔐 Tokens
                 String accessToken = jwtService.generateToken(user);
                 var refreshToken = refreshTokenService.create(user);
 
-                log.info("✅ OAuth2 login OK | user={} | provider={} | tenant={}",
-                                user.getEmail(), provider, tenantId);
+                log.info("OAuth2 success | user={} | superAdmin={} | tenant={}",
+                                email, isSuperAdmin, tenantId);
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json");

@@ -26,21 +26,23 @@ public class TenantHibernateFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        UUID tenantId = TenantContext.getTenantId();
-
-        if (tenantId != null) {
-            Session session = entityManager.unwrap(Session.class);
-
-            if (session.getEnabledFilter("tenantFilter") == null) {
-                session.enableFilter("tenantFilter")
-                        .setParameter("tenantId", tenantId);
-            }
-        }
-
         try {
+            if (!TenantContext.isBypass()) {
+                UUID tenantId = TenantContext.getTenantId();
+                if (tenantId != null) {
+                    Session session = entityManager.unwrap(Session.class);
+                    session.enableFilter("tenantFilter")
+                            .setParameter("tenantId", tenantId);
+                }
+            }
+
             filterChain.doFilter(request, response);
+
         } finally {
-            TenantContext.clear();
+            Session session = entityManager.unwrap(Session.class);
+            if (session.getEnabledFilter("tenantFilter") != null) {
+                session.disableFilter("tenantFilter");
+            }
         }
     }
 }

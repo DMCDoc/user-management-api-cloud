@@ -1,7 +1,13 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.project.sourcePaths": [
-        "tenant"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.maven.enabled": true,
+    "java.autobuild.enabled": true,
+    "java.test.report.showPassedTests": true,
+    "java.test.config": [
+        {
+            "name": "customConfig",
+            "workingDirectory": "${workspaceFolder}"
+        }
     ]
 }

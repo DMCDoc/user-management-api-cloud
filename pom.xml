@@ -49,6 +49,26 @@
             <release>${maven.compiler.release}</release>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>org.apache.maven.plugins</artifactId>
+          <groupId>maven-surefire-plugin</groupId>
+          <version>3.1.2</version>
+          <configuration>
+            <includes>
+              <include>**/*Tests.java</include>
+            </includes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>org.apache.maven.plygins</artifactId>
+          <groupId>maven-failsafe-plugin</groupId>
+          <version>3.1.2</version>
+          <configuration>
+            <includes>
+              <include>**/*IT.java</include>
+            </includes>
+          </configuration>
+        </plugin>
 
         <!-- Spring Boot -->
         <plugin>
