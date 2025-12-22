@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,17 +30,17 @@ public class TenantHibernateFilter extends OncePerRequestFilter {
 
         if (tenantId != null) {
             Session session = entityManager.unwrap(Session.class);
-            Filter filter = session.enableFilter("tenantFilter");
-            filter.setParameter("tenantId", tenantId);
+
+            if (session.getEnabledFilter("tenantFilter") == null) {
+                session.enableFilter("tenantFilter")
+                        .setParameter("tenantId", tenantId);
+            }
         }
 
         try {
             filterChain.doFilter(request, response);
         } finally {
-            if (tenantId != null) {
-                entityManager.unwrap(Session.class)
-                        .disableFilter("tenantFilter");
-            }
+            TenantContext.clear();
         }
     }
 }

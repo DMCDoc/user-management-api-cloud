@@ -39,7 +39,7 @@ class OAuth2IntegrationTest {
     private RoleRepository roleRepository;
     private RefreshTokenService refreshTokenService;
     private JwtService jwtService;
-    private com.dmcdoc.usermanagement.tenant.provisioning.TenantProvisioningService tenantProvisioningService;
+    private com.dmcdoc.usermanagement.core.service.tenant.TenantProvisioningService tenantProvisioningService;
     private OAuth2AuthenticationSuccessHandler handler;
 
     private HttpServletRequest request;
@@ -53,7 +53,7 @@ class OAuth2IntegrationTest {
         userRepository = mock(UserRepository.class);
         refreshTokenService = mock(RefreshTokenService.class);
         jwtService = mock(JwtService.class);
-        tenantProvisioningService = mock(com.dmcdoc.usermanagement.tenant.provisioning.TenantProvisioningService.class);
+        tenantProvisioningService = mock(com.dmcdoc.usermanagement.core.service.tenant.TenantProvisioningService.class);
         handler = new OAuth2AuthenticationSuccessHandler(userRepository, refreshTokenService,
                 jwtService, tenantProvisioningService);
 

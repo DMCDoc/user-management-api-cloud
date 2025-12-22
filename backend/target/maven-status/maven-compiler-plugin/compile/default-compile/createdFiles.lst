@@ -10,6 +10,7 @@ com\dmcdoc\usermanagement\core\model\MagicLinkToken.class
 com\dmcdoc\usermanagement\core\model\TenantAwareEntity.class
 com\dmcdoc\usermanagement\tenant\TenantProperties.class
 com\dmcdoc\usermanagement\core\repository\UserRepository.class
+com\dmcdoc\usermanagement\core\service\multi_tenant.md
 com\dmcdoc\usermanagement\tenant\TenantFilterConfig.class
 com\dmcdoc\usermanagement\core\repository\PasswordResetTokenRepository.class
 com\dmcdoc\usermanagement\core\repository\RoleRepository.class
@@ -18,6 +19,7 @@ com\dmcdoc\usermanagement\tenant\TenantValidator.class
 com\dmcdoc\usermanagement\core\model\RefreshToken$RefreshTokenBuilder.class
 com\dmcdoc\usermanagement\api\controller\AdminController.class
 com\dmcdoc\usermanagement\core\repository\AdminLogRepository.class
+com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantServiceImpl.class
 com\dmcdoc\usermanagement\config\RoleInitializer.class
 com\dmcdoc\usermanagement\config\MethodSecurityConfig.class
@@ -79,6 +81,7 @@ com\dmcdoc\usermanagement\core\service\MagicLinkCleanupTask.class
 com\dmcdoc\usermanagement\core\model\Restaurant.class
 com\dmcdoc\usermanagement\api\controller\MagicLinkController.class
 com\dmcdoc\usermanagement\api\exceptions\ResourceNotFoundException.class
+com\dmcdoc\usermanagement\tenant\TenantHibernateFilter.class
 com\dmcdoc\usermanagement\core\service\RestaurantServiceImpl.class
 com\dmcdoc\usermanagement\core\service\auth\PasswordResetToken.class
 com\dmcdoc\usermanagement\api\exceptions\GlobalExceptionHandler.class

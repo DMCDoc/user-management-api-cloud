@@ -13,20 +13,20 @@ public final class TenantContext {
         return CURRENT.get();
     }
 
-    public static void setTenantId(UUID tenantId) {
-        CURRENT.set(tenantId);
-    }
-
-    public static void clear() {
-        CURRENT.remove();
-    }
-
     public static UUID getTenantIdRequired() {
         UUID tenantId = CURRENT.get();
         if (tenantId == null) {
             throw new IllegalStateException("Tenant context not set");
         }
         return tenantId;
+    }
+
+    public static void setTenantId(UUID tenantId) {
+        CURRENT.set(tenantId);
+    }
+
+    public static void clear() {
+        CURRENT.remove();
     }
 
     public static boolean isResolved() {

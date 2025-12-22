@@ -14,18 +14,20 @@ sans TenantContext */
 
 package com.dmcdoc.usermanagement.core.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import java.util.UUID;
 
 @MappedSuperclass
 @Getter
 @Setter
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = UUID.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public abstract class TenantAwareEntity {
 
     @Column(name = "tenant_id", nullable = false, updatable = false)
@@ -34,10 +36,6 @@ public abstract class TenantAwareEntity {
     @Column(nullable = false)
     private boolean active = true;
 
-    /**
-     * Garantit qu'aucune entité tenant-aware
-     * ne peut être persistée sans tenant
-     */
     @PrePersist
     protected void onCreate() {
         if (tenantId == null) {
@@ -46,9 +44,6 @@ public abstract class TenantAwareEntity {
         }
     }
 
-    /**
-     * Empêche toute tentative de modification du tenant
-     */
     @PreUpdate
     protected void onUpdate() {
         if (tenantId == null) {
