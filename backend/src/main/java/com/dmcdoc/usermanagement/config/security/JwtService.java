@@ -4,6 +4,10 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import com.dmcdoc.usermanagement.core.model.User;
@@ -88,6 +92,30 @@ public class JwtService {
         List<String> roles = extractRoles(token);
         return roles.stream().anyMatch(r -> r.equalsIgnoreCase(role));
     }
+
+    public boolean isValid(String token) {
+    try {
+        extractClaims(token);
+        return true;
+    } catch (JwtException e) {
+        return false;
+    }
+}
+
+    public Authentication getAuthentication(String token) {
+    String username = extractUsername(token);
+
+    List<GrantedAuthority> authorities = extractRoles(token).stream()
+            .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
+            .toList();
+
+    return new UsernamePasswordAuthenticationToken(
+            username,
+            null,
+            authorities
+    );
+}
+
 
     public boolean isSuperAdmin(String token) {
         return tokenHasRole(token, "ROLE_SUPER_ADMIN");

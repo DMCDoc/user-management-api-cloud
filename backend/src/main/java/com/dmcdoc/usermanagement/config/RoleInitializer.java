@@ -1,3 +1,4 @@
+/* 
 package com.dmcdoc.usermanagement.config;
 
 import com.dmcdoc.usermanagement.core.model.Role;
@@ -28,3 +29,4 @@ public class RoleInitializer {
         }
     }
 }
+*/

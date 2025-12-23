@@ -17,9 +17,7 @@ public interface TenantAwareRepository<T extends TenantAwareEntity, ID extends S
     @Deprecated
     Optional<T> findById(ID id);
 
-    @Override
-    @Deprecated
-    List<T> findAll();
+
 
     @Override
     @Deprecated

@@ -1,0 +1,16 @@
+com\dmcdoc\usermanagement\tenant\TenantFilter.class
+com\dmcdoc\usermanagement\core\model\Tenant$TenantBuilder.class
+com\dmcdoc\usermanagement\core\service\tenant\TenantAutoProvisioningService.class
+com\dmcdoc\usermanagement\core\model\Role$RoleBuilder.class
+com\dmcdoc\usermanagement\core\model\User.class
+com\dmcdoc\usermanagement\core\model\OAuth2Provider.class
+com\dmcdoc\usermanagement\core\model\TenantAwareEntity.class
+com\dmcdoc\usermanagement\core\repository\TenantRepository.class
+com\dmcdoc\usermanagement\core\model\Role.class
+com\dmcdoc\usermanagement\core\repository\UserRepository.class
+com\dmcdoc\usermanagement\core\model\User$UserBuilder.class
+com\dmcdoc\usermanagement\core\model\Tenant.class
+com\dmcdoc\usermanagement\core\repository\TenantAwareRepository.class
+com\dmcdoc\usermanagement\DbInfoLogger.class
+com\dmcdoc\usermanagement\config\security\JwtAuthenticationFilter.class
+com\dmcdoc\usermanagement\tenant\hibernate\CurrentTenantIdentifierResolverImpl.class

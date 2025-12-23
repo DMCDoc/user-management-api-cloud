@@ -27,21 +27,21 @@ public class TenantResolver {
         }
 
         // 2️⃣ Header explicite
-        if (properties.allowHeader()) {
+        if (properties.isAllowHeader()) {
             String header = request.getHeader("X-Tenant-Id");
             if (header != null)
                 return UUID.fromString(header);
         }
 
         // 3️⃣ Subdomain (optionnel)
-        if (properties.allowSubdomain()) {
+        if (properties.isAllowSubdomain()) {
             String host = request.getServerName();
             if (host.contains(".")) {
                 return UUID.nameUUIDFromBytes(host.split("\\.")[0].getBytes());
             }
         }
 
-        if (properties.mode() == TenantMode.STRICT) {
+        if (properties.getMode() == TenantMode.STRICT) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tenant resolution failed");
         }
 
