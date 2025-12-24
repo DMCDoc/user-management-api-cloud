@@ -1,5 +1,6 @@
 package com.dmcdoc.usermanagement.api.exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -8,10 +9,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -48,10 +51,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ErrorResponseFactory.create(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponseFactory.create(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        ex.getMessage(),
+                        request.getRequestURI()));
     }
-
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -112,7 +117,7 @@ public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTy
 public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
         HttpServletRequest request) {
     String message = "Database error occurred";
-    
+
     if (ex.getMessage().contains("duplicate key") || ex.getMessage().contains("already exists")) {
         if (ex.getMessage().contains("username")) {
             message = "Username already exists";
@@ -122,9 +127,22 @@ public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityV
             message = "Data already exists";
         }
     }
-    
+
     return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ErrorResponseFactory.create(HttpStatus.CONFLICT, message, request.getRequestURI()));
 }
+
+@ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFound(EntityNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleForbidden(AccessDeniedException ex) {
+        return Map.of("error", ex.getMessage());
+    }
 
 }

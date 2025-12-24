@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.tenant;
+ package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,11 @@ class TenantResolverTest {
     @Test
     void headerTenantAllowed_returnsUuid() {
         JwtService jwtService = mock(JwtService.class);
-        TenantProperties props = new TenantProperties(TenantMode.AUTO_PROVISION, true, false);
+
+        TenantProperties props = new TenantProperties();
+        props.setMode(TenantMode.HEADER);
+        props.setAllowHeader(true);
+        props.setAllowSubdomain(false);
 
         TenantResolver resolver = new TenantResolver(jwtService, props);
 
@@ -31,13 +35,18 @@ class TenantResolverTest {
     @Test
     void noTenantInStrict_throws403() {
         JwtService jwtService = mock(JwtService.class);
-        TenantProperties props = new TenantProperties(TenantMode.STRICT, false, false);
+
+        TenantProperties props = new TenantProperties();
+        props.setMode(TenantMode.STRICT);
+        props.setAllowHeader(false);
+        props.setAllowSubdomain(false);
 
         TenantResolver resolver = new TenantResolver(jwtService, props);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> resolver.resolve(req));
+
         assertEquals(403, ex.getStatusCode().value());
     }
 }

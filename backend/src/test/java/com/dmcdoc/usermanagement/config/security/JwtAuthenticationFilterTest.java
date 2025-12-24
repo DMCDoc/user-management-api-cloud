@@ -33,7 +33,7 @@ class JwtAuthenticationFilterTest {
         UserDetails alice = new User("alice", "pwd", List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(userDetailsService.loadUserByUsername("alice")).thenReturn(alice);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService)    ;
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addHeader("Authorization", "Bearer valid-token");
@@ -53,7 +53,7 @@ class JwtAuthenticationFilterTest {
 
         when(jwtService.isTokenValid("bad-token")).thenReturn(false);
 
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtService);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addHeader("Authorization", "Bearer bad-token");

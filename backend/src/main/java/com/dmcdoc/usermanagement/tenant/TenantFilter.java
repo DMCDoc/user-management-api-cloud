@@ -1,5 +1,3 @@
-/*Activer le filter au niveau Hibernate /Ce filtre ne détermine PAS le tenant, il l’applique seulement. */
-
 package com.dmcdoc.usermanagement.tenant;
 
 import jakarta.persistence.EntityManager;
@@ -9,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,9 +30,20 @@ public class TenantFilter extends OncePerRequestFilter {
 
         try {
             UUID tenantId = TenantContext.getTenantId();
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            if (tenantId != null) {
-                Session session = entityManager.unwrap(Session.class);
+            // Vérifier si l'utilisateur est Super Admin
+            boolean isSuperAdmin = auth != null && auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+            Session session = entityManager.unwrap(Session.class);
+
+            if (isSuperAdmin) {
+                // Si Super Admin : on désactive explicitement le filtre pour voir toutes les
+                // données
+                session.disableFilter("tenantFilter");
+            } else if (tenantId != null) {
+                // Sinon, si on a un tenantId : on applique l'isolation
                 session.enableFilter("tenantFilter")
                         .setParameter("tenantId", tenantId);
             }
@@ -40,7 +51,7 @@ public class TenantFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } finally {
-            // IMPORTANT
+            // IMPORTANT : Nettoyage du ThreadLocal pour éviter les fuites de contexte
             TenantContext.clear();
         }
     }

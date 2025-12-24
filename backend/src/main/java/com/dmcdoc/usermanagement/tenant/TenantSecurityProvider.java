@@ -1,13 +1,6 @@
-/*
-✔️ Stateless
-✔️ Thread-safe
-✔️ Pas de ThreadLocal
-✔️ Compatible DB par tenant */
-
-
 package com.dmcdoc.usermanagement.tenant;
 
-import com.dmcdoc.usermanagement.core.model.User;
+import com.dmcdoc.usermanagement.config.security.JwtPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,18 +10,32 @@ import java.util.UUID;
 @Component
 public class TenantSecurityProvider implements TenantCurrentProvider {
 
-    @Override
-    public UUID getTenantId() {
+    private JwtPrincipal principal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth == null || !(auth.getPrincipal() instanceof User user)) {
-            throw new IllegalStateException("Tenant cannot be resolved");
+        if (auth == null || !(auth.getPrincipal() instanceof JwtPrincipal p)) {
+            throw new IllegalStateException("Authentication not resolved");
+        }
+        return p;
+    }
+
+    @Override
+    public UUID getTenantId() {
+        JwtPrincipal principal = principal();
+
+        if (principal.isSuperAdmin()) {
+            return null; // 🔥 pas de restriction tenant
         }
 
-        if (user.getTenantId() == null) {
+        if (principal.getTenantId() == null) {
             throw new IllegalStateException("User not assigned to tenant");
         }
 
-        return user.getTenantId();
+        return principal.getTenantId();
+    }
+
+    @Override
+    public boolean isSuperAdmin() {
+        return principal().isSuperAdmin();
     }
 }

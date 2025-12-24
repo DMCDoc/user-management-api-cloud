@@ -1,11 +1,10 @@
-/*tenant invisible */
-
 package com.dmcdoc.usermanagement.api.controller;
 
 import com.dmcdoc.sharedcommon.dto.CreateRestaurantRequest;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +20,9 @@ public class RestaurantController {
     @PostMapping
     public Restaurant create(@RequestBody CreateRestaurantRequest req) {
         return restaurantService.create(
-            req.getName(),
-            req.getAddress(),
-            req.getMetadata());
+                req.getName(),
+                req.getAddress(),
+                req.getMetadata());
     }
 
     @GetMapping
@@ -31,13 +30,15 @@ public class RestaurantController {
         return restaurantService.all();
     }
 
+    @PreAuthorize("@tenantAuth.canAccessRestaurant(#id)")
     @GetMapping("/{id}")
-    public Restaurant get(@PathVariable UUID id) {
+    public Restaurant get(@PathVariable("id") UUID id) {
         return restaurantService.get(id);
     }
 
+    @PreAuthorize("@tenantAuth.canAccessRestaurant(#id)")
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable("id") UUID id) {
         restaurantService.delete(id);
     }
 }

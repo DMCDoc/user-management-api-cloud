@@ -5,4 +5,6 @@ import java.util.UUID;
 public interface TenantCurrentProvider {
 
     UUID getTenantId();
+
+    boolean isSuperAdmin();
 }

@@ -24,7 +24,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         UUID tenantId = tenantProvider.getTenantId();
 
-        if (repository.existsByTenantIdAndName(tenantId, name)) {
+        if (tenantId != null && repository.existsByTenantIdAndName(tenantId, name)) {
             throw new IllegalArgumentException("Restaurant already exists");
         }
 
@@ -42,22 +42,35 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional(readOnly = true)
     public Restaurant get(UUID id) {
         UUID tenantId = tenantProvider.getTenantId();
-        return repository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
+
+        return tenantId == null
+                ? repository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"))
+                : repository.findByIdAndTenantId(id, tenantId)
+                        .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Restaurant> all() {
         UUID tenantId = tenantProvider.getTenantId();
-        return repository.findAllByTenantId(tenantId);
+        return tenantId == null
+                ? repository.findAll()
+                : repository.findAllByTenantId(tenantId);
     }
 
     @Override
     public void delete(UUID id) {
         UUID tenantId = tenantProvider.getTenantId();
+
+        if (tenantId == null) {
+            repository.deleteById(id);
+            return;
+        }
+
         repository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
+
         repository.deleteByIdAndTenantId(id, tenantId);
     }
 }

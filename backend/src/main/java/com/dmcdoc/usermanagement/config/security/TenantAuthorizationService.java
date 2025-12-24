@@ -1,11 +1,6 @@
-/*
-✔️ Stateless
-✔️ Aucune dépendance web
-✔️ Réutilisable partout (@PreAuthorize)
-*/
-
 package com.dmcdoc.usermanagement.config.security;
 
+import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.tenant.TenantCurrentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,22 +11,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TenantAuthorizationService {
 
+    private final RestaurantRepository restaurantRepository;
     private final TenantCurrentProvider tenantProvider;
 
     /**
-     * Vérifie que la ressource appartient au tenant courant
+     * Vérifie si l'utilisateur peut accéder à un restaurant
      */
-    public boolean isSameTenant(UUID resourceTenantId) {
-        return resourceTenantId != null
-                && resourceTenantId.equals(tenantProvider.getTenantId());
-    }
+    public boolean canAccessRestaurant(UUID restaurantId) {
 
-    /**
-     * Vérifie que l'appel concerne le tenant courant
-     * (utile si le tenantId est déjà résolu côté service)
-     */
-    public boolean isCurrentTenant(UUID tenantId) {
-        return tenantId != null
-                && tenantId.equals(tenantProvider.getTenantId());
+        if (tenantProvider.isSuperAdmin()) {
+            return true;
+        }
+
+        UUID tenantId = tenantProvider.getTenantId();
+
+        return restaurantRepository.existsByIdAndTenantId(restaurantId, tenantId);
     }
 }

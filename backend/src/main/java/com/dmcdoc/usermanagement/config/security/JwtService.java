@@ -36,7 +36,7 @@ public class JwtService {
     public String generateToken(User user) {
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("tenant", user.getTenantId().toString());
+        claims.put("tenant", user.getTenantId() != null ? user.getTenantId().toString(): "GLOBAL");
         claims.put("roles",
                 user.getRoles().stream()
                         .map(Role::getName)
@@ -74,8 +74,13 @@ public class JwtService {
     }
 
     public UUID extractTenantId(String token) {
-        return UUID.fromString(
-                extractClaims(token).get("tenant", String.class));
+        String tenant = extractClaims(token).get("tenant", String.class);
+
+        if (tenant == null || tenant.equalsIgnoreCase("GLOBAL")) {
+            return null; // super-admin ou contexte global
+        }
+
+        return UUID.fromString(tenant);
     }
 
     public List<String> extractRoles(String token) {
@@ -103,17 +108,22 @@ public class JwtService {
 }
 
     public Authentication getAuthentication(String token) {
-    String username = extractUsername(token);
 
-    List<GrantedAuthority> authorities = extractRoles(token).stream()
-            .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
-            .toList();
+    String username = extractUsername(token);
+    UUID tenantId = extractTenantId(token);
+    boolean superAdmin = extractRoles(token).contains("ROLE_SUPER_ADMIN");
+
+    JwtPrincipal principal = new JwtPrincipal(username, tenantId, superAdmin);
+
+    List<GrantedAuthority> authorities = new ArrayList<>(
+            extractRoles(token).stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList());
 
     return new UsernamePasswordAuthenticationToken(
-            username,
+            principal,
             null,
-            authorities
-    );
+            authorities);
 }
 
 
