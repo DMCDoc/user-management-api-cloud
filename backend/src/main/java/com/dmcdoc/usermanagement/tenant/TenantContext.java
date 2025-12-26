@@ -25,10 +25,10 @@ public final class TenantContext {
     }
 
     public static boolean isResolved() {
-        return getTenantId() != null && !isBypass();
+        return getTenantId() != null && !isBypassEnabled();
     }
 
-    public static boolean isBypass() {
+    public static boolean isBypassEnabled() {
         return Boolean.TRUE.equals(BYPASS.get());
     }
 
@@ -38,7 +38,7 @@ public final class TenantContext {
     }
 
     public static UUID getTenantIdRequired() {
-        if (isBypass()) {
+        if (isBypassEnabled()) {
             throw new IllegalStateException("Tenant bypass active");
         }
         UUID tenantId = CURRENT.get();

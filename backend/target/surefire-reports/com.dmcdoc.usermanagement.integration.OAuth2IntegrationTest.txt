@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 0.200 s <<< FAILURE! -- in com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest
-com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldThrowIfEmailMissing -- Time elapsed: 0.145 s <<< ERROR!
+Tests run: 3, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 0.191 s <<< FAILURE! -- in com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest
+com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldThrowIfEmailMissing -- Time elapsed: 0.135 s <<< ERROR!
 java.lang.IllegalArgumentException: attributes cannot be empty
 	at org.springframework.util.Assert.notEmpty(Assert.java:474)
 	at org.springframework.security.oauth2.core.user.DefaultOAuth2User.<init>(DefaultOAuth2User.java:70)
@@ -18,7 +18,7 @@ userRepository.save(<any>);
 Never wanted here:
 -> at com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldReuseExistingUserIfAlreadyExists(OAuth2IntegrationTest.java:95)
 But invoked here:
--> at com.dmcdoc.usermanagement.config.security.OAuth2AuthenticationSuccessHandler.onAuthenticationSuccess(OAuth2AuthenticationSuccessHandler.java:71) with arguments: [com.dmcdoc.usermanagement.core.model.User@b9f4b1f]
+-> at com.dmcdoc.usermanagement.config.security.OAuth2AuthenticationSuccessHandler.onAuthenticationSuccess(OAuth2AuthenticationSuccessHandler.java:71) with arguments: [com.dmcdoc.usermanagement.core.model.User@30082a5e]
 
 	at com.dmcdoc.usermanagement.integration.OAuth2IntegrationTest.shouldReuseExistingUserIfAlreadyExists(OAuth2IntegrationTest.java:95)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)

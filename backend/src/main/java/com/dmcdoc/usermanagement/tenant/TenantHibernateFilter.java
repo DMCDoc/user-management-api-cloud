@@ -27,7 +27,7 @@ public class TenantHibernateFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         try {
-            if (!TenantContext.isBypass()) {
+            if (!TenantContext.isBypassEnabled()) {
                 UUID tenantId = TenantContext.getTenantId();
                 if (tenantId != null) {
                     Session session = entityManager.unwrap(Session.class);

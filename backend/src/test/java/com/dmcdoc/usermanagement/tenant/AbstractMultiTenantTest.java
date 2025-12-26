@@ -1,10 +1,12 @@
 package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
+import com.dmcdoc.usermanagement.config.security.TestJwtBuilder;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -14,16 +16,22 @@ import java.util.UUID;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@AutoConfigureMockMvc // Permet l'injection de MockMvc dans les classes filles
+@AutoConfigureMockMvc
 public abstract class AbstractMultiTenantTest {
 
     @Autowired
     protected JwtService jwtService;
 
-    // UUID fixes ou aléatoires pour les tests
+    // On récupère le secret de test pour le passer au builder de "failles"
+    @Value("${jwt.secret}")
+    private String secret;
+
     protected final UUID tenantA = UUID.randomUUID();
     protected final UUID tenantB = UUID.randomUUID();
 
+    /**
+     * STRATÉGIE A : Production (Via JwtService)
+     */
     protected String tokenForTenant(UUID tenantId, String roleName) {
         User user = new User();
         user.setUsername("user-" + tenantId);
@@ -31,30 +39,36 @@ public abstract class AbstractMultiTenantTest {
 
         Role role = new Role();
         role.setName(roleName);
-        role.setActive(true); // Cohérence avec votre schéma SQL
-        user.setRoles(Set.of(role));
-
-        return jwtService.generateToken(user);
-    }
-
-    protected String superAdminToken() {
-        User user = new User();
-        user.setUsername("super-admin");
-        // Souvent, le super admin n'a pas de tenantId ou un tenantId spécifique
-        // "system"
-        user.setTenantId(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-
-        Role role = new Role();
-        role.setName("ROLE_SUPER_ADMIN");
         role.setActive(true);
         user.setRoles(Set.of(role));
 
         return jwtService.generateToken(user);
     }
 
+    protected String tenantAdminToken() {
+        return tokenForTenant(tenantA, "ROLE_TENANT_ADMIN");
+    }
+
+    protected String superAdminToken() {
+        return tokenForTenant(null, "ROLE_SUPER_ADMIN");
+    }
+
+    protected String superAdminTokenWithoutTenant() {
+        return tokenForTenant(null, "ROLE_SUPER_ADMIN");
+    }
+
+    /**
+     * STRATÉGIE B : Bas niveau (Via TestJwtBuilder)
+     * On passe le secret directement pour que le builder utilise JJWT comme la prod
+     */
+    protected TestJwtBuilder jwtBuilder() {
+        return new TestJwtBuilder(secret);
+    }
+
+    protected abstract UUID createEntityForTenant(UUID tenantId);
+
     @AfterEach
     void cleanup() {
-        // Nettoyage impératif pour ne pas influencer le test suivant
         TenantContext.clear();
     }
 }

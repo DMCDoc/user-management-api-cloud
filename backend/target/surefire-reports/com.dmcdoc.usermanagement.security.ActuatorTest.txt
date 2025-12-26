@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.security.ActuatorTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 3.553 s <<< FAILURE! -- in com.dmcdoc.usermanagement.security.ActuatorTest
-com.dmcdoc.usermanagement.security.ActuatorTest.health_isUp -- Time elapsed: 0.119 s <<< FAILURE!
+Tests run: 3, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 3.392 s <<< FAILURE! -- in com.dmcdoc.usermanagement.security.ActuatorTest
+com.dmcdoc.usermanagement.security.ActuatorTest.health_isUp -- Time elapsed: 0.144 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: 
 
 expected: 200 OK
@@ -12,7 +12,7 @@ expected: 200 OK
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.security.ActuatorTest.info_isAccessible -- Time elapsed: 0.012 s <<< FAILURE!
+com.dmcdoc.usermanagement.security.ActuatorTest.info_isAccessible -- Time elapsed: 0.013 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: 
 
 expected: 200 OK

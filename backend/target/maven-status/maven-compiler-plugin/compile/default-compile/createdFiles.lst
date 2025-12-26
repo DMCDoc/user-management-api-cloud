@@ -63,6 +63,7 @@ com\dmcdoc\usermanagement\core\service\mail\MailService.class
 com\dmcdoc\usermanagement\api\exceptions\ErrorResponseFactory.class
 com\dmcdoc\usermanagement\api\controller\TenantOnboardingController.class
 com\dmcdoc\usermanagement\tenant\TenantCurrentProvider.class
+com\dmcdoc\usermanagement\config\security\TenantSecurity.class
 com\dmcdoc\usermanagement\core\service\auth\MagicLinkService.class
 com\dmcdoc\usermanagement\config\WebConfig.class
 com\dmcdoc\usermanagement\core\service\admin\AdminService.class

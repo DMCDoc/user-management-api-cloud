@@ -123,6 +123,13 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+<!-- Spring Security Config -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+    </dependency>
+
+
     <!-- Swagger (OpenAPI) -->
     <dependency>
       <groupId>org.springdoc</groupId>

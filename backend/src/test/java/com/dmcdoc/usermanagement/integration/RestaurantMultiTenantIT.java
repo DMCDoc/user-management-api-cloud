@@ -1,21 +1,8 @@
-/*
-Cas testé
-
-tenant A crée un restaurant
-
-tenant B ne peut pas le voir
-
-tenant A le voit
-
-super admin voit tout
-*/
-
 package com.dmcdoc.usermanagement.integration;
 
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.tenant.AbstractMultiTenantTest;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,14 +16,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.UUID;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-
-
 public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
-
-
 
         @Autowired
         private MockMvc mockMvc;
@@ -44,23 +29,25 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
         @Autowired
         private RestaurantRepository repository;
 
-        
-
-        // Test tenant isolation
+        @Override
+        protected UUID createEntityForTenant(UUID tenantId) {
+                Restaurant restaurant = new Restaurant();
+                restaurant.setName("Restaurant " + tenantId);
+                restaurant.setTenantId(tenantId);
+                // Correction du nom de la variable de 'restaurantRepository' vers 'repository'
+                return repository.save(restaurant).getId();
+        }
 
         @Test
         void tenantIsolationIsEnforced() throws Exception {
-                // 1. Nettoyage explicite pour éviter le 409
                 repository.deleteAll();
 
-                // 2. Création du restaurant pour tenant A
                 Restaurant r = new Restaurant();
                 r.setTenantId(tenantA);
                 r.setName("Tenant A Restaurant");
                 repository.save(r);
 
-                // 3. Test pour tenant B (doit être vide, pas forcément forbidden car c'est une
-                // liste)
+                // Test pour tenant B
                 mockMvc.perform(get("/api/restaurants")
                                 .header("Authorization", "Bearer " + tokenForTenant(tenantB, "ROLE_USER"))
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -68,27 +55,16 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
                                 .andExpect(jsonPath("$").isArray())
                                 .andExpect(jsonPath("$[?(@.name == 'Tenant A Restaurant')]").doesNotExist());
 
-                // 4. Test pour tenant A (doit le voir)
+                // Test pour tenant A
                 mockMvc.perform(get("/api/restaurants")
                                 .header("Authorization", "Bearer " + tokenForTenant(tenantA, "ROLE_USER"))
                                 .contentType(MediaType.APPLICATION_JSON))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$[?(@.name == 'Tenant A Restaurant')]").exists());
         }
-        /*
-         * Test super admin bypass global (prouve que :
-         * 
-         * TenantContext.enableBypass() fonctionne
-         * 
-         * Hibernate Filter estcorrectement désactivé)
-         */
 
         @Test
-
-
         void superAdminCanAccessAllTenants() throws Exception {
-
-                // 1. Nettoyage explicite pour éviter le 409
                 repository.deleteAll();
 
                 Restaurant r1 = new Restaurant();
@@ -102,8 +78,7 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
                 repository.save(r2);
 
                 mockMvc.perform(get("/api/restaurants")
-                                .header("Authorization",
-                                                "Bearer " + superAdminToken()))
+                                .header("Authorization", "Bearer " + superAdminToken()))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
                                         String body = result.getResponse().getContentAsString();
@@ -112,57 +87,93 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
                                 });
         }
 
-        /*
-         * 🧨 Test sécurité – attaque cross-tenant
-         * couvre :
-         * 
-         * @PreAuthorize
-         * 
-         * repository findByIdAndTenantId
-         * 
-         * filtre SQL
-         */
-
         @Test
         void crossTenantAccessByIdIsBlocked() throws Exception {
-
                 Restaurant r = new Restaurant();
                 r.setTenantId(tenantA);
                 r.setName("Private A");
                 repository.save(r);
 
                 mockMvc.perform(get("/api/restaurants/" + r.getId())
-                                .header("Authorization",
-                                                "Bearer " + tokenForTenant(tenantB, "ROLE_USER")))
+                                .header("Authorization", "Bearer " + tokenForTenant(tenantB, "ROLE_USER")))
                                 .andExpect(status().isForbidden());
         }
 
         @Test
         void tenantAdminCannotAccessOtherTenant() throws Exception {
-
                 Restaurant r = new Restaurant();
                 r.setTenantId(tenantA);
                 r.setName("A");
                 repository.save(r);
 
                 mockMvc.perform(get("/api/restaurants/" + r.getId())
-                                .header("Authorization",
-                                                "Bearer " + tokenForTenant(tenantB, "ROLE_TENANT_ADMIN")))
+                                .header("Authorization", "Bearer " + tokenForTenant(tenantB, "ROLE_TENANT_ADMIN")))
                                 .andExpect(status().isForbidden());
         }
 
         @Test
         void superAdminCanAccessAnyTenant() throws Exception {
-
                 Restaurant r = new Restaurant();
                 r.setTenantId(tenantA);
                 r.setName("A");
                 repository.save(r);
 
                 mockMvc.perform(get("/api/restaurants/" + r.getId())
-                                .header("Authorization",
-                                                "Bearer " + superAdminToken()))
+                                .header("Authorization", "Bearer " + superAdminToken()))
                                 .andExpect(status().isOk());
         }
 
+        @Test
+        void requestWithoutTenantMustBeForbidden() throws Exception {
+                // Ici on utilise le builder car c'est un test de sécurité sur JWT malformé
+                String tokenWithoutTenant = jwtBuilder()
+                                .withoutTenant()
+                                .withRole("TENANT_ADMIN")
+                                .build();
+
+                mockMvc.perform(get("/api/restaurants")
+                                .header("Authorization", "Bearer " + tokenWithoutTenant))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void nullTenantContextMustBeForbidden() throws Exception {
+                mockMvc.perform(get("/api/restaurants")
+                                .header("Authorization", "Bearer " + tenantAdminToken())
+                                .header("X-Tenant-Id", ""))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void invalidUuidMustBeForbiddenNotBadRequest() throws Exception {
+                mockMvc.perform(get("/api/restaurants/not-a-uuid")
+                                .header("Authorization", "Bearer " + tenantAdminToken()))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void crossTenantAccessMustBeForbidden() throws Exception {
+                UUID otherTenantRestaurantId = createEntityForTenant(tenantA);
+
+                mockMvc.perform(get("/api/restaurants/{id}", otherTenantRestaurantId)
+                                .header("Authorization", "Bearer " + tenantAdminToken()))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void missingAuthenticationMustBeForbidden() throws Exception {
+                mockMvc.perform(get("/api/restaurants"))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void superAdminMustBypassTenantChecksEvenWithInvalidTenant() throws Exception {
+                String superAdminToken = superAdminTokenWithoutTenant();
+
+                // On teste une URL qui n'appartient à personne
+                mockMvc.perform(get("/api/restaurants/" + UUID.randomUUID())
+                                .header("Authorization", "Bearer " + superAdminToken))
+                                .andExpect(status().isNotFound()); // Le super admin passe le filtre, mais ne trouve pas
+                                                                   // la donnée
+        }
 }

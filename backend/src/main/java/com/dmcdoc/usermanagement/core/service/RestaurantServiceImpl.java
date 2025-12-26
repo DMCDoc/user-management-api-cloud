@@ -73,4 +73,6 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         repository.deleteByIdAndTenantId(id, tenantId);
     }
+
+    
 }

@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.868 s <<< FAILURE! -- in com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest
-com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest.validJwt_setsAuthentication -- Time elapsed: 0.836 s <<< FAILURE!
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.874 s <<< FAILURE! -- in com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest
+com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest.validJwt_setsAuthentication -- Time elapsed: 0.842 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: expected: not <null>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
@@ -15,8 +15,8 @@ org.opentest4j.AssertionFailedError: expected: not <null>
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest.invalidJwt_returns401_and_stopsChain -- Time elapsed: 0.007 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: expected: <401> but was: <200>
+com.dmcdoc.usermanagement.config.security.JwtAuthenticationFilterTest.invalidJwt_returns401_and_stopsChain -- Time elapsed: 0.006 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <401> but was: <403>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
 	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)

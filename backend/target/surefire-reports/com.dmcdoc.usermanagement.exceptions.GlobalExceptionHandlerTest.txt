@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 4, Errors: 0, Skipped: 0, Time elapsed: 0.756 s <<< FAILURE! -- in com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest
-com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[1] -- Time elapsed: 0.601 s <<< FAILURE!
+Tests run: 5, Failures: 4, Errors: 0, Skipped: 0, Time elapsed: 0.745 s <<< FAILURE! -- in com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest
+com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[1] -- Time elapsed: 0.610 s <<< FAILURE!
 java.lang.AssertionError: Response status expected:<409> but was:<500>
 	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
 	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
@@ -51,7 +51,7 @@ java.lang.AssertionError: Response status expected:<409> but was:<500>
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[2] -- Time elapsed: 0.023 s <<< FAILURE!
+com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[2] -- Time elapsed: 0.024 s <<< FAILURE!
 java.lang.AssertionError: Response status expected:<404> but was:<500>
 	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
 	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
@@ -100,7 +100,7 @@ java.lang.AssertionError: Response status expected:<404> but was:<500>
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[3] -- Time elapsed: 0.018 s <<< FAILURE!
+com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[3] -- Time elapsed: 0.016 s <<< FAILURE!
 java.lang.AssertionError: Response status expected:<409> but was:<500>
 	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
 	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
@@ -149,7 +149,7 @@ java.lang.AssertionError: Response status expected:<409> but was:<500>
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[5] -- Time elapsed: 0.017 s <<< FAILURE!
+com.dmcdoc.usermanagement.exceptions.GlobalExceptionHandlerTest.testExceptionHandling(String, int, String, String)[5] -- Time elapsed: 0.013 s <<< FAILURE!
 java.lang.AssertionError: Response status expected:<400> but was:<500>
 	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
 	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
