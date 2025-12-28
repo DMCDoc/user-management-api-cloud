@@ -18,12 +18,12 @@ public class TenantResolver {
 
     public UUID resolve(HttpServletRequest request) {
 
-        // 🚨 Super-admin bypass total
+        // SUPER ADMIN → bypass
         if (TenantContext.isBypassEnabled()) {
             return null;
         }
 
-        // 1️⃣ JWT
+        // JWT
         String auth = request.getHeader("Authorization");
         if (auth != null && auth.startsWith("Bearer ")) {
             UUID tenantId = jwtService.extractTenantId(auth.substring(7));
@@ -32,9 +32,9 @@ public class TenantResolver {
             }
         }
 
-        // 2️⃣ Header explicite
+        // HEADER (optionnel)
         if (properties.isAllowHeader()) {
-            String header = request.getHeader("X-Tenant-Id");
+            String header = request.getHeader("X-Tenant-ID");
             if (header != null) {
                 try {
                     return UUID.fromString(header);
@@ -43,15 +43,6 @@ public class TenantResolver {
                             HttpStatus.FORBIDDEN,
                             "Invalid tenant id");
                 }
-            }
-        }
-
-        // 3️⃣ Subdomain
-        if (properties.isAllowSubdomain()) {
-            String host = request.getServerName();
-            if (host != null && host.contains(".")) {
-                return UUID.nameUUIDFromBytes(
-                        host.split("\\.")[0].getBytes());
             }
         }
 

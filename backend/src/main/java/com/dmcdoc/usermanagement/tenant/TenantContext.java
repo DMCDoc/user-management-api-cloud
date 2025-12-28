@@ -1,50 +1,69 @@
 package com.dmcdoc.usermanagement.tenant;
 
+import org.springframework.security.access.AccessDeniedException;
+
 import java.util.UUID;
 
 public final class TenantContext {
 
-    private static final ThreadLocal<UUID> CURRENT = new ThreadLocal<>();
-    private static final ThreadLocal<Boolean> BYPASS = new ThreadLocal<>();
+    private static final ThreadLocal<UUID> CURRENT_TENANT = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> BYPASS = ThreadLocal.withInitial(() -> false);
 
     private TenantContext() {
     }
 
-    public static void setTenantId(UUID tenantId) {
-        CURRENT.set(tenantId);
-        BYPASS.set(false);
-    }
+    /*
+     * =========================
+     * TENANT
+     * =========================
+     */
 
-    public static void enableBypass() {
-        CURRENT.remove();
-        BYPASS.set(true);
+    public static void setTenantId(UUID tenantId) {
+        CURRENT_TENANT.set(tenantId);
     }
 
     public static UUID getTenantId() {
-        return CURRENT.get();
+        return CURRENT_TENANT.get();
+    }
+
+    public static UUID getTenantIdRequired() {
+        UUID tenantId = CURRENT_TENANT.get();
+        if (tenantId == null) {
+            throw new AccessDeniedException("Tenant not resolved");
+        }
+        return tenantId;
     }
 
     public static boolean isResolved() {
-        return getTenantId() != null && !isBypassEnabled();
+        return CURRENT_TENANT.get() != null;
+    }
+
+    /*
+     * =========================
+     * BYPASS (SUPER ADMIN / BOOTSTRAP)
+     * =========================
+     */
+
+    public static void enableBypass() {
+        BYPASS.set(true);
+    }
+
+    public static void disableBypass() {
+        BYPASS.set(false);
     }
 
     public static boolean isBypassEnabled() {
         return Boolean.TRUE.equals(BYPASS.get());
     }
 
-    public static void clear() {
-        CURRENT.remove();
-        BYPASS.remove();
-    }
+    /*
+     * =========================
+     * CLEANUP
+     * =========================
+     */
 
-    public static UUID getTenantIdRequired() {
-        if (isBypassEnabled()) {
-            throw new IllegalStateException("Tenant bypass active");
-        }
-        UUID tenantId = CURRENT.get();
-        if (tenantId == null) {
-            throw new IllegalStateException("Tenant context not set");
-        }
-        return tenantId;
+    public static void clear() {
+        CURRENT_TENANT.remove();
+        BYPASS.remove();
     }
 }

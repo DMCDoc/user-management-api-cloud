@@ -1,24 +1,31 @@
-jwt:
-  secret: test-secret-very-long-and-secure
-  expiration: 3600000
-
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+  
+  # Ces blocs doivent être alignés avec 'autoconfigure', pas décalés !
+  elasticsearch:
+    uris: ""
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
-
   jpa:
     hibernate:
       ddl-auto: create-drop
+    show-sql: true
     defer-datasource-initialization: true
-
   sql:
     init:
       mode: always
 
-  tenant:
-    header: X-Tenant-ID
-    default-tenant: tenant-test
+security:
+  jwt:
+    secret: cette_cle_doit_faire_au_moins_trente_deux_caracteres_longue_et_stable
+    expiration: 3600000
 
+tenant:
+  header: X-Tenant-ID
+  default-tenant: tenant-test

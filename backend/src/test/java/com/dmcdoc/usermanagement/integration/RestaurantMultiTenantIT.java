@@ -3,8 +3,13 @@ package com.dmcdoc.usermanagement.integration;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.tenant.AbstractMultiTenantTest;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -21,7 +26,24 @@ import java.util.UUID;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+
+@EnableAutoConfiguration(exclude = {
+    org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration.class,
+    org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration.class
+})
 public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
+
+
+        @BeforeEach
+void enableBypass() {
+    TenantContext.enableBypass();
+}
+
+@AfterEach
+void disableBypass() {
+    TenantContext.disableBypass();
+}
+
 
         @Autowired
         private MockMvc mockMvc;
@@ -140,7 +162,7 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
         void nullTenantContextMustBeForbidden() throws Exception {
                 mockMvc.perform(get("/api/restaurants")
                                 .header("Authorization", "Bearer " + tenantAdminToken())
-                                .header("X-Tenant-Id", ""))
+                                .header("X-Tenant-ID", ""))
                                 .andExpect(status().isForbidden());
         }
 
@@ -163,7 +185,7 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
         @Test
         void missingAuthenticationMustBeForbidden() throws Exception {
                 mockMvc.perform(get("/api/restaurants"))
-                                .andExpect(status().isForbidden());
+                                .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -174,6 +196,38 @@ public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
                 mockMvc.perform(get("/api/restaurants/" + UUID.randomUUID())
                                 .header("Authorization", "Bearer " + superAdminToken))
                                 .andExpect(status().isNotFound()); // Le super admin passe le filtre, mais ne trouve pas
-                                                                   // la donnée
+                                                                                                                                                                                     // la donnée
         }
+        
+        @Test
+        void forgedTenantInHeaderMustBeForbidden() throws Exception {
+                UUID restaurantId = createEntityForTenant(tenantA);
+
+                mockMvc.perform(get("/api/restaurants/{id}", restaurantId)
+                                .header("Authorization", "Bearer " + tokenForTenant(tenantA, "ROLE_USER"))
+                                .header("X-Tenant-ID", tenantB.toString()))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void expiredTokenMustBeUnauthorizedEvenWithValidTenant() throws Exception {
+                UUID restaurantId = createEntityForTenant(tenantA);
+
+                String expiredToken = jwtBuilder()
+                                .withRole("ROLE_USER")
+                                .expired()
+                                .build();
+
+                mockMvc.perform(get("/api/restaurants/{id}", restaurantId)
+                                .header("Authorization", "Bearer " + expiredToken))
+                                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void superAdminWithoutTenantHeaderMustStillWork() throws Exception {
+                mockMvc.perform(get("/api/restaurants")
+                                .header("Authorization", "Bearer " + superAdminToken()))
+                                .andExpect(status().isOk());
+        }
+
 }

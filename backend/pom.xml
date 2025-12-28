@@ -123,13 +123,6 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
-<!-- Spring Security Config -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
-    </dependency>
-
-
     <!-- Swagger (OpenAPI) -->
     <dependency>
       <groupId>org.springdoc</groupId>
@@ -144,12 +137,10 @@
     </dependency>
 
     <!-- OAuth2 Client for social login (Google, Facebook, etc.) -->
-    <dependency>
+     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
-
-
 
 
   </dependencies>

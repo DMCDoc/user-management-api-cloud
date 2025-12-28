@@ -17,13 +17,14 @@ import java.util.UUID;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+
 public abstract class AbstractMultiTenantTest {
 
     @Autowired
     protected JwtService jwtService;
 
     // On récupère le secret de test pour le passer au builder de "failles"
-    @Value("${jwt.secret}")
+    @Value("${security.jwt.secret}")
     private String secret;
 
     protected final UUID tenantA = UUID.randomUUID();
@@ -71,4 +72,5 @@ public abstract class AbstractMultiTenantTest {
     void cleanup() {
         TenantContext.clear();
     }
+
 }

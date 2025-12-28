@@ -1,3 +1,5 @@
+
+/* 
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.core.model.User;
@@ -90,3 +92,4 @@ public class OAuth2AuthenticationSuccessHandler
                 response.getWriter().flush();
         }
 }
+*/

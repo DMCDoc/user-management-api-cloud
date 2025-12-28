@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+
 import java.util.UUID;
 
 @Component("tenantSecurity") // Identifiant utilisé dans le SpEL

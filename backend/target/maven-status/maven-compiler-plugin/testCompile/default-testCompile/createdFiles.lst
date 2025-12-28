@@ -1,8 +1,6 @@
 com\dmcdoc\usermanagement\dto\LoginRequestTest.class
-com\dmcdoc\usermanagement\integration\OAuth2IntegrationTest.class
 com\dmcdoc\usermanagement\dto\SharedCommonSanityTest.class
 com\dmcdoc\usermanagement\security\RoleCheckTest.class
-com\dmcdoc\usermanagement\config\security\JwtAuthenticationFilterTest.class
 com\dmcdoc\usermanagement\integration\MagicLinkTest.class
 com\dmcdoc\usermanagement\dto\UserDtoTest.class
 com\dmcdoc\usermanagement\integration\RestaurantMultiTenantIT.class
@@ -13,13 +11,13 @@ com\dmcdoc\usermanagement\exceptions\UserAlreadyExistsExceptionTest.class
 com\dmcdoc\usermanagement\exceptions\UserNotFoundExceptionTest.class
 com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerTest.class
 com\dmcdoc\usermanagement\exceptions\EmailAlreadyUsedExceptionTest.class
+com\dmcdoc\usermanagement\integration\SecurityJsonIT.class
 com\dmcdoc\usermanagement\JDBCTest.class
 com\dmcdoc\usermanagement\security\JWTUtilsTest.class
 com\dmcdoc\usermanagement\security\LoginIntegrationTest.class
 com\dmcdoc\usermanagement\config\security\TestJwtBuilder.class
 com\dmcdoc\usermanagement\exceptions\SecurityExceptionHandlerTest.class
 com\dmcdoc\usermanagement\security\JwtSecurityIntegrationTest.class
-com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerUnitTest.class
 com\dmcdoc\usermanagement\dto\UserResponseTest.class
 com\dmcdoc\usermanagement\security\JwtAuthenticationFilterTest.class
 com\dmcdoc\usermanagement\tenant\AbstractMultiTenantTest.class

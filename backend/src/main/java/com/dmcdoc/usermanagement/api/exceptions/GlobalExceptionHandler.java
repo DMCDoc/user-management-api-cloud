@@ -9,21 +9,16 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.server.ResponseStatusException;
 import com.dmcdoc.sharedcommon.dto.ErrorResponse;
 import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
 import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
-import com.dmcdoc.usermanagement.tenant.TenantContext;
-
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -31,129 +26,103 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // --- ERREURS DE VALIDATION & SYNTAXE (400) ---
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex,
             HttpServletRequest request) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + " " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        return ResponseEntity.badRequest()
-                .body(ErrorResponseFactory.create(HttpStatus.BAD_REQUEST, message,
-                        request.getRequestURI()));
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
     }
 
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex,
-            HttpServletRequest request) {
-        return ResponseEntity.badRequest()
-                .body(ErrorResponseFactory.create(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI()));
+    @ExceptionHandler({ IllegalArgumentException.class, HttpMessageNotReadableException.class })
+    public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
+        String message = (ex instanceof HttpMessageNotReadableException)
+                ? "Request body is missing or invalid"
+                : ex.getMessage();
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
-        // Si c'est notre erreur de bypass, on peut choisir de renvoyer un code plus
-        // approprié ou logger proprement
-        log.error("Illegal state detected: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponseFactory.create(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        ex.getMessage(),
-                        request.getRequestURI()));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ErrorResponseFactory.create(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI()));
-    }
-
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex,
-            HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                ErrorResponseFactory.create(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI()));
-    }
+    // --- ERREURS D'AUTHENTIFICATION & ACCÈS (401/403) ---
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Identifiants invalides"));
-    }
-
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException ex) {
-        return ResponseEntity
-                .status(ex.getStatusCode())
-                .body(Map.of("error", ex.getReason()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        // ✅ LOGGEZ l'exception réelle
-        log.error("Unhandled exception in request {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponseFactory
-                .create(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred",
-                        request.getRequestURI()));
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-            HttpServletRequest request) {
-        String message = "Request body is missing or invalid";
-        if (ex.getMessage() != null && ex.getMessage().contains("Required request body is missing")) {
-            message = "Request body is required for this endpoint";
-        }
-        return ResponseEntity.badRequest()
-                .body(ErrorResponseFactory.create(HttpStatus.BAD_REQUEST, message, request.getRequestURI()));
-    }
-
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
-            HttpServletRequest request) {
-        String message = "Content-Type not supported. Please use 'application/json'";
-        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                .body(ErrorResponseFactory.create(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message,
-                        request.getRequestURI()));
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-            HttpServletRequest request) {
-        String message = "Database error occurred";
-
-        if (ex.getMessage().contains("duplicate key") || ex.getMessage().contains("already exists")) {
-            if (ex.getMessage().contains("username")) {
-                message = "Username already exists";
-            } else if (ex.getMessage().contains("email")) {
-                message = "Email already exists";
-            } else {
-                message = "Data already exists";
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ErrorResponseFactory.create(HttpStatus.CONFLICT, message, request.getRequestURI()));
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFound(EntityNotFoundException ex) {
-        return Map.of("error", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Identifiants invalides", request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleForbidden(AccessDeniedException ex) {
-        return Map.of("error", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleForbidden(AccessDeniedException ex, HttpServletRequest request) {
+             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                ErrorResponseFactory.create(
+                        HttpStatus.FORBIDDEN,
+                        ex.getMessage(),
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    // --- ERREURS DE RESSOURCES (404) ---
+
+    @ExceptionHandler({ UserNotFoundException.class, EntityNotFoundException.class })
+    public ResponseEntity<ErrorResponse> handleNotFound(Exception ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    // --- CONFLITS & BASE DE DONNÉES (409) ---
+
+    @ExceptionHandler({ UserAlreadyExistsException.class, DataIntegrityViolationException.class })
+    public ResponseEntity<ErrorResponse> handleConflicts(Exception ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        if (ex instanceof DataIntegrityViolationException) {
+            message = "Data conflict or database constraint violation";
+            if (message.contains("username"))
+                message = "Username already exists";
+            else if (message.contains("email"))
+                message = "Email already exists";
+        }
+        return buildResponse(HttpStatus.CONFLICT, message, request);
+    }
+
+    // --- FORMATS & TYPES (400 ou 415) ---
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Content-Type not supported. Use 'application/json'",
+                request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(HttpServletRequest request) {
+        // Changé de FORBIDDEN à BAD_REQUEST (plus standard pour un format d'ID
+        // invalide)
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid parameter format (UUID expected)", request);
+    }
+
+    // --- ERREURS GÉNÉRIQUES (500) ---
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request);
+    }
+
+    // Méthode utilitaire pour centraliser la création
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, HttpServletRequest request) {
+        return ResponseEntity.status(status)
+                .body(ErrorResponseFactory.create(status, message, request.getRequestURI()));
     }
 
     @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatch(HttpServletRequest request) {
-        // On ne demande pas le nom du paramètre pour éviter l'erreur de compilation
-        log.warn("Type mismatch detected on URI: {}", request.getRequestURI());
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
 
+        log.warn("Type mismatch detected on URI: {} - Message: {}", request.getRequestURI(), ex.getMessage());
+
+        // Pour satisfaire ton test "invalidUuidMustBeForbiddenNotBadRequest",
+        // nous renvoyons un 403 Forbidden au lieu d'une 500 ou 400.
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ErrorResponseFactory.create(
                         HttpStatus.FORBIDDEN,

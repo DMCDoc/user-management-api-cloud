@@ -17,12 +17,19 @@ public class TestJwtBuilder {
     private final Map<String, Object> claims = new HashMap<>();
     private String subject = "test-user";
 
+    private Date expiration; // 👈 source unique de vérité
+
     public TestJwtBuilder(String secret) {
         this.secret = secret;
     }
 
     public TestJwtBuilder withRole(String role) {
         this.claims.put("roles", List.of(role));
+        return this;
+    }
+
+    public TestJwtBuilder expired() {
+        this.expiration = new Date(System.currentTimeMillis() - 1000);
         return this;
     }
 
@@ -38,11 +45,16 @@ public class TestJwtBuilder {
 
     public String build() {
         Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+
+        Date exp = (expiration != null)
+                ? expiration
+                : new Date(System.currentTimeMillis() + 3600000);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .setExpiration(exp)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

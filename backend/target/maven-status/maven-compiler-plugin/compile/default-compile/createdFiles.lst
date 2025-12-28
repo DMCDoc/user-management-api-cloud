@@ -1,9 +1,10 @@
+com\dmcdoc\usermanagement\tenant\TenantContextResolver.class
 com\dmcdoc\usermanagement\core\service\auth\PasswordResetService.class
 com\dmcdoc\usermanagement\core\service\RestaurantService.class
 com\dmcdoc\usermanagement\core\service\mail\MailServiceImpl.class
+com\dmcdoc\usermanagement\tenant\TenantCurrentProviderImpl.class
 com\dmcdoc\usermanagement\tenant\hibernate\SchemaMultiTenantConnectionProvider.class
 com\dmcdoc\usermanagement\core\model\Role$RoleBuilder.class
-com\dmcdoc\usermanagement\core\service\auth\OAuth2Service.class
 com\dmcdoc\usermanagement\core\service\Logservice.class
 com\dmcdoc\usermanagement\tenant\TenantFilterInterceptor.class
 com\dmcdoc\usermanagement\core\model\MagicLinkToken.class
@@ -21,7 +22,6 @@ com\dmcdoc\usermanagement\core\repository\AdminLogRepository.class
 com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantServiceImpl.class
 com\dmcdoc\usermanagement\config\MethodSecurityConfig.class
-com\dmcdoc\usermanagement\tenant\TenantFilter.class
 com\dmcdoc\usermanagement\core\model\OrderItem.class
 com\dmcdoc\usermanagement\core\model\Reservation$ReservationBuilder.class
 com\dmcdoc\usermanagement\core\model\Tenant$TenantBuilder.class
@@ -33,15 +33,14 @@ com\dmcdoc\usermanagement\tenant\TenantSpecifications.class
 com\dmcdoc\usermanagement\core\model\MenuItem$MenuItemBuilder.class
 com\dmcdoc\usermanagement\core\service\auth\AuthenticationService.class
 com\dmcdoc\usermanagement\api\controller\UserController.class
+com\dmcdoc\usermanagement\config\security\JwtServiceImpl.class
 com\dmcdoc\usermanagement\tenant\provisioning\TenantProvisioningService.class
 com\dmcdoc\usermanagement\core\model\Reservation.class
 com\dmcdoc\usermanagement\core\model\RefreshToken.class
 com\dmcdoc\usermanagement\core\repository\TenantAwareRepository.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantService.class
-com\dmcdoc\usermanagement\config\security\OAuth2AuthenticationSuccessHandler.class
 com\dmcdoc\usermanagement\config\security\JwtService.class
 com\dmcdoc\usermanagement\core\service\RoleServiceImpl.class
-com\dmcdoc\usermanagement\api\controller\OAuth2Controller$JwtDto.class
 com\dmcdoc\usermanagement\api\controller\MagicLinkController$RequestDto.class
 com\dmcdoc\usermanagement\core\model\Order$OrderBuilder.class
 com\dmcdoc\usermanagement\core\repository\MagicLinkTokenRepository.class
@@ -74,7 +73,6 @@ com\dmcdoc\usermanagement\core\service\RoleService.class
 com\dmcdoc\usermanagement\tenant\hibernate\CurrentTenantIdentifierResolverImpl.class
 com\dmcdoc\usermanagement\tenant\TenantMode.class
 com\dmcdoc\usermanagement\tenant\TenantResolver.class
-com\dmcdoc\usermanagement\core\service\auth\CustomOAuth2UserService.class
 com\dmcdoc\usermanagement\config\security\CustomAuthEntryPoint.class
 com\dmcdoc\usermanagement\core\service\MagicLinkCleanupTask.class
 com\dmcdoc\usermanagement\core\model\Restaurant.class
@@ -89,11 +87,9 @@ com\dmcdoc\usermanagement\core\model\User$UserBuilder.class
 com\dmcdoc\usermanagement\tenant\TenantFilterAspect.class
 com\dmcdoc\usermanagement\api\controller\AuthController.class
 com\dmcdoc\usermanagement\api\controller\DummyController.class
-com\dmcdoc\usermanagement\api\controller\OAuth2Controller.class
 com\dmcdoc\usermanagement\core\service\UserService.class
 com\dmcdoc\usermanagement\config\security\TenantAuthorizationService.class
 com\dmcdoc\usermanagement\api\controller\DebugController.class
-com\dmcdoc\usermanagement\tenant\TenantSecurityProvider.class
 com\dmcdoc\usermanagement\core\model\OrderItem$OrderItemBuilder.class
 com\dmcdoc\usermanagement\config\security\CustomUserDetailsService.class
 com\dmcdoc\usermanagement\config\security\JwtAuthenticationFilter.class

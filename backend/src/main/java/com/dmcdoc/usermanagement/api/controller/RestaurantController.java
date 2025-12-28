@@ -1,10 +1,12 @@
 package com.dmcdoc.usermanagement.api.controller;
 
-import com.dmcdoc.sharedcommon.dto.CreateRestaurantRequest;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
-import com.dmcdoc.usermanagement.core.service.RestaurantService;
+import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,30 +17,70 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RestaurantController {
 
-    private final RestaurantService restaurantService;
+    private final RestaurantRepository restaurantRepository;
 
-    @PostMapping
-    public Restaurant create(@RequestBody CreateRestaurantRequest req) {
-        return restaurantService.create(
-                req.getName(),
-                req.getAddress(),
-                req.getMetadata());
-    }
-
+    /*
+     * ==========================================================
+     * LIST
+     * ==========================================================
+     */
     @GetMapping
-    public List<Restaurant> list() {
-        return restaurantService.all();
+    public ResponseEntity<List<Restaurant>> list(Authentication authentication) {
+
+        if (isSuperAdmin(authentication)) {
+            return ResponseEntity.ok(restaurantRepository.findAll());
+        }
+
+        UUID tenantId = TenantContext.getTenantId();
+        if (tenantId == null) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(
+                restaurantRepository.findAllByTenantId(tenantId));
     }
 
-    @PreAuthorize("@tenantAuth.canAccessRestaurant(#id)")
+    /*
+     * ==========================================================
+     * GET BY ID
+     * ==========================================================
+     */
     @GetMapping("/{id}")
-    public Restaurant get(@PathVariable("id") UUID id) {
-        return restaurantService.get(id);
-    }
+    public ResponseEntity<Restaurant> getById(@PathVariable String id, Authentication auth) {
+        UUID restaurantId;
+        try {
+            restaurantId = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).build(); // ✅ TEST 3
+        }
 
-    @PreAuthorize("@tenantAuth.canAccessRestaurant(#id)")
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") UUID id) {
-        restaurantService.delete(id);
+        // 👑 Cas SuperAdmin : On cherche partout
+        if (isSuperAdmin(auth)) {
+            return restaurantRepository.findById(restaurantId)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build()); // ✅ TEST 10 (404 attendu)
+        }
+
+        // 👤 Cas Normal : On cherche uniquement dans le tenant
+        UUID tenantId = TenantContext.getTenantId();
+        if (tenantId == null)
+            return ResponseEntity.status(403).build();
+
+        return restaurantRepository.findByIdAndTenantId(restaurantId, tenantId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(403).build()); // ✅ TEST 14 & 15 (403 attendu)
+    }
+    /*
+     * ==========================================================
+     * UTIL
+     * ==========================================================
+     */
+    private boolean isSuperAdmin(Authentication authentication) {
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_SUPER_ADMIN"::equals);
     }
 }

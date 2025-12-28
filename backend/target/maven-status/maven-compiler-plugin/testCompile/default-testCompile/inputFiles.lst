@@ -10,6 +10,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\UserAlreadyExistsExceptionTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\IsolationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\OAuth2IntegrationTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\SecurityJsonIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\RoleInitializerIntegrationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerUnitTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\SecurityExceptionHandlerTest.java

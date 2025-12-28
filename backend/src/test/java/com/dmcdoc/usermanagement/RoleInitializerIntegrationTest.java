@@ -35,6 +35,6 @@ class RoleInitializerIntegrationTest {
 
     @Test
     void nonExistingRoleShouldNotBePresent() {
-        assertFalse(roleRepository.findByName("ROLE_SUPERADMIN").isPresent(), "ROLE_SUPERADMIN should not be initialized");
+        assertFalse(roleRepository.findByName("ROLE_SUPER_ADMIN").isPresent(), "ROLE_SUPER_ADMIN should not be initialized");
     }
 }

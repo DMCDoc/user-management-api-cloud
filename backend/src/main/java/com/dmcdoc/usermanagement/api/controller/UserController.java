@@ -17,18 +17,23 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> profile(
-            @AuthenticationPrincipal UserDetails principal) {
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> profile(@AuthenticationPrincipal UserDetails principal) {
 
-        return userService.getUserProfile(
-                principal.getUsername(),
-                TenantContext.getTenantId())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            // 🛡️ GARDE-FOU : Si on arrive ici sans user (mauvaise config security), on
+            // renvoie 401 proprement
+            if (principal == null) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            return userService.getUserProfile(
+                            principal.getUsername(),
+                            TenantContext.getTenantId())
+                            .map(ResponseEntity::ok)
+                            .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/me")
+    @PutMapping("/update-profile")
     public ResponseEntity<Void> updateProfile(
             @AuthenticationPrincipal UserDetails principal,
             @RequestBody RegisterRequest request) {
@@ -41,7 +46,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/me")
+    @DeleteMapping("/delete-account")
     public ResponseEntity<Void> deleteAccount(
             @AuthenticationPrincipal UserDetails principal) {
 

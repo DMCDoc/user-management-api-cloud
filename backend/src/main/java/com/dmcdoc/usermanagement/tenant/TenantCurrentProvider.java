@@ -6,5 +6,7 @@ public interface TenantCurrentProvider {
 
     UUID getTenantId();
 
+    boolean isBypass();
+
     boolean isSuperAdmin();
 }

@@ -17,8 +17,8 @@ spring:
     properties:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
-  security:
-    jwt: ${JWT_SECRET}
+security:
+    jwt: cette_cle_doit_faire_au_moins_trente_deux_caracteres_longue_et_stable
     exclude-paths: /api/auth/**,/actuator/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**,/ping
     oauth2:
       client:

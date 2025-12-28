@@ -4,11 +4,11 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantFilterInterceptor.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\JwtService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\TenantRepository.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantCurrentProviderImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\TenantAwareEntity.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\RefreshToken.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\tenant\TenantServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\admin\AdminService.java
-E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantFilter.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\MagicLinkService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\CustomAuthEntryPoint.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\mail\MailService.java
@@ -40,6 +40,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantSpecifications.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\MagicLinkController.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\RestaurantRepository.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\JwtServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\CustomOAuth2UserService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\MagicLinkTokenRepository.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\RoleService.java
@@ -59,6 +60,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantResolver.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\OAuth2Controller.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\TenantOnboardingController.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantContextResolver.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\UserManagementApplication.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\RoleRepository.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantHibernateFilter.java
@@ -78,7 +80,6 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantMode.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\CustomUserDetailsService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\RefreshTokenService.java
-E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantSecurityProvider.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\SecurityConfig.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\TenantAwareRepository.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.java

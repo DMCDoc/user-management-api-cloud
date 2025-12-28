@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
     private final AdminService adminService;

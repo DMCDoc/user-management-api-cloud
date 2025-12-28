@@ -10,6 +10,7 @@ spring:
       ddl-auto: validate
 
   security:
+    jwt: ${JWT_SECRET}
     oauth2:
       client:
         registration:
