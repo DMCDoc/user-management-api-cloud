@@ -1,6 +1,9 @@
 package com.dmcdoc.usermanagement.config.security;
 
 import com.dmcdoc.usermanagement.core.model.User;
+
+import io.jsonwebtoken.Claims;
+
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +19,8 @@ public interface JwtService {
     List<String> extractRoles(String token);
 
     UUID extractTenantId(String token);
+
+    Claims extractAllClaims(String token);
 
     Authentication getAuthentication(String token);
 

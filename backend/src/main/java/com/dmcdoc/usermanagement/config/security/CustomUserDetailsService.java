@@ -19,17 +19,22 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Récupérer le tenant de manière optionnelle
+        UUID tenantId = TenantContext.getTenantId();
+        System.out.println("RECHERCHE USER: " + username + " DANS TENANT: " + tenantId);
 
-        UUID tenantId = TenantContext.getTenantIdRequired();
-
-        if (tenantId == null) {
-            throw new UsernameNotFoundException("No tenant resolved");
+        // Si on a un tenant (cas normal), on cherche par username ET tenant
+        if (tenantId != null) {
+            return userRepository
+                    .findByUsernameAndTenantId(username, tenantId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found in tenant: " + username));
         }
 
+        // Cas Super Admin : on cherche uniquement par username (en base centrale)
         return userRepository
-                .findByUsernameAndTenantId(username, tenantId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Global user not found: " + username));
     }
 }
+

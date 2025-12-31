@@ -17,8 +17,12 @@ public class TenantResolver {
     private final TenantProperties properties;
 
     public UUID resolve(HttpServletRequest request) {
+        // 1. Si le filtre JWT a déjà trouvé le tenant, on ne touche à rien
+        if (TenantContext.isResolved()) {
+            return TenantContext.getTenantId();
+        }
 
-        // SUPER ADMIN → bypass
+        // 2. SUPER ADMIN → bypass
         if (TenantContext.isBypassEnabled()) {
             return null;
         }

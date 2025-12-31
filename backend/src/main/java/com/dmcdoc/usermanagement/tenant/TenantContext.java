@@ -1,7 +1,5 @@
 package com.dmcdoc.usermanagement.tenant;
 
-import org.springframework.security.access.AccessDeniedException;
-
 import java.util.UUID;
 
 public final class TenantContext {
@@ -28,8 +26,10 @@ public final class TenantContext {
 
     public static UUID getTenantIdRequired() {
         UUID tenantId = CURRENT_TENANT.get();
-        if (tenantId == null) {
-            throw new AccessDeniedException("Tenant not resolved");
+        if (tenantId == null && !isBypassEnabled()) {
+            // Renvoie un 403 propre que MockMvc pourra intercepter
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied");
         }
         return tenantId;
     }

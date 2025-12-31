@@ -83,6 +83,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\SecurityConfig.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\TenantAwareRepository.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantContextFilter.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\Order.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantValidator.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\WebConfig.java

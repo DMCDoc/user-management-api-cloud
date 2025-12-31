@@ -27,10 +27,12 @@ public class RestaurantController {
     @GetMapping
     public ResponseEntity<List<Restaurant>> list(Authentication authentication) {
 
+        // 👑 Super Admin → tous les restaurants
         if (isSuperAdmin(authentication)) {
             return ResponseEntity.ok(restaurantRepository.findAll());
         }
 
+        // 👤 Utilisateur normal → uniquement son tenant
         UUID tenantId = TenantContext.getTenantId();
         if (tenantId == null) {
             return ResponseEntity.status(403).build();
@@ -44,32 +46,35 @@ public class RestaurantController {
      * ==========================================================
      * GET BY ID
      * ==========================================================
+     *
+     * ⚠️ IMPORTANT
+     * - UUID typé → Spring gère la conversion
+     * - UUID invalide → MethodArgumentTypeMismatchException
+     * - → GlobalExceptionHandler → 403
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getById(@PathVariable String id, Authentication auth) {
-        UUID restaurantId;
-        try {
-            restaurantId = UUID.fromString(id);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).build(); // ✅ TEST 3
-        }
+    public ResponseEntity<Restaurant> getById(
+            @PathVariable("id") UUID id,
+            Authentication authentication) {
 
-        // 👑 Cas SuperAdmin : On cherche partout
-        if (isSuperAdmin(auth)) {
-            return restaurantRepository.findById(restaurantId)
+        // 👑 Super Admin → accès cross-tenant
+        if (isSuperAdmin(authentication)) {
+            return restaurantRepository.findById(id)
                     .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build()); // ✅ TEST 10 (404 attendu)
+                    .orElse(ResponseEntity.notFound().build());
         }
 
-        // 👤 Cas Normal : On cherche uniquement dans le tenant
+        // 👤 Utilisateur normal → tenant strict
         UUID tenantId = TenantContext.getTenantId();
-        if (tenantId == null)
+        if (tenantId == null) {
             return ResponseEntity.status(403).build();
+        }
 
-        return restaurantRepository.findByIdAndTenantId(restaurantId, tenantId)
+        return restaurantRepository.findByIdAndTenantId(id, tenantId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(403).build()); // ✅ TEST 14 & 15 (403 attendu)
+                .orElse(ResponseEntity.status(403).build());
     }
+
     /*
      * ==========================================================
      * UTIL

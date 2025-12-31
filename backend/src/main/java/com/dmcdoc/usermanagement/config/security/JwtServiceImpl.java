@@ -24,10 +24,14 @@ public class JwtServiceImpl implements JwtService {
 
     private final SecretKey secretKey;
     private final long expirationMs;
+    
+    
 
     public JwtServiceImpl(
             @Value("${security.jwt.secret}") String secret,
             @Value("${security.jwt.expiration}") long expirationMs) {
+        System.out.println("expirationMs: " + expirationMs);
+        System.out.println("Secret: " + secret);
 
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
@@ -35,14 +39,14 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(User user) {
-
         List<String> roles = user.getRoles()
                 .stream()
                 .map(Role::getName)
                 .toList();
 
         var builder = Jwts.builder()
-                .setSubject(user.getEmail())
+                // CHANGEMENT ICI : On utilise getUsername() au lieu de getEmail()
+                .setSubject(user.getUsername())
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
@@ -53,6 +57,11 @@ public class JwtServiceImpl implements JwtService {
         }
 
         return builder.compact();
+    }
+
+    @Override
+    public Claims extractAllClaims(String token) {
+        return extractClaims(token);
     }
 
     @Override

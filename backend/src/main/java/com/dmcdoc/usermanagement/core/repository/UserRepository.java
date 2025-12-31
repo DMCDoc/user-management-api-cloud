@@ -14,6 +14,8 @@ public interface UserRepository
 
         Optional<User> findByUsernameAndTenantId(String username, UUID tenantId);
 
+        Optional<User> findByUsername(String username);
+
         Optional<User> findByEmail(String email);
 
         boolean existsByEmailAndTenantId(String email, UUID tenantId);
