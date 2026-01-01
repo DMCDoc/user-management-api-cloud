@@ -44,10 +44,10 @@ public abstract class AbstractMultiTenantTest {
     protected final UUID tenantB = UUID.randomUUID();
 
     protected String tokenForTenant(UUID tenantId, String roleName) {
-        String username = (tenantId != null) ? "user-" + tenantId : "superadmin";
+        String username = (tenantId != null)
+                ? "user-" + tenantId
+                : "superadmin";
 
-        // 1. AJOUT : On bypass le tenant pour pouvoir préparer les données sans être
-        // bloqué
         TenantContext.enableBypass();
 
         try {
@@ -58,20 +58,31 @@ public abstract class AbstractMultiTenantTest {
             if (user == null) {
                 User newUser = new User();
                 newUser.setUsername(username);
-                // 2. AJOUT : Email obligatoire pour satisfaire la contrainte SQL NOT NULL
                 newUser.setEmail(username + "@test.com");
                 newUser.setPassword(passwordEncoder.encode("password"));
-                newUser.setTenantId(tenantId);
                 newUser.setActive(true);
 
-                Role role = roleRepository.findByNameAndTenantId(roleName, tenantId)
-                        .orElseGet(() -> {
-                            Role newRole = new Role();
-                            newRole.setName(roleName);
-                            newRole.setTenantId(tenantId);
-                            newRole.setActive(true);
-                            return roleRepository.save(newRole);
-                        });
+                // 🔐 RÈGLE ABSOLUE
+                Role role;
+                if ("ROLE_SUPER_ADMIN".equals(roleName)) {
+                    newUser.setTenantId(SystemTenant.SYSTEM_TENANT);
+
+                    role = roleRepository.findByNameAndTenantId(
+                            "ROLE_SUPER_ADMIN",
+                            SystemTenant.SYSTEM_TENANT)
+                            .orElseThrow(() -> new IllegalStateException("ROLE_SUPER_ADMIN must exist"));
+                } else {
+                    newUser.setTenantId(tenantId);
+
+                    role = roleRepository.findByNameAndTenantId(roleName, tenantId)
+                            .orElseGet(() -> {
+                                Role newRole = new Role();
+                                newRole.setName(roleName);
+                                newRole.setTenantId(tenantId);
+                                newRole.setActive(true);
+                                return roleRepository.save(newRole);
+                            });
+                }
 
                 newUser.setRoles(Set.of(role));
                 user = userRepository.save(newUser);
@@ -79,8 +90,6 @@ public abstract class AbstractMultiTenantTest {
 
             return jwtService.generateToken(user);
         } finally {
-            // 3. AJOUT : Très important : on coupe le bypass pour que MockMvc teste
-            // réellement la sécurité
             TenantContext.disableBypass();
         }
     }
@@ -93,22 +102,8 @@ public abstract class AbstractMultiTenantTest {
         return tokenForTenant(null, "ROLE_SUPER_ADMIN");
     }
 
-    protected String superAdminTokenWithoutTenant() {
-        return tokenForTenant(null, "ROLE_SUPER_ADMIN");
-    }
-
     protected MockHttpServletRequestBuilder getWithTenant(String url, String token, UUID tenantId) {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(url)
-                .header("Authorization", "Bearer " + token);
-
-        if (tenantId != null) {
-            builder.header("X-Tenant-ID", tenantId.toString());
-        }
-        return builder;
-    }
-
-    protected MockHttpServletRequestBuilder postWithTenant(String url, String token, UUID tenantId) {
-        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(url)
                 .header("Authorization", "Bearer " + token);
 
         if (tenantId != null) {

@@ -27,7 +27,7 @@ import java.util.UUID;
                 org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration.class
 })
-public class RestaurantMultiTenantIT extends AbstractMultiTenantTest {
+public class RestaurantControllerIT extends AbstractMultiTenantTest {
 
         @Autowired
         private MockMvc mockMvc;
