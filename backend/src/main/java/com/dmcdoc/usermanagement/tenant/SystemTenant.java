@@ -11,5 +11,6 @@ public final class SystemTenant {
     private SystemTenant() {
     }
 
-    public static final UUID SYSTEM_TENANT = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final UUID SYSTEM_TENANT = 
+    UUID.fromString("00000000-0000-0000-0000-000000000000");
 }
