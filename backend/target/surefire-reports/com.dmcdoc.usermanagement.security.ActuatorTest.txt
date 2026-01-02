@@ -1,0 +1,34 @@
+-------------------------------------------------------------------------------
+Test set: com.dmcdoc.usermanagement.security.ActuatorTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 3.538 s <<< FAILURE! -- in com.dmcdoc.usermanagement.security.ActuatorTest
+com.dmcdoc.usermanagement.security.ActuatorTest.health_isUp -- Time elapsed: 0.138 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 200 OK
+ but was: 403 FORBIDDEN
+	at com.dmcdoc.usermanagement.security.ActuatorTest.health_isUp(ActuatorTest.java:22)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.dmcdoc.usermanagement.security.ActuatorTest.protectedEndpoint_withoutToken_returns401 -- Time elapsed: 0.021 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 401 UNAUTHORIZED
+ but was: 403 FORBIDDEN
+	at com.dmcdoc.usermanagement.security.ActuatorTest.protectedEndpoint_withoutToken_returns401(ActuatorTest.java:34)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.dmcdoc.usermanagement.security.ActuatorTest.info_isAccessible -- Time elapsed: 0.013 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 200 OK
+ but was: 403 FORBIDDEN
+	at com.dmcdoc.usermanagement.security.ActuatorTest.info_isAccessible(ActuatorTest.java:28)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

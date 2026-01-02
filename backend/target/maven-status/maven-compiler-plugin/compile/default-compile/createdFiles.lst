@@ -19,6 +19,7 @@ com\dmcdoc\usermanagement\core\mapper\UserMapper.class
 com\dmcdoc\usermanagement\tenant\TenantValidator.class
 com\dmcdoc\usermanagement\core\model\RefreshToken$RefreshTokenBuilder.class
 com\dmcdoc\usermanagement\api\controller\AdminController.class
+com\dmcdoc\usermanagement\tenant\HibernateTenantFilterEnabler.class
 com\dmcdoc\usermanagement\core\repository\AdminLogRepository.class
 com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantServiceImpl.class
@@ -48,6 +49,7 @@ com\dmcdoc\usermanagement\api\controller\MagicLinkController$RequestDto.class
 com\dmcdoc\usermanagement\core\model\Order$OrderBuilder.class
 com\dmcdoc\usermanagement\core\repository\MagicLinkTokenRepository.class
 com\dmcdoc\usermanagement\api\controller\PingController.class
+com\dmcdoc\usermanagement\core\bootstrap\RoleInitializer.class
 com\dmcdoc\usermanagement\core\repository\RestaurantRepository.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantAutoProvisioningService.class
 com\dmcdoc\usermanagement\config\security\SecurityConfig.class
@@ -68,6 +70,7 @@ com\dmcdoc\usermanagement\tenant\TenantCurrentProvider.class
 com\dmcdoc\usermanagement\config\security\TenantSecurity.class
 com\dmcdoc\usermanagement\core\service\auth\MagicLinkService.class
 com\dmcdoc\usermanagement\config\WebConfig.class
+com\dmcdoc\usermanagement\core\bootstrap\TestRoleInitializer.class
 com\dmcdoc\usermanagement\core\service\admin\AdminService.class
 com\dmcdoc\usermanagement\core\model\Restaurant$RestaurantBuilder.class
 com\dmcdoc\usermanagement\DbInfoLogger.class
@@ -84,11 +87,13 @@ com\dmcdoc\usermanagement\api\controller\MagicLinkController.class
 com\dmcdoc\usermanagement\api\exceptions\ResourceNotFoundException.class
 com\dmcdoc\usermanagement\config\security\CurrentSecurityContext.class
 com\dmcdoc\usermanagement\tenant\TenantHibernateFilter.class
+com\dmcdoc\usermanagement\tenant\SystemTenant.class
 com\dmcdoc\usermanagement\core\service\RestaurantServiceImpl.class
 com\dmcdoc\usermanagement\core\service\auth\PasswordResetToken.class
 com\dmcdoc\usermanagement\api\exceptions\GlobalExceptionHandler.class
 com\dmcdoc\usermanagement\core\model\User$UserBuilder.class
 com\dmcdoc\usermanagement\tenant\TenantFilterAspect.class
+com\dmcdoc\usermanagement\api\controller\RoleController.class
 com\dmcdoc\usermanagement\api\controller\AuthController.class
 com\dmcdoc\usermanagement\api\controller\DummyController.class
 com\dmcdoc\usermanagement\api\controller\OAuth2Controller.class

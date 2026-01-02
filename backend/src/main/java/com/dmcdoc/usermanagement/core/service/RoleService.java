@@ -1,9 +1,9 @@
 package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.usermanagement.core.model.Role;
+
+import java.util.Optional;
 import java.util.UUID;
-
-
 
 public interface RoleService {
 
@@ -11,5 +11,9 @@ public interface RoleService {
 
     Role create(Role role);
 
-    void delete(UUID roleId);
+    Role update(Role role);
+
+    void delete(UUID id);
+
+    Optional<Role> findById(UUID id);
 }

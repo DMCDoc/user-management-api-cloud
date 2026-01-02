@@ -1,10 +1,17 @@
 package com.dmcdoc.usermanagement.api.exceptions;
 
+import com.dmcdoc.sharedcommon.dto.ErrorResponse;
+import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
+import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
+import com.dmcdoc.usermanagement.core.role.exception.SystemRoleModificationException;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +24,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.dmcdoc.sharedcommon.dto.ErrorResponse;
-import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
-import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
-
 import java.util.stream.Collectors;
 
+import javax.management.relation.RoleNotFoundException;
+
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
         private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -57,20 +63,28 @@ public class GlobalExceptionHandler {
                                 request);
         }
 
-        // -------------------------------------------------
-        // 🔑 MULTI-TENANT — UUID invalide ⇒ 403
-        // -------------------------------------------------
-
+        /**
+         * UUID invalide :
+         * - multi-tenant → 403
+         * - API classique → 400
+         */
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
         public ResponseEntity<ErrorResponse> handleUuidMismatch(
                         MethodArgumentTypeMismatchException ex,
                         HttpServletRequest request) {
 
-                log.warn("Invalid path variable: {}", ex.getMessage());
+                String path = request.getRequestURI();
+
+                if (path.startsWith("/api/restaurants")) {
+                        return build(
+                                        HttpStatus.FORBIDDEN,
+                                        "Invalid UUID",
+                                        request);
+                }
 
                 return build(
-                                HttpStatus.FORBIDDEN,
-                                "Invalid UUID",
+                                HttpStatus.BAD_REQUEST,
+                                "Invalid request parameter",
                                 request);
         }
 
@@ -96,18 +110,26 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.FORBIDDEN,
-                                "Access is denied",
+                                ex.getMessage(),
+                                request);
+        }
+
+        @ExceptionHandler(SystemRoleModificationException.class)
+        public ResponseEntity<ErrorResponse> handleSystemRoleModification(
+                        SystemRoleModificationException ex,
+                        HttpServletRequest request) {
+
+                return build(
+                                HttpStatus.FORBIDDEN,
+                                ex.getMessage(),
                                 request);
         }
 
         // -------------------------------------------------
-        // 🔑 MULTI-TENANT — RESSOURCE INTERDITE
+        // 404 / 403 — RESSOURCE
         // -------------------------------------------------
 
-        @ExceptionHandler({
-                        UserNotFoundException.class,
-                        EntityNotFoundException.class
-        })
+        @ExceptionHandler(UserNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleForbiddenResource(
                         Exception ex,
                         HttpServletRequest request) {
@@ -115,6 +137,28 @@ public class GlobalExceptionHandler {
                 return build(
                                 HttpStatus.FORBIDDEN,
                                 "Access to resource is forbidden",
+                                request);
+        }
+
+        @ExceptionHandler(EntityNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleNotFound(
+                        Exception ex,
+                        HttpServletRequest request) {
+
+                return build(
+                                HttpStatus.NOT_FOUND,
+                                "Resource not found",
+                                request);
+        }
+
+        @ExceptionHandler(RoleNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleRoleNotFound(
+                        RoleNotFoundException ex,
+                        HttpServletRequest request) {
+
+                return build(
+                                HttpStatus.NOT_FOUND,
+                                ex.getMessage(),
                                 request);
         }
 
@@ -161,7 +205,7 @@ public class GlobalExceptionHandler {
         }
 
         // -------------------------------------------------
-        // 500 — FALLBACK (JAMAIS en test)
+        // 500 — FALLBACK
         // -------------------------------------------------
 
         @ExceptionHandler(Exception.class)

@@ -13,9 +13,11 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\SecurityJsonIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\RoleInitializerIntegrationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\GlobalExceptionHandlerUnitTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\test.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\SecurityExceptionHandlerTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\dto\UserDtoTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\dto\UserResponseTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\RestaurantControllerIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\tenant\TenantResolverTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\LoginIntegrationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\TestSecurityConfig.java
@@ -26,7 +28,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\JDBCTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\ActuatorTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\JWTUtilsTest.java
-E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\RestaurantMultiTenantIT.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\RoleSystemProtectionIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\RoleInitializerTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\config\security\JwtAuthenticationFilterTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\core\service\admin\AdminServiceUnitTest.java

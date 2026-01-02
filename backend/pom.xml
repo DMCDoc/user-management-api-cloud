@@ -171,6 +171,7 @@
 <artifactId>maven-failsafe-plugin</artifactId>
 <version>3.1.2</version>
 <configuration>
+<parameters>true</parameters>
   <includes>
     <include>**/*IT.class</include>
   </includes>

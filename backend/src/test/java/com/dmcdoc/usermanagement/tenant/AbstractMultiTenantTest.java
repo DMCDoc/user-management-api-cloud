@@ -29,6 +29,9 @@ public abstract class AbstractMultiTenantTest {
     protected JwtService jwtService;
 
     @Autowired
+    protected org.springframework.test.web.servlet.MockMvc mockMvc;
+
+    @Autowired
     protected UserRepository userRepository;
 
     @Autowired
