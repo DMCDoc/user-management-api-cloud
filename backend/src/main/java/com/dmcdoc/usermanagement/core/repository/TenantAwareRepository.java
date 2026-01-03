@@ -1,6 +1,6 @@
 package com.dmcdoc.usermanagement.core.repository;
 
-import com.dmcdoc.usermanagement.core.model.TenantAwareEntity;
+import com.dmcdoc.usermanagement.core.model.TenantAwareEntityImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @NoRepositoryBean
-public interface TenantAwareRepository<T extends TenantAwareEntity, ID extends Serializable>
+public interface TenantAwareRepository<T extends TenantAwareEntityImpl, ID extends Serializable>
         extends JpaRepository<T, ID> {
 
     @Override

@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role extends TenantAwareEntity {
+public class Role extends BaseTenantEntity {
 
     @Id
     @GeneratedValue

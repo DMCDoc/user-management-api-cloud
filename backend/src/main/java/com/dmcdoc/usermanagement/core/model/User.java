@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends TenantAwareEntity implements UserDetails {
+public class User extends TenantAwareEntityImpl implements UserDetails {
 
     @Id
     @GeneratedValue
@@ -60,16 +60,6 @@ public class User extends TenantAwareEntity implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -86,6 +76,6 @@ public class User extends TenantAwareEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return super.isActive();
+        return isActive();
     }
 }

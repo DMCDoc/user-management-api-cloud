@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Restaurant extends TenantAwareEntity {
+public class Restaurant extends BaseTenantEntity {
 
     @Id
     @GeneratedValue
@@ -20,6 +20,16 @@ public class Restaurant extends TenantAwareEntity {
 
     @Column(nullable = false)
     private String name;
+
+    private boolean active = true;
+
+    public boolean isInactive() {
+        return !this.active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     private String address;
 

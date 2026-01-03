@@ -1,26 +1,25 @@
 package com.dmcdoc.usermanagement.tenant;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
-/**
- * Active automatiquement le filtre Hibernate
- * avant toute méthode @Transactional
- */
+import java.util.UUID;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class TenantFilterAspect {
 
-    private final HibernateTenantFilterEnabler enabler;
+    private final TenantResolver tenantResolver;
+    private final HibernateTenantFilterEnabler filterEnabler;
+    private final HttpServletRequest request;
 
-    @Before("@annotation(org.springframework.transaction.annotation.Transactional)")
-    public void beforeTransactionalMethod() {
-        enabler.enableTenantFilter();
+    @Before("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
+    public void enableTenantFilter() {
+        UUID tenantId = tenantResolver.resolve(request);
+        filterEnabler.enableTenantFilter(tenantId);
     }
 }
-/*
- * Option la plus propre : AOP
- */
