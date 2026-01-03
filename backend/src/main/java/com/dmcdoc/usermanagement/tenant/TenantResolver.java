@@ -1,12 +1,11 @@
 package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
+import com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.UUID;
 
 @Component
@@ -43,17 +42,13 @@ public class TenantResolver {
                 try {
                     return UUID.fromString(header);
                 } catch (IllegalArgumentException e) {
-                    throw new ResponseStatusException(
-                            HttpStatus.FORBIDDEN,
-                            "Invalid tenant id");
+                    throw new InvalidTenantIdentifierException();
                 }
             }
         }
 
         if (properties.getMode() == TenantMode.STRICT) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Tenant resolution failed");
+            throw new InvalidTenantIdentifierException();
         }
 
         return null;

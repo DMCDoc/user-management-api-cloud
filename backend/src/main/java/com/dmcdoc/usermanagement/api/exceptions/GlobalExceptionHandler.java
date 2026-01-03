@@ -1,9 +1,11 @@
 package com.dmcdoc.usermanagement.api.exceptions;
 
+import com.dmcdoc.sharedcommon.dto.ErrorCode;
 import com.dmcdoc.sharedcommon.dto.ErrorResponse;
 import com.dmcdoc.sharedcommon.exceptions.UserAlreadyExistsException;
 import com.dmcdoc.sharedcommon.exceptions.UserNotFoundException;
 import com.dmcdoc.usermanagement.core.role.exception.SystemRoleModificationException;
+import com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,8 +28,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.stream.Collectors;
 
-import javax.management.relation.RoleNotFoundException;
-
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                                 .map(err -> err.getField() + " " + err.getDefaultMessage())
                                 .collect(Collectors.joining(", "));
 
-                return build(HttpStatus.BAD_REQUEST, message, request);
+                return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, message, request);
         }
 
         @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -59,34 +59,51 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.BAD_REQUEST,
+                                ErrorCode.MALFORMED_REQUEST,
                                 "Request body is missing or invalid",
                                 request);
         }
 
         /**
-         * UUID invalide :
-         * - multi-tenant → 403
-         * - API classique → 400
+         * ⚠️ IMPORTANT
+         * Multi-tenant → UUID invalide = FORBIDDEN (et pas 400)
+         * Compatible RestaurantControllerIT
          */
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-        public ResponseEntity<ErrorResponse> handleUuidMismatch(
+        public ResponseEntity<ErrorResponse> handleTypeMismatch(
                         MethodArgumentTypeMismatchException ex,
                         HttpServletRequest request) {
 
-                String path = request.getRequestURI();
-
-                if (path.startsWith("/api/restaurants")) {
+                // Cas RestaurantControllerIT (multi-tenant)
+                if (request.getRequestURI().startsWith("/api/restaurants")) {
                         return build(
                                         HttpStatus.FORBIDDEN,
-                                        "Invalid UUID",
+                                        ErrorCode.RESOURCE_FORBIDDEN,
+                                        "Invalid tenant identifier",
                                         request);
                 }
 
+                // Cas REST classique (Role, User, etc.)
                 return build(
                                 HttpStatus.BAD_REQUEST,
-                                "Invalid request parameter",
+                                ErrorCode.MALFORMED_REQUEST,
+                                "Invalid UUID format",
                                 request);
         }
+
+// in case you need to handle invalid tenant identifier differently
+
+        @ExceptionHandler(InvalidTenantIdentifierException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidTenant(
+                        InvalidTenantIdentifierException ex,
+                        HttpServletRequest request) {
+
+                return build(
+                                HttpStatus.FORBIDDEN,
+                                ErrorCode.RESOURCE_FORBIDDEN,
+                                "Access to resource is forbidden",
+                                request);
+        }   
 
         // -------------------------------------------------
         // 401 / 403 — SÉCURITÉ
@@ -99,6 +116,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.UNAUTHORIZED,
+                                ErrorCode.ACCESS_DENIED,
                                 "Invalid credentials",
                                 request);
         }
@@ -110,6 +128,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.FORBIDDEN,
+                                ErrorCode.ACCESS_DENIED,
                                 ex.getMessage(),
                                 request);
         }
@@ -121,14 +140,18 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.FORBIDDEN,
+                                ex.getErrorCode(),
                                 ex.getMessage(),
                                 request);
         }
 
         // -------------------------------------------------
-        // 404 / 403 — RESSOURCE
+        // 403 / 404 — RESSOURCES
         // -------------------------------------------------
 
+        /**
+         * Multi-tenant : ressource existante mais interdite
+         */
         @ExceptionHandler(UserNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleForbiddenResource(
                         Exception ex,
@@ -136,10 +159,14 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.FORBIDDEN,
+                                ErrorCode.RESOURCE_FORBIDDEN,
                                 "Access to resource is forbidden",
                                 request);
         }
 
+        /**
+         * REST pur : ressource inexistante
+         */
         @ExceptionHandler(EntityNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleNotFound(
                         Exception ex,
@@ -147,18 +174,8 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.NOT_FOUND,
+                                ErrorCode.ROLE_NOT_FOUND,
                                 "Resource not found",
-                                request);
-        }
-
-        @ExceptionHandler(RoleNotFoundException.class)
-        public ResponseEntity<ErrorResponse> handleRoleNotFound(
-                        RoleNotFoundException ex,
-                        HttpServletRequest request) {
-
-                return build(
-                                HttpStatus.NOT_FOUND,
-                                ex.getMessage(),
                                 request);
         }
 
@@ -173,6 +190,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.CONFLICT,
+                                ErrorCode.USER_ALREADY_EXISTS,
                                 ex.getMessage(),
                                 request);
         }
@@ -186,6 +204,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.CONFLICT,
+                                ErrorCode.DATABASE_CONSTRAINT,
                                 "Database constraint violation",
                                 request);
         }
@@ -200,6 +219,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                                ErrorCode.MALFORMED_REQUEST,
                                 "Content-Type not supported. Use application/json",
                                 request);
         }
@@ -217,6 +237,7 @@ public class GlobalExceptionHandler {
 
                 return build(
                                 HttpStatus.INTERNAL_SERVER_ERROR,
+                                ErrorCode.INTERNAL_ERROR,
                                 "An unexpected error occurred",
                                 request);
         }
@@ -227,6 +248,7 @@ public class GlobalExceptionHandler {
 
         private ResponseEntity<ErrorResponse> build(
                         HttpStatus status,
+                        ErrorCode errorCode,
                         String message,
                         HttpServletRequest request) {
 

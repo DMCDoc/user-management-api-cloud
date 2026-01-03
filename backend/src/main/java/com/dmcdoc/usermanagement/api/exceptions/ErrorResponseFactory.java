@@ -1,13 +1,25 @@
 package com.dmcdoc.usermanagement.api.exceptions;
 
-import java.time.LocalDateTime;
+import com.dmcdoc.sharedcommon.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 
-import com.dmcdoc.sharedcommon.dto.ErrorResponse;
+import java.time.LocalDateTime;
 
-public class ErrorResponseFactory {
+public final class ErrorResponseFactory {
 
-    public static ErrorResponse create(HttpStatus status, String message, String path) {
-        return new ErrorResponse(LocalDateTime.now(), status.value(), status.getReasonPhrase(), message, path);
+    private ErrorResponseFactory() {
+    }
+
+    public static ErrorResponse create(
+            HttpStatus status,
+            String message,
+            String path) {
+
+        return new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                path);
     }
 }
