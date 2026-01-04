@@ -21,18 +21,15 @@ public class Restaurant extends BaseTenantEntity {
     @Column(nullable = false)
     private String name;
 
+    @Builder.Default
     private boolean active = true;
-
-    public boolean isInactive() {
-        return !this.active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 
     private String address;
 
     @Column(columnDefinition = "TEXT")
     private String metadata;
+
+    public boolean isInactive() {
+        return !this.active;
+    }
 }

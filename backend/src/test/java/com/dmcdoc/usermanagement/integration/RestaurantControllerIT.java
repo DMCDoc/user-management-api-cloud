@@ -2,7 +2,7 @@ package com.dmcdoc.usermanagement.integration;
 
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
-import com.dmcdoc.usermanagement.tenant.AbstractMultiTenantTest;
+import com.dmcdoc.usermanagement.integration.classetest.AbstractMultiTenantIT;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import java.util.UUID;
                 org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration.class
 })
-public class RestaurantControllerIT extends AbstractMultiTenantTest {
+public class RestaurantControllerIT extends AbstractMultiTenantIT<Restaurant> {
 
         @Autowired
         private MockMvc mockMvc;

@@ -10,3 +10,14 @@ Et :
 
 Toute erreur liée au format du payload utilisateur
 → 400 BAD REQUEST
+
+Architecture cible (5.2)
+security/
+ ├─ TenantAuthorizationFilter.java   <-- NOUVEAU (cœur 5.2)
+ ├─ SecurityConfig.java              <-- modifié
+tenant/
+ ├─ TenantContext.java               <-- déjà OK
+ ├─ TenantResolver.java              <-- déjà OK
+
+
+Les controllers ne font plus aucun check tenant.

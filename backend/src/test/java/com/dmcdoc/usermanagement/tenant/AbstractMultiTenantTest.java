@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
-import com.dmcdoc.usermanagement.config.security.TestJwtBuilder;
+import com.dmcdoc.usermanagement.config.security.JwtTestTokenBuilder;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
@@ -115,8 +115,8 @@ public abstract class AbstractMultiTenantTest {
         return builder;
     }
 
-    protected TestJwtBuilder jwtBuilder() {
-        return new TestJwtBuilder(secret);
+    protected JwtTestTokenBuilder jwtBuilder() {
+        return new JwtTestTokenBuilder();
     }
 
     protected abstract UUID createEntityForTenant(UUID tenantId);
