@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Restaurant extends BaseTenantEntity {
+public class Restaurant extends TenantAwareEntityImpl {
 
     @Id
     @GeneratedValue

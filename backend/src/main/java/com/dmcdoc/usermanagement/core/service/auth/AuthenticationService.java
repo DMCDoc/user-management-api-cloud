@@ -87,18 +87,18 @@ public class AuthenticationService {
         return new AuthResponse(accessToken, refreshToken.getToken(), user.getEmail());
     }
     // AuthenticationService.java
-public AuthResponse refresh(RefreshRequest request) {
+    public AuthResponse refresh(RefreshRequest request) {
 
-    RefreshToken rt = refreshTokenService.findValid(request.getRefreshToken())
-            .map(refreshTokenService::verifyExpiration)
-            .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+        RefreshToken rt = refreshTokenService
+                .findValid(request.getRefreshToken())
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
 
-    User user = rt.getUser();
+        User user = rt.getUser();
 
-    String accessToken = jwtService.generateToken(user);
-    RefreshToken newRt = refreshTokenService.create(user);
+        String accessToken = jwtService.generateToken(user);
+        RefreshToken newRt = refreshTokenService.create(user);
 
-    return new AuthResponse(accessToken, newRt.getToken(), user.getEmail());
-}
+        return new AuthResponse(accessToken, newRt.getToken(), user.getEmail());
+    }
 
 }

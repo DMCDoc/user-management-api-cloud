@@ -1,24 +1,25 @@
 package com.dmcdoc.usermanagement.core.service.admin;
 
+import com.dmcdoc.sharedcommon.dto.AdminUserUpdateRequest;
+import com.dmcdoc.sharedcommon.dto.UserResponse;
+import com.dmcdoc.usermanagement.api.exceptions.ResourceNotFoundException;
+import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
-import com.dmcdoc.usermanagement.api.exceptions.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import com.dmcdoc.sharedcommon.dto.AdminUserUpdateRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -27,42 +28,76 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder; // pour reset password
+    private final PasswordEncoder passwordEncoder;
 
-    public Page<User> searchUsers(String q, Pageable pageable) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        if (q == null || q.isBlank()) {
-            return userRepository.findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
-                    tenantId, "", tenantId, "", pageable);
+    /*
+     * ==========================================================
+     * ADAPTERS POUR ADMIN CONTROLLER (STABLE API)
+     * ==========================================================
+     */
+
+    @Transactional(readOnly = true)
+    public Page<UserResponse> listUsers(
+            UUID tenantId,
+            String search,
+            Pageable pageable) {
+
+        String query = (search == null) ? "" : search;
+
+        return userRepository
+                .findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
+                        tenantId, query, tenantId, query, pageable)
+                .map(UserMapper::toResponse);
+    }
+
+    public void disableUser(UUID userId, UUID tenantId) {
+        User user = findUser(userId, tenantId);
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    public void enableUser(UUID userId, UUID tenantId) {
+        User user = findUser(userId, tenantId);
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    public void deleteUser(UUID userId, UUID tenantId) {
+        if (!userRepository.existsByIdAndTenantId(userId, tenantId)) {
+            throw new ResourceNotFoundException("User not found: " + userId);
         }
-        return userRepository.findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
-                tenantId, q, tenantId, q, pageable);
+        userRepository.deleteByIdAndTenantId(userId, tenantId);
     }
 
-    public Map<String, Long> getStats() {
+    /*
+     * ==========================================================
+     * CORE LOGIC EXISTANTE (CONSERVÉE)
+     * ==========================================================
+     */
+
+    @Transactional(readOnly = true)
+    public User getUserById(UUID userId) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        long total = userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_USER");
-        long admins = userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_ADMIN");
-        long disabled = userRepository.countByTenantIdAndActiveFalse(tenantId);
-        return Map.of("totalUsers", total, "admins", admins, "disabled", disabled);
+        return findUser(userId, tenantId);
     }
 
-    public User updateUser(Long unusedId /* keep old if needed */ , UUID userId, String email, String username,
-            Boolean enabled, Set<String> roleNames) {
+    public User updateUser(UUID userId, AdminUserUpdateRequest body) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = userRepository.findByIdAndTenantId(userId, tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        if (email != null)
-            user.setEmail(email);
-        if (username != null)
-            user.setUsername(username);
-        if (enabled != null)
-            user.setActive(enabled);
+        User user = findUser(userId, tenantId);
 
-        if (roleNames != null) {
-            Set<Role> roles = roleNames.stream()
-                    .map(name -> roleRepository.findByName(name)
-                            .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + name)))
+        if (body.getEmail() != null) {
+            user.setEmail(body.getEmail());
+        }
+        if (body.getUsername() != null) {
+            user.setUsername(body.getUsername());
+        }
+        if (body.getEnabled() != null) {
+            user.setActive(body.getEnabled());
+        }
+        if (body.getRoles() != null) {
+            Set<Role> roles = body.getRoles().stream()
+                    .map(role -> roleRepository.findByNameAndTenantId(role, tenantId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + role)))
                     .collect(Collectors.toSet());
             user.setRoles(roles);
         }
@@ -70,114 +105,79 @@ public class AdminService {
         return userRepository.save(user);
     }
 
-    public String adminResetPassword(UUID userId) {
+    public String resetPassword(UUID userId) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = userRepository.findByIdAndTenantId(userId, tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        String temp = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 12);
-        user.setPassword(passwordEncoder.encode(temp));
-        userRepository.save(user);
-        return temp; // return temp (send via email in prod)
-    }
+        User user = findUser(userId, tenantId);
 
-    public List<User> getAllUsers() {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        return userRepository.findAllByTenantId(tenantId);
-    }
-
-    public User getUserById(UUID userId) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        return userRepository.findByIdAndTenantId(userId, tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-    }
-
-    public User updateUserRole(UUID userId, String roleName) {
-        User user = getUserById(userId);
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName));
-
-        user.getRoles().clear();
-        user.getRoles().add(role);
-        return userRepository.save(user);
-    }
-
-    public void addRoleToUser(UUID userId, String roleName) {
-        User user = getUserById(userId);
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName));
-
-        if (user.getRoles().stream().anyMatch(r -> r.getName().equals(role.getName()))) {
-            return; // idempotent
-        }
-        user.getRoles().add(role);
-        userRepository.save(user);
-    }
-
-    public void removeRoleFromUser(UUID userId, String roleName) {
-        User user = getUserById(userId);
-        boolean removed = user.getRoles().removeIf(r -> r.getName().equals(roleName));
-        if (!removed) {
-            throw new ResourceNotFoundException("User does not have role: " + roleName);
-        }
-        userRepository.save(user);
-    }
-
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
-    }
-
-    public void deleteUser(UUID userId) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        if (!userRepository.findByIdAndTenantId(userId, tenantId).isPresent()) {
-            throw new ResourceNotFoundException("User not found with id: " + userId);
-        }
-        userRepository.deleteByIdAndTenantId(userId, tenantId);
-    }
-
-    public void blockUser(UUID id) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = userRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setActive(false);
-        userRepository.save(user);
-    }
-
-    public void unblockUser(UUID id) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = userRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setActive(true);
-        userRepository.save(user);
-    }
-
-    public String resetPassword(UUID id) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = userRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        String tempPassword = UUID.randomUUID().toString().substring(0, 10);
-
+        String tempPassword = UUID.randomUUID().toString().substring(0, 12);
         user.setPassword(passwordEncoder.encode(tempPassword));
         userRepository.save(user);
 
         return tempPassword;
     }
 
-    public void setUserRoles(UUID userId, List<String> roleNames) {
-        User user = getUserById(userId);
-        Set<Role> roles = roleNames.stream()
-                .map(name -> roleRepository.findByName(name)
-                        .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + name)))
-                .collect(Collectors.toSet());
-        user.setRoles(roles);
+    /*
+     * ==========================================================
+     * ROLES
+     * ==========================================================
+     */
+
+    public void addRoleToUser(UUID userId, String roleName) {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = findUser(userId, tenantId);
+
+        Role role = roleRepository.findByNameAndTenantId(roleName, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName));
+
+        if (user.getRoles().add(role)) {
+            userRepository.save(user);
+        }
+    }
+
+    public void removeRoleFromUser(UUID userId, String roleName) {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        User user = findUser(userId, tenantId);
+
+        boolean removed = user.getRoles()
+                .removeIf(r -> r.getName().equals(roleName));
+
+        if (!removed) {
+            throw new ResourceNotFoundException(
+                    "User does not have role: " + roleName);
+        }
+
         userRepository.save(user);
     }
 
-    // Convenience overload to accept DTO from controller
-    public User updateUser(UUID userId, AdminUserUpdateRequest body) {
-        if (body == null)
-            return getUserById(userId);
-        return updateUser(null, userId, body.getEmail(), body.getUsername(), body.getEnabled(), body.getRoles());
+    @Transactional(readOnly = true)
+    public List<Role> getAllRoles() {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        return roleRepository.findAllByTenantId(tenantId);
     }
 
+    /*
+     * ==========================================================
+     * STATS
+     * ==========================================================
+     */
+
+    @Transactional(readOnly = true)
+    public Map<String, Long> getStats() {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        return Map.of(
+                "totalUsers", userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_USER"),
+                "admins", userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_ADMIN"),
+                "disabled", userRepository.countByTenantIdAndActiveFalse(tenantId));
+    }
+
+    /*
+     * ==========================================================
+     * INTERNAL
+     * ==========================================================
+     */
+
+    private User findUser(UUID userId, UUID tenantId) {
+        return userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+    }
 }

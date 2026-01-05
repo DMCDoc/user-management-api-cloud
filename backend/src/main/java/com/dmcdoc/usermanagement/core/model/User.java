@@ -28,16 +28,24 @@ public class User extends TenantAwareEntityImpl implements UserDetails {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String fullName;
 
     @Column(nullable = false)
     private String password;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean enabled = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean locked = false;
 
     @Enumerated(EnumType.STRING)
     private OAuth2Provider provider;

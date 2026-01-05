@@ -1,0 +1,22 @@
+🎯 Objectif 5.3
+
+Aucune donnée ne doit être accessible hors tenant, même si :
+
+un filtre est oublié
+
+un dev écrit une requête JPQL dangereuse
+
+un SUPER_ADMIN n’est pas explicitement en bypass
+
+➡️ Le dernier rempart = repository layer
+
+Principe retenu (propre et robuste)
+
+Toutes les entités métier sont tenant-aware
+
+Tous les repositories métier héritent d’un repository tenant-aware
+
+findById, findAll, delete, etc.
+➜ automatiquement filtrés par tenant
+
+Bypass uniquement via TenantContext.isBypassEnabled()

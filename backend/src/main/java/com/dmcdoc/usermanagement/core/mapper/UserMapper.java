@@ -1,28 +1,25 @@
 package com.dmcdoc.usermanagement.core.mapper;
 
-import com.dmcdoc.sharedcommon.dto.UserDto;
 import com.dmcdoc.sharedcommon.dto.UserResponse;
 import com.dmcdoc.usermanagement.core.model.User;
 
-import java.util.stream.Collectors;
+public final class UserMapper {
 
-public class UserMapper {
-    public static UserDto toDto(User u) {
-        return new UserDto(
-                u.getId(),
-                u.getEmail(),
-                u.getCreatedAt(),
-                !u.isEnabled(),
-                u.getRoles().stream().map(r -> r.getName()).collect(Collectors.toList()));
+    private UserMapper() {
+        // utility class
     }
 
-    public static UserResponse toResponse(User u) {
-        if (u == null)
+    public static UserResponse toResponse(User user) {
+        if (user == null) {
             return null;
+        }
+
         return UserResponse.builder()
-                .username(u.getUsername())
-                .email(u.getEmail())
-                .fullName(u.getFullName())
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .active(user.isActive())
                 .build();
     }
 }

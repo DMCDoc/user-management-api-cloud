@@ -7,15 +7,15 @@ import com.dmcdoc.usermanagement.core.model.*;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,199 +25,133 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
+        private final UserRepository userRepository;
+        private final RoleRepository roleRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtService jwtService;
+        private final RefreshTokenService refreshTokenService;
 
-    /*
-     * ============================================================
-     * OAuth2
-     * ============================================================
-     */
+        /* ================= OAuth2 ================= */
 
-    public User findOrCreateByEmailOAuth2(
-                    String email,
-                    OAuth2Provider provider,
-                    UUID tenantId) {
+        public User findOrCreateByEmailOAuth2(
+                        String email,
+                        OAuth2Provider provider,
+                        UUID tenantId) {
 
-            return userRepository.findByEmailAndTenantId(email, tenantId)
-                            .map(existing -> {
-                                    if (existing.getProvider() != provider) {
-                                            existing.setProvider(provider);
-                                    }
-                                    return existing;
-                            })
-                            .orElseGet(() -> {
+                return userRepository.findByEmailAndTenantId(email, tenantId)
+                                .map(existing -> {
+                                        existing.setProvider(provider);
+                                        return existing;
+                                })
+                                .orElseGet(() -> {
+                                        Role role = roleRepository.findByName("ROLE_USER")
+                                                        .orElseThrow();
 
-                                    Role userRole = roleRepository.findByName("ROLE_USER")
-                                                    .orElseThrow(() -> new IllegalStateException("ROLE_USER missing"));
+                                        User user = User.builder()
+                                                        .email(email)
+                                                        .username(email.split("@")[0])
+                                                        .fullName(email)
+                                                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                                                        .roles(Set.of(role))
+                                                        .provider(provider)
+                                                        .build();
 
-                                    User user = User.builder()
-                                                    .email(email)
-                                                    .username(email.split("@")[0])
-                                                    .fullName(email)
-                                                    .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                                                    .roles(Set.of(userRole))
-                                                    .provider(provider)
-                                                    .build();
-                                    user.setTenantId(tenantId);
-                                    user.setActive(true);
+                                        user.setTenantId(tenantId);
+                                        user.setActive(true);
+                                        return userRepository.save(user);
+                                });
+        }
 
-                                    log.info("OAuth2 user created [{}] for tenant {}", email, tenantId);
-                                    return userRepository.save(user);
-                            });
-    }
+        /* ================= Admin ================= */
 
-    /*
-     * ============================================================
-     * Admin
-     * ============================================================
-     */
+        public User createAdminForTenant(
+                        UUID tenantId,
+                        String email,
+                        String encodedPassword,
+                        String firstName,
+                        String lastName) {
 
-    public User createAdminForTenant(
-                    UUID tenantId,
-                    String email,
-                    String encodedPassword,
-                    String firstName,
-                    String lastName) {
+                User user = new User();
+                user.setEmail(email.toLowerCase());
+                user.setUsername(email.toLowerCase());
+                user.setPassword(encodedPassword);
+                user.setTenantId(tenantId);
+                user.setFullName(firstName + " " + lastName);
+                user.setActive(true);
 
-            User user = new User();
-            user.setEmail(email.toLowerCase().trim());
-            user.setUsername(email.toLowerCase().trim());
-            user.setPassword(encodedPassword);
-            user.setTenantId(tenantId);
-            user.setFullName(firstName + " " + lastName);
-            user.setActive(true);
+                return assignRolesAndSave(user, List.of("ROLE_TENANT_ADMIN"));
+        }
 
-            assignRolesAndSave(user, List.of("ROLE_TENANT_ADMIN"));
-            return user;
-    }
+        /* ================= Profile ================= */
 
-    /*
-     * ============================================================
-     * Profile
-     * ============================================================
-     */
+        @Transactional(readOnly = true)
+        public Optional<UserResponse> getUserProfile(String username, UUID tenantId) {
+                return userRepository.findByUsernameAndTenantId(username, tenantId)
+                                .map(UserMapper::toResponse);
+        }
 
-    @Transactional(readOnly = true)
-    public Optional<UserResponse> getUserProfile(
-                    String username,
-                    UUID tenantId) {
+        /* ================= Deletion ================= */
 
-            return userRepository.findByUsernameAndTenantId(username, tenantId)
-                            .map(UserMapper::toResponse);
-    }
+        public void deleteAccountById(UUID userId, UUID tenantId) {
+                User user = userRepository.findByIdAndTenantId(userId, tenantId)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                refreshTokenService.revokeAll(user);
+                userRepository.delete(user);
+        }
 
-    public void updateProfile(
-                    String username,
-                    UUID tenantId,
-                    RegisterRequest request) {
+        /* ================= Tokens ================= */
 
-            User user = userRepository.findByUsernameAndTenantId(username, tenantId)
-                            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        public AuthResponse refreshToken(RefreshRequest request, UUID tenantId) {
 
-            user.setFullName(request.getFullName());
-            user.setEmail(request.getEmail());
-    }
+                RefreshToken rt = refreshTokenService
+                                .findValid(request.getRefreshToken())
+                                .filter(t -> t.getUser().getTenantId().equals(tenantId))
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
-    /*
-     * ============================================================
-     * Deletion
-     * ============================================================
-     */
+                String accessToken = jwtService.generateToken(rt.getUser());
 
-    public void deleteAccount(
-                    String username,
-                    UUID tenantId) {
+                return new AuthResponse(
+                                accessToken,
+                                rt.getToken(),
+                                rt.getUser().getEmail());
+        }
 
-            User user = userRepository.findByUsernameAndTenantId(username, tenantId)
-                            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        /* ================= Utilities ================= */
 
-            refreshTokenService.revokeAll(user);
-            userRepository.delete(user);
-    }
+        public User assignRolesAndSave(User user, List<String> roleNames) {
 
-    public void deleteAccountById(
-                    UUID userId,
-                    UUID tenantId) {
+                Set<Role> roles = roleNames.stream()
+                                .map(name -> roleRepository.findByName(name)
+                                                .orElseThrow(() -> new ResponseStatusException(
+                                                                HttpStatus.BAD_REQUEST, "Role not found")))
+                                .collect(Collectors.toSet());
 
-            User user = userRepository.findByIdAndTenantId(userId, tenantId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                user.setRoles(roles);
+                return userRepository.save(user);
+        }
 
-            refreshTokenService.revokeAll(user);
-            userRepository.delete(user);
-    }
+        public Optional<User> findByEmailOptional(String email, UUID tenantId) {
+                return userRepository.findByEmailAndTenantId(email, tenantId);
+        }
 
-    /*
-     * ============================================================
-     * Tokens
-     * ============================================================
-     */
+        public void updateProfile(String username, UUID tenantId, RegisterRequest request) {
 
-    public AuthResponse refreshToken(
-                    RefreshRequest request,
-                    UUID tenantId) {
+                User user = userRepository
+                                .findByUsernameAndTenantId(username, tenantId)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            RefreshToken rt = refreshTokenService.findValid(
-                            request.getRefreshToken())
-                            .filter(token -> token.getUser().getTenantId().equals(tenantId))
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                                            "Invalid refresh token"));
+                user.setEmail(request.getEmail());
+                user.setFullName(request.getFullName());
+        }
 
-            String accessToken = jwtService.generateToken(rt.getUser());
+        public void deleteAccount(String username, UUID tenantId) {
 
-            return new AuthResponse(
-                            accessToken,
-                            rt.getToken(),
-                            rt.getUser().getEmail());
-    }
+                User user = userRepository
+                                .findByUsernameAndTenantId(username, tenantId)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    public RefreshToken createRefreshTokenForUser(User user) {
-            return refreshTokenService.create(user);
-    }
-
-    /*
-     * ============================================================
-     * Utilities
-     * ============================================================
-     */
-
-    public Optional<User> findByEmailOptional(String email, UUID tenantId) {
-            return userRepository.findByEmailAndTenantId(email, tenantId);
-    }
-
-    public User registerWithEmailOnly(String email, UUID tenantId) {
-
-            Role role = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new IllegalStateException("ROLE_USER missing"));
-
-        User user = User.builder()
-                        .email(email)
-                        .username(email.split("@")[0])
-                        .fullName(email)
-                        .roles(Set.of(role))
-                        .provider(OAuth2Provider.LOCAL)
-                .build();
-        user.setTenantId(tenantId);
-        user.setActive(true);
-
-        return userRepository.save(user);
-    }
-
-    public User assignRolesAndSave(
-                    User user,
-                    List<String> roleNames) {
-
-            Set<Role> roles = roleNames.stream()
-                .map(name -> roleRepository.findByName(name)
-                                            .orElseThrow(() -> new ResponseStatusException(
-                                                            HttpStatus.BAD_REQUEST,
-                                                            "Role not found: " + name)))
-                .collect(Collectors.toSet());
-
-            user.setRoles(roles);
-        return userRepository.save(user);
-    }
+                refreshTokenService.revokeAll(user);
+                userRepository.delete(user);
+        }
 }
