@@ -1,9 +1,7 @@
 package com.dmcdoc.usermanagement.core.service.admin;
 
 import com.dmcdoc.sharedcommon.dto.AdminUserUpdateRequest;
-import com.dmcdoc.sharedcommon.dto.UserResponse;
 import com.dmcdoc.usermanagement.api.exceptions.ResourceNotFoundException;
-import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.Role;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
@@ -32,58 +30,29 @@ public class AdminService {
 
     /*
      * ==========================================================
-     * ADAPTERS POUR ADMIN CONTROLLER (STABLE API)
+     * USERS
      * ==========================================================
      */
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> listUsers(
-            UUID tenantId,
-            String search,
-            Pageable pageable) {
-
-        String query = (search == null) ? "" : search;
+    public Page<User> searchUsers(String search, Pageable pageable) {
+        UUID tenantId = TenantContext.getTenantIdRequired();
+        String q = (search == null) ? "" : search;
 
         return userRepository
                 .findByTenantIdAndUsernameContainingIgnoreCaseOrTenantIdAndEmailContainingIgnoreCase(
-                        tenantId, query, tenantId, query, pageable)
-                .map(UserMapper::toResponse);
+                        tenantId, q, tenantId, q, pageable);
     }
-
-    public void disableUser(UUID userId, UUID tenantId) {
-        User user = findUser(userId, tenantId);
-        user.setActive(false);
-        userRepository.save(user);
-    }
-
-    public void enableUser(UUID userId, UUID tenantId) {
-        User user = findUser(userId, tenantId);
-        user.setActive(true);
-        userRepository.save(user);
-    }
-
-    public void deleteUser(UUID userId, UUID tenantId) {
-        if (!userRepository.existsByIdAndTenantId(userId, tenantId)) {
-            throw new ResourceNotFoundException("User not found: " + userId);
-        }
-        userRepository.deleteByIdAndTenantId(userId, tenantId);
-    }
-
-    /*
-     * ==========================================================
-     * CORE LOGIC EXISTANTE (CONSERVÉE)
-     * ==========================================================
-     */
 
     @Transactional(readOnly = true)
     public User getUserById(UUID userId) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        return findUser(userId, tenantId);
+        return userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
     }
 
     public User updateUser(UUID userId, AdminUserUpdateRequest body) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = findUser(userId, tenantId);
+        User user = getUserById(userId);
 
         if (body.getEmail() != null) {
             user.setEmail(body.getEmail());
@@ -95,6 +64,7 @@ public class AdminService {
             user.setActive(body.getEnabled());
         }
         if (body.getRoles() != null) {
+            UUID tenantId = TenantContext.getTenantIdRequired();
             Set<Role> roles = body.getRoles().stream()
                     .map(role -> roleRepository.findByNameAndTenantId(role, tenantId)
                             .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + role)))
@@ -105,14 +75,33 @@ public class AdminService {
         return userRepository.save(user);
     }
 
-    public String resetPassword(UUID userId) {
+    public void deleteUser(UUID userId) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = findUser(userId, tenantId);
 
+        if (!userRepository.existsByIdAndTenantId(userId, tenantId)) {
+            throw new ResourceNotFoundException("User not found: " + userId);
+        }
+
+        userRepository.deleteByIdAndTenantId(userId, tenantId);
+    }
+
+    public void blockUser(UUID userId) {
+        User user = getUserById(userId);
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    public void unblockUser(UUID userId) {
+        User user = getUserById(userId);
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    public String resetPassword(UUID userId) {
+        User user = getUserById(userId);
         String tempPassword = UUID.randomUUID().toString().substring(0, 12);
         user.setPassword(passwordEncoder.encode(tempPassword));
         userRepository.save(user);
-
         return tempPassword;
     }
 
@@ -124,19 +113,17 @@ public class AdminService {
 
     public void addRoleToUser(UUID userId, String roleName) {
         UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = findUser(userId, tenantId);
+        User user = getUserById(userId);
 
         Role role = roleRepository.findByNameAndTenantId(roleName, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName));
 
-        if (user.getRoles().add(role)) {
-            userRepository.save(user);
-        }
+        user.getRoles().add(role);
+        userRepository.save(user);
     }
 
     public void removeRoleFromUser(UUID userId, String roleName) {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        User user = findUser(userId, tenantId);
+        User user = getUserById(userId);
 
         boolean removed = user.getRoles()
                 .removeIf(r -> r.getName().equals(roleName));
@@ -149,12 +136,6 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
-    public List<Role> getAllRoles() {
-        UUID tenantId = TenantContext.getTenantIdRequired();
-        return roleRepository.findAllByTenantId(tenantId);
-    }
-
     /*
      * ==========================================================
      * STATS
@@ -165,19 +146,7 @@ public class AdminService {
     public Map<String, Long> getStats() {
         UUID tenantId = TenantContext.getTenantIdRequired();
         return Map.of(
-                "totalUsers", userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_USER"),
-                "admins", userRepository.countByTenantIdAndRoles_Name(tenantId, "ROLE_ADMIN"),
+                "totalUsers", userRepository.countByTenantId(tenantId),
                 "disabled", userRepository.countByTenantIdAndActiveFalse(tenantId));
-    }
-
-    /*
-     * ==========================================================
-     * INTERNAL
-     * ==========================================================
-     */
-
-    private User findUser(UUID userId, UUID tenantId) {
-        return userRepository.findByIdAndTenantId(userId, tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
     }
 }
