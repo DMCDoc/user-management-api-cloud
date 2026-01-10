@@ -24,13 +24,18 @@ public class SecurityConfig {
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final TenantContextFilter tenantContextFilter;
 
-        
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .csrf(csrf -> csrf.disable())
                                 .httpBasic(httpBasic -> httpBasic.disable())
+
                                 .authorizeHttpRequests(auth -> auth
+                                                // 🔐 ADMIN
+                                                .requestMatchers("/api/admin/**")
+                                                .hasAnyRole("ADMIN", "TENANT_ADMIN")
+
+                                                // 🌍 PUBLIC
                                                 .requestMatchers(
                                                                 "/ping",
                                                                 "/swagger-ui/**",
@@ -39,9 +44,13 @@ public class SecurityConfig {
                                                                 "/api/onboarding/**",
                                                                 "/error")
                                                 .permitAll()
+
+                                                // 🔒 EVERYTHING ELSE
                                                 .anyRequest().authenticated())
+
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .addFilterAfter(tenantContextFilter, JwtAuthenticationFilter.class);
 
@@ -59,5 +68,4 @@ public class SecurityConfig {
                 return config.getAuthenticationManager();
         }
 }
-
 
