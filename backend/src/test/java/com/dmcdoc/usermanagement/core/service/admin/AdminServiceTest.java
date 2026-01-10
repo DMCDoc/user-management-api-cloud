@@ -10,6 +10,6 @@ public class AdminServiceTest {
     
     @Test
     void testPlaceholder() {
-        assertNotNull(AdminService.class, "AdminService should exist");
+        assertNotNull(AdminServiceImpl.class, "AdminService should exist");
     }
 }

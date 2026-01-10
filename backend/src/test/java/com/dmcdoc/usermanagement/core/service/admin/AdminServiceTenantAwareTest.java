@@ -32,11 +32,11 @@ public class AdminServiceTenantAwareTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    private AdminService adminService;
+    private AdminServiceImpl adminService;
 
     @BeforeEach
     void setUp() {
-        adminService = new AdminService(userRepository, roleRepository, passwordEncoder);
+        adminService = new AdminServiceImpl(userRepository, roleRepository, passwordEncoder);
     }
 
     @AfterEach
