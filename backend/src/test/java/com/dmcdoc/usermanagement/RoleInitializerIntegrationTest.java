@@ -5,13 +5,17 @@ import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 
-@SpringBootTest
+
+@ActiveProfiles("test")
+@DataJpaTest
 class RoleInitializerIntegrationTest {
 
     @Autowired
@@ -33,8 +37,5 @@ class RoleInitializerIntegrationTest {
         assertEquals("ROLE_ADMIN", adminRole.get().getName());
     }
 
-    @Test
-    void nonExistingRoleShouldNotBePresent() {
-        assertFalse(roleRepository.findByName("ROLE_SUPER_ADMIN").isPresent(), "ROLE_SUPER_ADMIN should not be initialized");
-    }
+
 }

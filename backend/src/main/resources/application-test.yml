@@ -1,3 +1,6 @@
+# Fichier de configuration pour les tests unitaires et d'intégration
+# Utilise une base de données H2 en mémoire et désactive Elasticsearch
+
 # 1. Le bloc logging est à la racine
 logging:
   level:
@@ -15,7 +18,9 @@ spring:
 
   # 2. Le bloc datasource est bien aligné SOUS spring
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    database-platform: org.hibernate.dialect.H2Dialect
+    ddl-auto: create
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
@@ -25,7 +30,10 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      database_action: create-drop
+      ddl-auto: create
+      hibernate:
+        format_sql: true
     show-sql: true
     defer-datasource-initialization: true
 

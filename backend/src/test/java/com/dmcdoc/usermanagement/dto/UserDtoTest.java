@@ -9,15 +9,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserDtoTest {
 
-    @Test
-    void testUserDtoFields() {
-        UserResponse user = new UserResponse();
-        user.setUsername("john_doe");
-        user.setEmail("john@example.com");
-        user.setFullName("John Doe");
+@Test
+void testUserDtoFields() {
+    UserResponse user = UserResponse.builder()
+            .username("john_doe")
+            .email("john@example.com")
+            .fullName("John Doe")
+            .build();
 
-        assertEquals("john_doe", user.getUsername());
-        assertEquals("john@example.com", user.getEmail());
-        assertEquals("John Doe", user.getFullName());
-    }
+    assertEquals("john_doe", user.getUsername());
+    assertEquals("john@example.com", user.getEmail());
+    assertEquals("John Doe", user.getFullName());
+}
 }

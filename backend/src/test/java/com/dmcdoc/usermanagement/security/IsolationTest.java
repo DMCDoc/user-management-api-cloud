@@ -29,15 +29,12 @@ public class IsolationTest {
 
     @Test
     void tenantIsolationIsEnforced() {
-
         TenantContext.setTenantId(tenantA);
 
-        List<Restaurant> restaurants = restaurantRepository.findAllByTenantId(tenantA);
+        List<Restaurant> restaurants = restaurantRepository.findAll();
 
         assertThat(restaurants)
-            .allMatch(r -> r.getTenantId().equals(tenantA));
-
-        TenantContext.clear();
+                .allMatch(r -> r.getTenantId().equals(tenantA));
     }
 
     
