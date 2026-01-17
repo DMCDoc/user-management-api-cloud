@@ -7,6 +7,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\core\service\admin\AdminServiceTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\dto\RegisterRequestTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\JwtAuthenticationFilterTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\BaseJpaTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\RoleRestProtectionIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\exceptions\UserAlreadyExistsExceptionTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\security\IsolationTest.java
