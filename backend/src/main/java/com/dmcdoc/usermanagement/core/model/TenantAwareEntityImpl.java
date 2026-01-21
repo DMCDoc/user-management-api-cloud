@@ -9,10 +9,17 @@ import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import java.util.UUID;
 
+/**
+ * Base class for all tenant-aware entities.
+ *
+ * Responsibilities:
+ * - Store tenant_id
+ * - Declare and apply Hibernate tenant filter
+ * - Enforce tenant presence at persist time
+ */
 @MappedSuperclass
 @Getter
 @Setter
-
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public abstract class TenantAwareEntityImpl implements TenantAwareEntity {
 
@@ -25,7 +32,10 @@ public abstract class TenantAwareEntityImpl implements TenantAwareEntity {
     @PrePersist
     protected void onCreate() {
         if (tenantId == null) {
-            if (TenantContext.isBypassEnabled()) {
+            UUID contextTenant = TenantContext.getTenantId();
+            if (contextTenant != null) {
+                this.tenantId = contextTenant;
+            } else if (TenantContext.isBypassEnabled()) {
                 this.tenantId = SystemTenant.SYSTEM_TENANT;
             } else {
                 throw new IllegalStateException(

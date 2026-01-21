@@ -1,0 +1,20 @@
+-------------------------------------------------------------------------------
+Test set: com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.005 s <<< FAILURE! -- in com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
+com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403 -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: Unexpected exception type thrown, expected: <org.springframework.web.server.ResponseStatusException> but was: <com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:67)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
+	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3128)
+	at com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403(TenantResolverTest.java:51)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException: Invalid tenant identifier
+	at com.dmcdoc.usermanagement.tenant.TenantResolver.resolve(TenantResolver.java:51)
+	at com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.lambda$noTenantInStrict_throws403$0(TenantResolverTest.java:51)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:53)
+	... 6 more
+

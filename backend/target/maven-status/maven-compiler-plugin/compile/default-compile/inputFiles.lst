@@ -52,6 +52,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\UserService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\DebugController.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\exceptions\GlobalExceptionHandler.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\package-info.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantFilterConfig.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\TenantMode.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\RoleController.java

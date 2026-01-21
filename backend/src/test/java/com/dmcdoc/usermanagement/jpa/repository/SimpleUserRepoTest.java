@@ -1,26 +1,15 @@
 package com.dmcdoc.usermanagement.jpa.repository;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
+import com.dmcdoc.usermanagement.support.BaseJpaTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-
-
-
-@SpringBootTest
-class SimpleUserRepoTest {
+class SimpleUserRepoTest extends BaseJpaTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @AfterEach
-    void cleanup() {
-        userRepository.deleteAll(); // ⚡ nettoie après chaque test
-    }
 
     @Test
     void insertUserDirect() {
@@ -29,7 +18,9 @@ class SimpleUserRepoTest {
         u.setEmail("test@example.com");
         u.setPassword("pwd");
         u.setEnabled(true);
+
         userRepository.save(u);
+        entityManager.flush();
+        entityManager.clear();
     }
 }
- 

@@ -3,49 +3,85 @@ package com.dmcdoc.usermanagement.support;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import java.util.UUID;
+
+import org.hibernate.Session;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.UUID;
-
 /**
- * Base class for all JPA / Repository tests.
+ * Base class for all JPA / Repository integration tests.
  *
- * This class guarantees:
- * - A valid tenant context is always present
- * - Hibernate tenant filters are enabled
- * - Tests fail if tenant isolation is broken
+ * Contract:
+ * - NO tenant is set implicitly
+ * - NO Hibernate filter is enabled implicitly
+ * - Each test is responsible for defining its tenant context
+ * - Tenant bypass is always disabled by default
+ *
+ * This guarantees:
+ * - Deterministic tenant behavior
+ * - No cross-test pollution
+ * - Repository tests truly validate tenant isolation
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(com.dmcdoc.usermanagement.config.jpa.HibernateTenantFilterConfig.class)
+@Import({
+        com.dmcdoc.usermanagement.config.jpa.HibernateTenantFilterConfig.class,
+        JpaTestConfig.class
+})
 public abstract class BaseJpaTest {
-
-    /**
-     * Static UUID used for all repository tests.
-     * Must be stable and predictable.
-     */
-    protected static final UUID TEST_TENANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @PersistenceContext
     protected EntityManager entityManager;
 
-    /**
-     * Initialize tenant context before each test.
-     */
     @BeforeEach
-    void setUpTenantContext() {
-        TenantContext.setTenantId(TEST_TENANT_ID);
+    void beforeEach() {
+        // Always start with a clean tenant context
+        TenantContext.clear();
+
+        // Explicitly disable tenant bypass to avoid silent persistence
+        TenantContext.disableBypass();
     }
 
     /**
-     * Clean tenant context after each test.
+     * Enables the Hibernate tenant filter for the given tenant.
+     *
+     * This MUST be called explicitly by tests that expect tenant isolation.
      */
+    protected void enableTenantFilterForCurrentTenant() {
+        UUID tenantId = TenantContext.getTenantId();
+
+        if (tenantId == null) {
+            throw new IllegalStateException("No tenantId in TenantContext");
+        }
+
+        entityManager
+                .unwrap(org.hibernate.Session.class)
+                .enableFilter("tenantFilter")
+                .setParameter("tenantId", tenantId);
+    }
+
+    protected void switchTenant(UUID tenantId) {
+        TenantContext.setTenantId(tenantId);
+        enableTenantFilterForCurrentTenant();
+        entityManager.clear();
+    }
+
     @AfterEach
-    void clearTenantContext() {
+    void afterEach() {
+        // Disable tenant filter if it was enabled
+        try {
+            entityManager.unwrap(Session.class)
+                    .disableFilter("tenantFilter");
+        } catch (Exception ignored) {
+            // Filter may not have been enabled — this is expected in some tests
+        }
+
+        // Always clear tenant context after each test
         TenantContext.clear();
     }
 }

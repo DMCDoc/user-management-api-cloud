@@ -7,5 +7,6 @@ import java.util.UUID;
 
 @Repository
 public interface RestaurantRepository
-        extends TenantAwareRepository<Restaurant, UUID> {
+                extends TenantAwareRepository<Restaurant, UUID> {
+        
 }

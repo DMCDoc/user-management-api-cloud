@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.security;
+package com.dmcdoc.usermanagement.integration.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
