@@ -23,6 +23,11 @@ public class TenantAwareRepositoryImpl<T extends TenantAwareEntityImpl, ID exten
             EntityManager entityManager
     ) {
         super(entityInformation, entityManager);
+
+        System.out.println(
+                ">>> TenantAwareRepositoryImpl loaded for "
+                        + entityInformation.getJavaType().getSimpleName());
+
         this.entityManager = entityManager;
         this.domainClass = entityInformation.getJavaType();
     }

@@ -1,5 +1,6 @@
 package com.dmcdoc.usermanagement.core.model;
 
+import com.dmcdoc.usermanagement.core.repository.IdentifiableEntity;
 import com.dmcdoc.usermanagement.tenant.SystemTenant;
 import com.dmcdoc.usermanagement.tenant.TenantAwareEntity;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
-public abstract class TenantAwareEntityImpl implements TenantAwareEntity {
+public abstract class TenantAwareEntityImpl implements TenantAwareEntity, IdentifiableEntity {
 
     @Column(name = "tenant_id", nullable = false, updatable = false)
     private UUID tenantId;

@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.support.BaseJpaTest;
@@ -30,6 +29,8 @@ class RestaurantRepositoryIT extends BaseJpaTest {
 
     @Autowired
     private RestaurantRepository repository;
+
+
 
     @Test
     void persist_without_tenant_should_fail() {
@@ -109,5 +110,7 @@ assertThatThrownBy(() -> repository.saveAndFlush(restaurant))
 
         assertThat(result).isEmpty();
     }
+    
 
+ 
 }

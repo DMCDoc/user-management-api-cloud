@@ -1,21 +1,37 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
     username: sa
     password:
+    hikari:
+      initialization-fail-timeout: 0
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
 
   sql:
     init:
       mode: never
 
+# ===== JWT Configuration (Test) =====
+security:
+  jwt:
+    secret: test-secret-key-at-least-256-bits-long-for-HS256-algorithm
+    expiration: 3600000
+
+# ===== Logging =====
 logging:
   level:
     org.hibernate.SQL: warn
     org.hibernate.type.descriptor.sql: warn
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: warn

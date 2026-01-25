@@ -24,6 +24,7 @@ com\dmcdoc\usermanagement\tenant\HibernateTenantFilterEnabler.class
 com\dmcdoc\usermanagement\core\repository\AdminLogRepository.class
 com\dmcdoc\usermanagement\config\jpa\HibernateTenantFilterConfig.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantServiceImpl.class
+com\dmcdoc\usermanagement\core\service\TenantAwareService.class
 com\dmcdoc\usermanagement\core\model\BaseTenantEntity.class
 com\dmcdoc\usermanagement\config\MethodSecurityConfig.class
 com\dmcdoc\usermanagement\tenant\TenantFilter.class
@@ -69,6 +70,7 @@ com\dmcdoc\usermanagement\api\controller\PasswordResetController.class
 com\dmcdoc\usermanagement\core\model\Role.class
 com\dmcdoc\usermanagement\core\model\AdminLog.class
 com\dmcdoc\usermanagement\core\model\Tenant.class
+com\dmcdoc\usermanagement\core\repository\IdentifiableEntity.class
 com\dmcdoc\usermanagement\config\security\JwtExclusionProperties.class
 com\dmcdoc\usermanagement\core\service\mail\MailService.class
 com\dmcdoc\usermanagement\api\exceptions\ErrorResponseFactory.class
@@ -99,7 +101,6 @@ com\dmcdoc\usermanagement\api\exceptions\ResourceNotFoundException.class
 com\dmcdoc\usermanagement\config\security\CurrentSecurityContext.class
 com\dmcdoc\usermanagement\core\role\exception\SystemRoleModificationException.class
 com\dmcdoc\usermanagement\tenant\TenantHibernateFilter.class
-com\dmcdoc\usermanagement\config\jpa\JpaConfig.class
 com\dmcdoc\usermanagement\tenant\SystemTenant.class
 com\dmcdoc\usermanagement\core\service\RestaurantServiceImpl.class
 com\dmcdoc\usermanagement\core\service\auth\PasswordResetToken.class
@@ -110,6 +111,7 @@ com\dmcdoc\usermanagement\api\controller\RoleController.class
 com\dmcdoc\usermanagement\api\controller\AuthController.class
 com\dmcdoc\usermanagement\api\controller\DummyController.class
 com\dmcdoc\usermanagement\api\controller\OAuth2Controller.class
+com\dmcdoc\usermanagement\config\jpa\JpaRepositoryConfig.class
 com\dmcdoc\usermanagement\core\service\UserService.class
 com\dmcdoc\usermanagement\config\security\TenantAuthorizationService.class
 com\dmcdoc\usermanagement\api\controller\DebugController.class

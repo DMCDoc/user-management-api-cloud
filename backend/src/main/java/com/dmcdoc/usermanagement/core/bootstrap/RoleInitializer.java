@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({ "test", "dev", "prod" })
+@Profile({ "dev", "prod" })
 public class RoleInitializer {
 
     public static final UUID SYSTEM_TENANT = UUID.fromString("00000000-0000-0000-0000-000000000000");
