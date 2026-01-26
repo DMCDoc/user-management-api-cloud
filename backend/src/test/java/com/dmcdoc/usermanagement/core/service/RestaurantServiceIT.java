@@ -2,7 +2,6 @@ package com.dmcdoc.usermanagement.core.service;
 
 import com.dmcdoc.usermanagement.config.jpa.HibernateTenantFilterConfig;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
-import com.dmcdoc.usermanagement.security.TestSecurityConfig;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Session;
@@ -10,8 +9,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
@@ -22,10 +25,22 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+        RestaurantServiceImpl.class,
+        HibernateTenantFilterConfig.class
+}, webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@EnableAutoConfiguration(exclude = {
+        SecurityAutoConfiguration.class,
+        SecurityFilterAutoConfiguration.class
+})
+@EntityScan(
+        "com.dmcdoc.usermanagement.core"
+)
+@EnableJpaRepositories(basePackages = {
+        "com.dmcdoc.usermanagement.core.repository"
+})
 @ActiveProfiles("test")
 @Transactional
-@Import({ TestSecurityConfig.class, HibernateTenantFilterConfig.class })
 class RestaurantServiceIT {
 
     @Autowired
@@ -33,8 +48,6 @@ class RestaurantServiceIT {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-// TODO Testsecurityconfig 2 files???
 
     private UUID tenantA;
     private UUID tenantB;
