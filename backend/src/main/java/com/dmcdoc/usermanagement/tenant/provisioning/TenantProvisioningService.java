@@ -5,7 +5,7 @@ package com.dmcdoc.usermanagement.tenant.provisioning;
 import com.dmcdoc.sharedcommon.dto.RegisterTenantRequest;
 import com.dmcdoc.usermanagement.core.model.*;
 import com.dmcdoc.usermanagement.core.service.RestaurantService;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.core.service.tenant.TenantService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class TenantProvisioningService {
 
     private final TenantService tenantService;
     private final RestaurantService restaurantService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     public User provisionTenant(RegisterTenantRequest request, String encodedPassword) {
 

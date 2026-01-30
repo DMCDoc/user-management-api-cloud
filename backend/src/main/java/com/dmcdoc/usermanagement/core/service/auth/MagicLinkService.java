@@ -5,7 +5,7 @@ import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.model.MagicLinkToken;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.MagicLinkTokenRepository;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.core.service.mail.MailService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class MagicLinkService {
     private final MagicLinkTokenRepository tokenRepo;
     private final MailService mailService;
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final RefreshTokenService refreshTokenService;
 
     @Value("${app.magic-link.expiration-minutes:15}")

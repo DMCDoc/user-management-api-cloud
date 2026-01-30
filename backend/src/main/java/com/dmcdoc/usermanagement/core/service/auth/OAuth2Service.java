@@ -5,16 +5,16 @@ import org.springframework.stereotype.Service;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
 import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.config.security.JwtService;
 
 @Service
 public class OAuth2Service {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final JwtService jwtService;
 
-    public OAuth2Service(UserService userService, JwtService jwtService) {
+    public OAuth2Service(UserServiceImpl userService, JwtService jwtService) {
         this.userService = userService;
         this.jwtService = jwtService;
     }

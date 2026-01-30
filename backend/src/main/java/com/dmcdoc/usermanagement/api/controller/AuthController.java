@@ -4,7 +4,7 @@ import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.sharedcommon.dto.LoginRequest;
 import com.dmcdoc.sharedcommon.dto.RefreshRequest;
 import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
@@ -23,7 +23,7 @@ public class AuthController {
         private final AuthenticationManager authenticationManager;
         private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(

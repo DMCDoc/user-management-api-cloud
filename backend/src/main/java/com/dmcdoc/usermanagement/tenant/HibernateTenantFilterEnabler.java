@@ -14,8 +14,9 @@ public class HibernateTenantFilterEnabler {
     private EntityManager entityManager;
 
     public void enableTenantFilter(UUID tenantId) {
-        if (tenantId == null)
+        if (tenantId == null) {
             return;
+        }
 
         Session session = entityManager.unwrap(Session.class);
         if (session.getEnabledFilter("tenantFilter") == null) {

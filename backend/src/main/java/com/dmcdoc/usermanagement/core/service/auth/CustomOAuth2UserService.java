@@ -3,7 +3,7 @@
 package com.dmcdoc.usermanagement.core.service.auth;
 
 import com.dmcdoc.usermanagement.core.model.OAuth2Provider;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -19,9 +19,9 @@ import java.util.Map;
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final @Lazy UserService userService;
+    private final @Lazy UserServiceImpl userService;
 
-    public CustomOAuth2UserService(@Lazy UserService userService) {
+    public CustomOAuth2UserService(@Lazy UserServiceImpl userService) {
         this.userService = userService;
     }
 

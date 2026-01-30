@@ -4,7 +4,7 @@ import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.usermanagement.core.model.MagicLinkToken;
 import com.dmcdoc.usermanagement.core.model.User;
 import com.dmcdoc.usermanagement.core.repository.MagicLinkTokenRepository;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.core.service.auth.MagicLinkService;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import com.dmcdoc.usermanagement.core.service.mail.MailService;
@@ -38,7 +38,7 @@ class MagicLinkTest {
     private JwtService jwtService;
 
     @Mock
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Mock
     private RefreshTokenService refreshTokenService;

@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.api.controller;
 
 import com.dmcdoc.sharedcommon.dto.*;
-import com.dmcdoc.usermanagement.core.service.UserService;
+import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> profile(@AuthenticationPrincipal UserDetails principal) {

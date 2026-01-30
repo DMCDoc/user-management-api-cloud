@@ -1,31 +1,28 @@
 package com.dmcdoc.usermanagement.tenant;
 
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Active automatiquement le filtre Hibernate "tenantFilter"
+ * pour chaque requête HTTP.
+ */
 @Component
 @RequiredArgsConstructor
-public class TenantContextFilter extends OncePerRequestFilter {
+public class HibernateTenantFilter extends OncePerRequestFilter {
 
-    private final TenantResolver tenantResolver;
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return path.startsWith("/api/auth")
-                || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs")
-                || path.equals("/ping")
-                || path.startsWith("/error");
-    }
+    private final EntityManager entityManager;
+    private final CurrentTenantProvider tenantProvider;
 
     @Override
     protected void doFilterInternal(
@@ -34,14 +31,22 @@ public class TenantContextFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
+        UUID tenantId = tenantProvider.getCurrentTenant();
+
+        if (tenantId != null) {
+            entityManager.unwrap(Session.class)
+                    .enableFilter("tenantFilter")
+                    .setParameter("tenantId", tenantId);
+        }
+
         try {
-            UUID tenantId = tenantResolver.resolve(request);
-            if (tenantId != null) {
-                TenantContext.setTenantId(tenantId);
-            }
             filterChain.doFilter(request, response);
         } finally {
-            TenantContext.clear();
+            try {
+                entityManager.unwrap(Session.class)
+                        .disableFilter("tenantFilter");
+            } catch (Exception ignored) {
+            }
         }
     }
 }

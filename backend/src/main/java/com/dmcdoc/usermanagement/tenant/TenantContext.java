@@ -1,5 +1,7 @@
 package com.dmcdoc.usermanagement.tenant;
 
+import com.dmcdoc.usermanagement.tenant.exception.MissingTenantException;
+
 import java.util.UUID;
 
 public final class TenantContext {
@@ -27,9 +29,7 @@ public final class TenantContext {
     public static UUID getTenantIdRequired() {
         UUID tenantId = CURRENT_TENANT.get();
         if (tenantId == null && !isBypassEnabled()) {
-            // Renvoie un 403 propre que MockMvc pourra intercepter
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN, "Access Denied");
+            throw new MissingTenantException();
         }
         return tenantId;
     }
@@ -40,7 +40,7 @@ public final class TenantContext {
 
     /*
      * =========================
-     * BYPASS (SUPER ADMIN / BOOTSTRAP)
+     * BYPASS
      * =========================
      */
 

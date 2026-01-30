@@ -2,10 +2,10 @@ package com.dmcdoc.usermanagement.tenant;
 
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.UUID;
 
 @Component
@@ -16,12 +16,13 @@ public class TenantResolver {
     private final TenantProperties properties;
 
     public UUID resolve(HttpServletRequest request) {
-        // 1. Si le filtre JWT a déjà trouvé le tenant, on ne touche à rien
+
+        // Déjà résolu (JWT filter, etc.)
         if (TenantContext.isResolved()) {
             return TenantContext.getTenantId();
         }
 
-        // 2. SUPER ADMIN → bypass
+        // SUPER ADMIN
         if (TenantContext.isBypassEnabled()) {
             return null;
         }
