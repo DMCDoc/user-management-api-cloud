@@ -106,7 +106,6 @@ com\dmcdoc\usermanagement\core\service\RestaurantServiceImpl.class
 com\dmcdoc\usermanagement\core\service\auth\PasswordResetToken.class
 com\dmcdoc\usermanagement\api\exceptions\GlobalExceptionHandler.class
 com\dmcdoc\usermanagement\core\model\User$UserBuilder.class
-com\dmcdoc\usermanagement\tenant\TenantFilterAspect.class
 com\dmcdoc\usermanagement\api\controller\RoleController.class
 com\dmcdoc\usermanagement\api\controller\AuthController.class
 com\dmcdoc\usermanagement\api\controller\DummyController.class

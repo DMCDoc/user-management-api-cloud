@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dmcdoc.usermanagement.core.service.UserServiceIT
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.272 s -- in com.dmcdoc.usermanagement.core.service.UserServiceIT

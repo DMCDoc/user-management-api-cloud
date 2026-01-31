@@ -25,6 +25,9 @@ public class TestRoleInitializer {
     @PostConstruct
     public void init() {
         createRoleIfNotExists("ROLE_SUPER_ADMIN", SYSTEM_TENANT);
+        // Rôles système utiles en test
+        createRoleIfNotExists("ROLE_TENANT_ADMIN", SYSTEM_TENANT);
+        createRoleIfNotExists("ROLE_USER", SYSTEM_TENANT);
     }
 
     private void createRoleIfNotExists(String roleName, UUID tenantId) {

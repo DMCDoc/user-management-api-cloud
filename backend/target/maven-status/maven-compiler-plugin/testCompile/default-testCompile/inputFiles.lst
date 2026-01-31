@@ -37,6 +37,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\controller\SecurityJsonIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\config\RoleInitializerTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\security\RoleRestProtectionIT.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\core\service\UserServiceIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\exception\UserNotFoundExceptionTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\jpa\repository\RestaurantTenantRepositoryIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\jpa\repository\SimpleUserRepoTest.java

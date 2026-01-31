@@ -4,17 +4,21 @@ import com.dmcdoc.sharedcommon.dto.*;
 import com.dmcdoc.usermanagement.config.security.JwtService;
 import com.dmcdoc.usermanagement.core.mapper.UserMapper;
 import com.dmcdoc.usermanagement.core.model.*;
-import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.core.repository.UserRepository;
 import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import com.dmcdoc.usermanagement.tenant.hibernate.HibernateSystemQueryExecutor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,12 +30,24 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
         private final UserRepository userRepository;
-        private final RoleRepository roleRepository;
+        private final HibernateSystemQueryExecutor hibernateSystemQueryExecutor;
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final RefreshTokenService refreshTokenService;
 
-        private static final UUID SYSTEM_TENANT = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        @PersistenceContext
+        private EntityManager entityManager;
+
+        // Simple in-memory cache for system roles (ROLE_* with tenant =
+        // SystemTenant.SYSTEM_TENANT)
+        // These roles are immutable in normal operation so a simple cache without TTL
+        // is fine.
+        
+
+        /**
+         * Clear the system role cache. Useful for tests or initialization flows.
+         */
+
 
         /* ================= OAuth2 ================= */
 
@@ -108,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
                 User user = userRepository
                                 .findByIdAndTenantId(userId, tenantId)
-                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
                 refreshTokenService.revokeAll(user);
                 userRepository.delete(user);
@@ -120,7 +136,7 @@ public class UserServiceImpl implements UserService {
 
                 User user = userRepository
                                 .findByUsernameAndTenantId(username, tenantId)
-                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
                 refreshTokenService.revokeAll(user);
                 userRepository.delete(user);
@@ -179,11 +195,7 @@ public class UserServiceImpl implements UserService {
         }
 
         private Role findSystemRole(String roleName) {
-                return roleRepository
-                                .findByNameAndTenantId(roleName, SYSTEM_TENANT)
-                                .orElseThrow(() -> new ResponseStatusException(
-                                                HttpStatus.BAD_REQUEST,
-                                                "Role not found: " + roleName));
+                return hibernateSystemQueryExecutor.findSystemRole(roleName);
         }
 
         private void requireTenant(UUID tenantId) {
