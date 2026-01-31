@@ -1,6 +1,5 @@
 package com.dmcdoc.usermanagement.core.service.tenant;
 
-import com.dmcdoc.usermanagement.tenant.TenantContext;
 import com.dmcdoc.usermanagement.core.model.Tenant;
 import com.dmcdoc.usermanagement.core.repository.TenantRepository;
 import com.dmcdoc.usermanagement.core.model.User;
@@ -21,10 +20,10 @@ public class TenantAutoProvisioningService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Tenant provisionIfNeeded(UUID tenantId, User user) {
+    public Tenant provisionIfNeeded(UUID tenantId, User owner) {
 
         return tenantRepository.findById(tenantId)
-                .orElseGet(() -> createTenant(tenantId, user));
+                .orElseGet(() -> createTenant(tenantId, owner));
     }
 
     private Tenant createTenant(UUID tenantId, User owner) {
@@ -39,13 +38,9 @@ public class TenantAutoProvisioningService {
 
         tenantRepository.save(tenant);
 
-        // attach tenant id to owner and persist
         owner.setTenantId(tenantId);
         userRepository.save(owner);
 
-        TenantContext.setTenantId(tenantId);
-
-        // 🔥 hook futur : quotas, settings, workspaces, etc.
         initializeTenantDefaults(tenant);
 
         return tenant;
@@ -53,6 +48,23 @@ public class TenantAutoProvisioningService {
 
     private void initializeTenantDefaults(Tenant tenant) {
         log.info("Initializing defaults for tenant {}", tenant.getId());
-        // placeholders : settings, permissions, plans, etc.
+        // quotas, settings, plans, workspaces…
     }
 }
+
+/*
+ * Son rôle est clair :
+ * 
+ * création implicite
+ * 
+ * auto-provisioning
+ * 
+ * hook futur
+ */
+
+/*
+ * ✔ Plus aucun effet de bord global
+ * ✔ Service purement métier
+ * ✔ Utilisable partout
+ * ✔ Compatible avec ton multi-tenant Hibernate
+ */

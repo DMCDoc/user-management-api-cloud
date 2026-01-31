@@ -3,60 +3,35 @@ package com.dmcdoc.usermanagement.api.controller;
 import com.dmcdoc.sharedcommon.dto.AuthResponse;
 import com.dmcdoc.sharedcommon.dto.LoginRequest;
 import com.dmcdoc.sharedcommon.dto.RefreshRequest;
-import com.dmcdoc.usermanagement.core.model.User;
-import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
-import com.dmcdoc.usermanagement.config.security.JwtService;
-import com.dmcdoc.usermanagement.core.service.auth.RefreshTokenService;
+import com.dmcdoc.usermanagement.core.service.auth.AuthenticationService;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import java.util.UUID;
-import org.springframework.http.*;
-import org.springframework.security.authentication.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-        private final AuthenticationManager authenticationManager;
-        private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final UserServiceImpl userService;
+        private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-                    @RequestBody LoginRequest request) {
+        @PostMapping("/login")
+        public ResponseEntity<AuthResponse> login(
+                        @Valid @RequestBody LoginRequest request) {
+                UUID tenantId = TenantContext.getTenantId();
+                return ResponseEntity.ok(
+                                authenticationService.login(request, tenantId));
+        }
 
-            authenticationManager.authenticate(
-                            new UsernamePasswordAuthenticationToken(
-                                            request.getUsername(),
-                                            request.getPassword()));
-
-            UUID tenantId = TenantContext.getTenantId();
-            User user = userService.findByEmailOptional(
-                            request.getUsername(),
-                            tenantId).orElseThrow();
-
-        String accessToken = jwtService.generateToken(user);
-        var refreshToken = refreshTokenService.create(user);
-
-        return ResponseEntity.ok(
-                        new AuthResponse(
-                                        accessToken,
-                                        refreshToken.getToken(),
-                                        user.getEmail()));
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(
-                    @RequestBody RefreshRequest request) {
-
-            UUID tenantId = TenantContext.getTenantId();
-            return ResponseEntity.ok(
-                            userService.refreshToken(
-                                            request,
-                                            tenantId));
-    }
+        @PostMapping("/refresh")
+        public ResponseEntity<AuthResponse> refresh(
+                        @Valid @RequestBody RefreshRequest request) {
+                UUID tenantId = TenantContext.getTenantId();
+                return ResponseEntity.ok(
+                                authenticationService.refresh(request, tenantId));
+        }
 }

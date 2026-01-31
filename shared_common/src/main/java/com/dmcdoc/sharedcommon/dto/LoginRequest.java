@@ -1,11 +1,9 @@
 package com.dmcdoc.sharedcommon.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-@Data
-public class LoginRequest {
-    private String email;
-    private String username;
-    private String password;
-
+public record LoginRequest(
+        @Email @NotBlank String email,
+        @NotBlank String password) {
 }

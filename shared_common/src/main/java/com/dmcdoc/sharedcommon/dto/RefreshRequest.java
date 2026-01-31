@@ -1,8 +1,11 @@
 package com.dmcdoc.sharedcommon.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class RefreshRequest {
-    private String refreshToken;
+
+        private String refreshToken;
 }

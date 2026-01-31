@@ -2,9 +2,7 @@ package com.dmcdoc.usermanagement.core.service.tenant;
 
 import com.dmcdoc.usermanagement.core.model.Tenant;
 import com.dmcdoc.usermanagement.core.repository.TenantRepository;
-import com.dmcdoc.usermanagement.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -27,37 +25,39 @@ public class TenantServiceImpl implements TenantService {
         t.setName(name);
         t.setTenantKey(tenantKey);
         t.setMetadata(metadata);
+        t.setActive(true);
+
         return tenantRepository.save(t);
     }
 
     @Override
     public Tenant createTenant(String tenantKey, String name, String metadata) {
-        UUID id = UUID.randomUUID();
-        return createTenant(id, name, tenantKey, metadata);
+        return createTenant(UUID.randomUUID(), name, tenantKey, metadata);
     }
 
     @Override
     public Tenant findById(UUID id) {
-        UUID currentTenantId = TenantContext.getTenantId();
-        if (currentTenantId == null) {
-            // Super admin access
-            return tenantRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
-        }
-        // Tenant-scoped access: only allow reading own tenant
-        if (!currentTenantId.equals(id)) {
-            throw new AccessDeniedException("Cannot access another tenant");
-        }
         return tenantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }
 
     @Override
     public Tenant findByKey(String tenantKey) {
-        if (TenantContext.isResolved()) {
-            throw new AccessDeniedException("Tenant scoped access denied");
-        }
         return tenantRepository.findByTenantKey(tenantKey)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }
 }
+/*
+ * ✔ Aucun couplage à TenantContext
+ * ✔ Utilisable en :
+ * 
+ * bootstrap
+ * 
+ * batch
+ * 
+ * tests
+ * 
+ * super admin
+ * ✔ Sécurité claire et déplaçable
+ * ✔ Aucune dette technique
+ */
