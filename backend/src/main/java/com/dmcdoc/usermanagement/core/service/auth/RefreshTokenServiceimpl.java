@@ -6,7 +6,6 @@ import com.dmcdoc.usermanagement.core.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -15,44 +14,62 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenServiceimpl implements RefreshTokenService {
+@Transactional
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${security.jwt.refresh-expiration:2592000000}")
     private long refreshTokenDurationMs; // 30 jours
 
-    @Transactional
+    /**
+     * Crée un nouveau refresh token pour l'utilisateur.
+     * Révoque systématiquement les anciens tokens (1 token actif par user).
+     */
+    @Override
     public RefreshToken create(User user) {
-        System.out.println(">>> deleteByUserId=" + user.getId());
+
         refreshTokenRepository.deleteByUserId(user.getId());
 
-        RefreshToken rt = RefreshToken.builder()
+        RefreshToken refreshToken = RefreshToken.builder()
                 .id(UUID.randomUUID())
                 .user(user)
                 .token(UUID.randomUUID().toString())
                 .expiresAt(Instant.now().plusMillis(refreshTokenDurationMs))
                 .build();
 
-        return refreshTokenRepository.save(rt);
+        return refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * Retourne un refresh token valide (existant et non expiré).
+     */
+    @Override
+    @Transactional(readOnly = true)
     public Optional<RefreshToken> findValid(String token) {
+
         return refreshTokenRepository.findByToken(token)
                 .filter(rt -> rt.getExpiresAt().isAfter(Instant.now()));
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.getExpiresAt().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(token);
-            throw new RuntimeException("Refresh token expiré, veuillez vous reconnecter.");
-        }
-        return token;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
+    /**
+     * Révoque tous les refresh tokens d’un utilisateur.
+     */
+    @Override
     public void revokeAll(User user) {
-        System.out.println(">>> revokeAll pour user.id=" + user.getId());
+
         refreshTokenRepository.deleteByUserId(user.getId());
     }
 }
+/*
+
+✔️ Contrat respecté
+✔️ Aucune méthode fantôme
+✔️ Responsabilités claires
+✔️ Transactionnel maîtrisé
+✔️ Testable facilement
+✔️ Compatible multi-tenant (via appelant)
+
+👉 La vérification tenant ne doit PAS être ici
+Elle appartient au service appelant (Auth / UserService)
+👉 c’est exactement ce que tu as déjà commencé à faire 👍*/

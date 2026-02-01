@@ -5,14 +5,17 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.Mockito.mock;
 
 @TestConfiguration
+@ActiveProfiles("test")
 public class TestSecurityConfig {
 
     /**
@@ -32,9 +35,11 @@ public class TestSecurityConfig {
      * AuthenticationManager minimal.
      * Suffit à satisfaire AuthController.
      */
-    @Bean
-    AuthenticationManager authenticationManager() {
-        return authentication -> authentication;
+     @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     /**

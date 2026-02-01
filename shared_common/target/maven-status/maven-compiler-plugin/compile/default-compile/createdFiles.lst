@@ -1,5 +1,6 @@
 com\dmcdoc\sharedcommon\dto\AuthResponse$AuthResponseBuilder.class
 com\dmcdoc\sharedcommon\dto\AdminUserUpdateRequest.class
+com\dmcdoc\sharedcommon\dto\LoginResponse.class
 com\dmcdoc\sharedcommon\dto\UserResponse.class
 com\dmcdoc\sharedcommon\dto\UserResponse$UserResponseBuilder.class
 com\dmcdoc\sharedcommon\dto\TenantOnboardingRequest.class

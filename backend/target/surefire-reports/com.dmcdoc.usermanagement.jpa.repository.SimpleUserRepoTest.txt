@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.284 s <<< FAILURE! -- in com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
-com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest.insertUserDirect -- Time elapsed: 0.011 s <<< ERROR!
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.240 s <<< FAILURE! -- in com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
+com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest.insertUserDirect -- Time elapsed: 0.009 s <<< ERROR!
 org.springframework.dao.InvalidDataAccessApiUsageException: TenantAwareEntity requires tenantId before persist
 	at org.springframework.orm.jpa.EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible(EntityManagerFactoryUtils.java:368)
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:246)
@@ -14,7 +14,7 @@ org.springframework.dao.InvalidDataAccessApiUsageException: TenantAwareEntity re
 	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165)
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
-	at jdk.proxy2/jdk.proxy2.$Proxy210.save(Unknown Source)
+	at jdk.proxy2/jdk.proxy2.$Proxy208.save(Unknown Source)
 	at com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest.insertUserDirect(SimpleUserRepoTest.java:22)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
@@ -38,7 +38,7 @@ Caused by: java.lang.IllegalStateException: TenantAwareEntity requires tenantId 
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:320)
-	at jdk.proxy2/jdk.proxy2.$Proxy205.persist(Unknown Source)
+	at jdk.proxy2/jdk.proxy2.$Proxy203.persist(Unknown Source)
 	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:654)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)

@@ -28,6 +28,7 @@ security:
   jwt:
     secret: test-secret-key-at-least-256-bits-long-for-HS256-algorithm
     expiration: 3600000
+    refresh-expiration: 2592000000
 
 # ===== Logging =====
 logging:

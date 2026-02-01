@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.796 s <<< FAILURE! -- in com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest
-com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest.initializedRolesShouldHaveCorrectNames -- Time elapsed: 0.344 s <<< FAILURE!
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.442 s <<< FAILURE! -- in com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest
+com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest.initializedRolesShouldHaveCorrectNames -- Time elapsed: 0.049 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
@@ -15,7 +15,7 @@ org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 
-com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest.rolesShouldBeInitializedAtStartup -- Time elapsed: 0.007 s <<< FAILURE!
+com.dmcdoc.usermanagement.integration.bootstrap.RoleInitializerIntegrationTest.rolesShouldBeInitializedAtStartup -- Time elapsed: 0.006 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: ROLE_USER should be initialized ==> expected: <true> but was: <false>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)

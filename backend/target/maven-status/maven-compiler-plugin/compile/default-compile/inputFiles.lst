@@ -18,9 +18,10 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\security\TenantSecurity.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\UserServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\MagicLinkCleanupTask.java
-E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\RefreshTokenServiceimpl.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\RefreshTokenServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\mail\MailServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\config\MethodSecurityConfig.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\AuthenticationServiceImpl.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\auth\PasswordResetService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\UserRepository.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\controller\DummyController.java
@@ -41,6 +42,7 @@ E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\exceptions\ErrorResponseFactory.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\AdminLog.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\repository\RefreshTokenRepository.java
+E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\tenant\hibernate\HibernateSystemQueryExecutor.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\service\tenant\TenantAutoProvisioningService.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\api\exceptions\ResourceNotFoundException.java
 E:\Documents\modele\user-management-api-cloud\backend\src\main\java\com\dmcdoc\usermanagement\core\model\Role.java

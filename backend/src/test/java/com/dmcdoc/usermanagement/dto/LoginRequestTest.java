@@ -11,11 +11,10 @@ public class LoginRequestTest {
 
     @Test
     void testLoginRequestFields() {
-        LoginRequest login = new LoginRequest();
-        login.setUsername("bob");
-        login.setPassword("secure123");
+        // LoginRequest is now a record with constructor (email, password)
+        LoginRequest login = new LoginRequest("bob@example.com", "secure123");
 
-        assertEquals("bob", login.getUsername());
-        assertEquals("secure123", login.getPassword());
+        assertEquals("bob@example.com", login.email());
+        assertEquals("secure123", login.password());
     }
 }

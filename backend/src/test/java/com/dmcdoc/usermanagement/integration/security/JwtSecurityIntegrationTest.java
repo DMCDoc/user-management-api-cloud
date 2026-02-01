@@ -59,9 +59,8 @@ class JwtSecurityIntegrationTest {
 
                 // 2️⃣ Login avec bons identifiants
                
-                LoginRequest login = new LoginRequest();
-                login.setUsername(uniqueUsername);
-                login.setPassword("password123");
+                // LoginRequest expects (email, password)
+                LoginRequest login = new LoginRequest(uniqueUsername + "@example.com", "password123");
 
                 String loginResponse = mockMvc
                                 .perform(post("/users/login").contentType(MediaType.APPLICATION_JSON)
@@ -73,9 +72,7 @@ class JwtSecurityIntegrationTest {
                 AuthResponse tokens = objectMapper.readValue(loginResponse, AuthResponse.class);
 
                 // 3️⃣ Login avec mauvais mot de passe
-                LoginRequest badLogin = new LoginRequest();
-                badLogin.setUsername(uniqueUsername);
-                badLogin.setPassword("wrongpass");
+                LoginRequest badLogin = new LoginRequest(uniqueUsername + "@example.com", "wrongpass");
 
                 mockMvc.perform(post("/users/login").contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(badLogin)))
