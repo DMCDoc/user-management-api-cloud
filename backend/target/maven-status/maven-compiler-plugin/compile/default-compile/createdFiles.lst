@@ -54,6 +54,7 @@ com\dmcdoc\usermanagement\core\repository\TenantAwareRepository.class
 com\dmcdoc\usermanagement\core\service\tenant\TenantService.class
 com\dmcdoc\usermanagement\config\security\JwtService.class
 com\dmcdoc\usermanagement\tenant\TenantContextFilter.class
+com\dmcdoc\usermanagement\config\TestProfileSecurityConfig.class
 com\dmcdoc\usermanagement\core\service\RoleServiceImpl.class
 com\dmcdoc\usermanagement\api\controller\OAuth2Controller$JwtDto.class
 com\dmcdoc\usermanagement\api\controller\MagicLinkController$RequestDto.class

@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.004 s <<< FAILURE! -- in com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
-com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403 -- Time elapsed: 0.002 s <<< FAILURE!
+Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.003 s <<< FAILURE! -- in com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
+com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403 -- Time elapsed: 0.001 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: Unexpected exception type thrown, expected: <org.springframework.web.server.ResponseStatusException> but was: <com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:67)

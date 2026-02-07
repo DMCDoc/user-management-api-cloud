@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.240 s <<< FAILURE! -- in com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
-com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest.insertUserDirect -- Time elapsed: 0.009 s <<< ERROR!
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.216 s <<< FAILURE! -- in com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest
+com.dmcdoc.usermanagement.jpa.repository.SimpleUserRepoTest.insertUserDirect -- Time elapsed: 0.010 s <<< ERROR!
 org.springframework.dao.InvalidDataAccessApiUsageException: TenantAwareEntity requires tenantId before persist
 	at org.springframework.orm.jpa.EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible(EntityManagerFactoryUtils.java:368)
 	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:246)

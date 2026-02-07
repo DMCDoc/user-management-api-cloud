@@ -33,14 +33,17 @@ E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\u
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\exception\UserAlreadyExistsExceptionTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\core\service\BaseServiceIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\jpa\repository\AbstractTenantAwareRepositoryIT.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\support\BaseIntegrationTestIT.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\dto\UserDtoTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\dto\UserResponseTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\auth\LoginIntegrationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\core\service\AdminServiceTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\exception\EmailAlreadyUsedExceptionTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\support\TestRequestLoggingConfig.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\service\RefreshTokenServiceUniTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\tenant\TenantResolverTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\ContextLoadsTest.java
+E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\support\BaseIntegrationTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\security\RoleCheckUniTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\unit\config\RoleInitializerTest.java
 E:\Documents\modele\user-management-api-cloud\backend\src\test\java\com\dmcdoc\usermanagement\integration\security\RoleRestProtectionIT.java
