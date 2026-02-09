@@ -33,21 +33,40 @@ public class TenantAwareRepositoryImpl<T extends TenantAwareEntityImpl, ID exten
     }
 
       @Override
-    public Optional<T> findByIdAndTenantId(ID id, UUID tenantId) {
+      public Optional<T> findByIdAndTenantId(ID id, UUID tenantId) {
 
-        String jpql = """
-            select e
-            from %s e
-            where e.id = :id
-              and e.tenantId = :tenantId
-        """.formatted(domainClass.getName());
+          String jpql = """
+                      select e
+                      from %s e
+                      where e.id = :id
+                        and e.tenantId = :tenantId
+                  """.formatted(domainClass.getName());
 
-        TypedQuery<T> query = entityManager.createQuery(jpql, domainClass);
-        query.setParameter("id", id);
-        query.setParameter("tenantId", tenantId);
+          TypedQuery<T> query = entityManager.createQuery(jpql, domainClass);
+          query.setParameter("id", id);
+          query.setParameter("tenantId", tenantId);
 
-        return query.getResultStream().findFirst();
-    }
+          return query.getResultStream().findFirst();
+      }
+    
+      @Override
+      public boolean existsByIdAndTenantId(ID id, UUID tenantId) {
+
+          String jpql = """
+                      select count(e)
+                      from %s e
+                      where e.id = :id
+                        and e.tenantId = :tenantId
+                  """.formatted(domainClass.getName());
+
+          Long count = entityManager.createQuery(jpql, Long.class)
+                  .setParameter("id", id)
+                  .setParameter("tenantId", tenantId)
+                  .getSingleResult();
+
+          return count > 0;
+      }
+
 }
 
 

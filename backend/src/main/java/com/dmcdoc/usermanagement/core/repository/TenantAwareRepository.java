@@ -15,4 +15,6 @@ public interface TenantAwareRepository<T extends TenantAwareEntityImpl, ID exten
     Optional<T> findByIdAndTenantId(ID id, UUID tenantId);
 
     boolean existsById(ID id);
+
+    boolean existsByIdAndTenantId(ID id, UUID tenantId);
 }

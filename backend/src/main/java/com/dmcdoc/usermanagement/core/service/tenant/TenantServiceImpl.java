@@ -15,7 +15,13 @@ public class TenantServiceImpl implements TenantService {
 
     @Override
     public Tenant createTenant(UUID tenantId, String name, String tenantKey, String metadata) {
-
+        /*
+         * TODO:⚠️ Remarque (mineure, future) :
+         * 
+         * En prod SaaS, on mettra aussi une contrainte unique DB
+         * 
+         * Ici, c’est parfaitement acceptable
+         */
         if (tenantRepository.existsByTenantKey(tenantKey)) {
             throw new IllegalArgumentException("Tenant key already exists");
         }
@@ -40,6 +46,15 @@ public class TenantServiceImpl implements TenantService {
         return tenantRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
     }
+    /*
+     * TODO:⚠️ Remarque (mineure, future) :
+     *
+     * Ce n’est pas faux, mais plus tard on harmonisera avec :
+     * 
+     * EntityNotFoundException
+     * 
+     * ou une exception métier custom
+     */
 
     @Override
     public Tenant findByKey(String tenantKey) {

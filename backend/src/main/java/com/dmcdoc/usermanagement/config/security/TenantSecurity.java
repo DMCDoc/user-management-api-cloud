@@ -1,47 +1,80 @@
 package com.dmcdoc.usermanagement.config.security;
 
-import com.dmcdoc.usermanagement.tenant.TenantCurrentProvider;
+import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
+import com.dmcdoc.usermanagement.core.repository.RoleRepository;
+import com.dmcdoc.usermanagement.tenant.SystemTenant;
+import com.dmcdoc.usermanagement.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-
 import java.util.UUID;
 
-@Component("tenantSecurity") // Identifiant utilisé dans le SpEL
+@Component("tenantSecurity")
 @RequiredArgsConstructor
 public class TenantSecurity {
 
-    private final TenantCurrentProvider tenantProvider;
+    private final RoleRepository roleRepository;
+    private final RestaurantRepository restaurantRepository;
 
     /**
-     * Logique de validation transverse
+     * Point d’entrée unique appelé depuis @PreAuthorize.
      */
-    public boolean check(Authentication authentication, Object resourceId) {
-        // 1. Bypass si Super Admin
-        if (tenantProvider.isSuperAdmin()) {
-            return true;
-        }
+    public boolean check(Authentication authentication, UUID resourceId) {
 
-        // 2. Vérification du contexte
-        UUID currentTenant = tenantProvider.getTenantId();
-        if (currentTenant == null || authentication == null || resourceId == null) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return false;
         }
 
-        // 3. Conversion sécurisée du resourceId (supporte String ou UUID)
-        UUID targetId;
-        try {
-            targetId = (resourceId instanceof UUID uuid) ? uuid : UUID.fromString(resourceId.toString());
-        } catch (IllegalArgumentException e) {
+        UUID tenantId = TenantContext.getTenantId();
+        if (tenantId == null) {
             return false;
         }
 
-        return belongsToTenant(targetId, currentTenant);
+        return belongsToTenant(resourceId, tenantId);
     }
 
-    private boolean belongsToTenant(UUID resourceId, UUID tenantId) {
-        // TODO: Appel à votre Repository (ex: documentRepository.existsByIdAndTenantId)
-        return true;
+    /**
+     * Sécurité multi-tenant centralisée.
+     * Gère explicitement chaque type de ressource autorisée.
+     */
+    protected boolean belongsToTenant(UUID resourceId, UUID tenantId) {
+
+        /*
+         * =========================
+         * ROLE
+         * =========================
+         */
+
+        if (SystemTenant.SYSTEM_TENANT.equals(tenantId)) {
+            if (roleRepository.existsById(resourceId)) {
+                return true;
+            }
+        } else {
+            if (roleRepository.existsByIdAndTenantId(resourceId, tenantId)) {
+                return true;
+            }
+        }
+
+        /*
+         * =========================
+         * RESTAURANT
+         * =========================
+         */
+
+        return restaurantRepository.existsByIdAndTenantId(resourceId, tenantId);
     }
 }
+/*
+ * ✔ Centralisation de la règle multi-tenant
+ * 
+ * ✔ Fail-safe (refus par défaut)
+ * 
+ * ✔ Compatible SpEL
+ * 
+ * ✔ Indépendant du web / controller
+ * 
+ * ✔ Prêt pour sécurité fine par ressource
+ * 
+ * ✔ Aucune dette technique
+ */

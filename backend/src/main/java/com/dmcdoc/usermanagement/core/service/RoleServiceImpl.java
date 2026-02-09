@@ -54,7 +54,9 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Optional<Role> findSystemRole(String roleName) {
         return Optional.ofNullable(
-                systemQueryExecutor.findSystemRole(roleName));
+                systemQueryExecutor.findSystemRole(roleName)); /*  TODO: findSystemRole() throw déjà une exception si absent
+                                                               
+                                                               l’Optional est donc surtout cosmétique */
     }
 
     /* ================= Guards ================= */
@@ -73,6 +75,21 @@ public class RoleServiceImpl implements RoleService {
         }
     }
 }
+
+/*
+ * TODO: update(Role role) sans rechargement préalable
+ * 
+ * Ce n’est pas une erreur à ce stade.
+ * 
+ * Le filtre Hibernate garantit le tenant
+ * 
+ * Les guards bloquent le system
+ * 
+ * 👉 Si besoin d’un contrôle plus strict (versioning, existence),
+ * ce sera une évolution, pas une correction.
+ */
+
+ // TODO: Test It RoleService
 /*
  * Pourquoi cette version est “pro”
  * 

@@ -13,11 +13,15 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
 
     Optional<Role> findByName(String name);
 
+    boolean existsById(UUID id);
+
     /* ========= TENANT AWARE ========= */
 
     Optional<Role> findByNameAndTenantId(String name, UUID tenantId);
 
     boolean existsByNameAndTenantId(String name, UUID tenantId);
+
+    boolean existsByIdAndTenantId(UUID id, UUID tenantId);
 
     List<Role> findAllByTenantId(UUID tenantId);
 }
