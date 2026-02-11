@@ -14,7 +14,7 @@
         "@mui/icons-material": "^7.3.5",
         "@mui/material": "^7.3.5",
         "@mui/x-data-grid": "^8.18.0",
-        "axios": "^1.13.2",
+        "axios": "^1.13.5",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-router-dom": "^6.27.0",
