@@ -1,3 +1,5 @@
+# ===configuration=prod===
+
 spring:
   cache:
     type: none
@@ -25,6 +27,10 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+  kds:
+    exchange:
+      order-created: order.created.exchange
+      order-status-updated: order.status.updated.exchange
   elasticsearch:
     # La propriété standard moderne est 'uris'
     uris: http://${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}

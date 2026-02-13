@@ -1,53 +1,59 @@
 spring:
-  profiles:
-    active: prod
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  security:
-    jwt: ${JWT_SECRET}
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
-            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
-            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/google"
-            scope: [openid, profile, email]
-          facebook:
-            client-id: ${OAUTH_FACEBOOK_CLIENT_ID}
-            client-secret: ${OAUTH_FACEBOOK_CLIENT_SECRET}
-            redirect-uri: "{app.magic-link.base-url}/login/oauth2/code/facebook"
-            scope: [email, public_profile]
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+
+  elasticsearch:
+    uris: http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 
 app:
-  magic-link:
-    base-url: ${APP_BASE_URL}
+  base-url: ${APP_BASE_URL}
+  jwt:
+    secret: ${JWT_SECRET}
+
 memcached:
   host: ${MEMCACHED_HOST}
-rabbitmq:
-  host: ${RABBITMQ_HOST}
-  port: ${RABBITMQ_PORT}
-  username: ${RABBITMQ_USER}
-  password: ${RABBITMQ_PASSWORD}
-elasticsearch:
-  uris: http://${ELASTIC_HOST}:${ELASTIC_HTTP_PORT}
-  username: ${ELASTIC_USERNAME}
-  password: ${ELASTIC_PASSWORD}
+  port: ${MEMCACHED_PORT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+  address: 0.0.0.0
+
 logging:
   file:
     name: /var/log/usermanagement/app.log
   level:
     root: INFO
     org.springframework: WARN
-    com.example.usermanagement: INFO
