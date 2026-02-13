@@ -3,8 +3,8 @@
 package com.dmcdoc.usermanagement.tenant.provisioning;
 
 import com.dmcdoc.sharedcommon.dto.RegisterTenantRequest;
+import com.dmcdoc.usermanagement.Kds.service.RestaurantService;
 import com.dmcdoc.usermanagement.core.model.*;
-import com.dmcdoc.usermanagement.core.service.RestaurantService;
 import com.dmcdoc.usermanagement.core.service.UserServiceImpl;
 import com.dmcdoc.usermanagement.core.service.tenant.TenantService;
 

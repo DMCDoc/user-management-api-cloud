@@ -1,7 +1,8 @@
 package com.dmcdoc.usermanagement.api.controller;
 
+import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
-import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

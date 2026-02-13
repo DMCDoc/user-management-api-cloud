@@ -12,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
-import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.support.BaseJpaTest;
 import com.dmcdoc.usermanagement.support.JpaTestConfig;
 import com.dmcdoc.usermanagement.tenant.TenantContext;

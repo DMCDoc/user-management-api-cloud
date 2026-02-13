@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.core.model;
+package com.dmcdoc.usermanagement.Kds.model;
 
 import jakarta.persistence.*;
 import lombok.*;

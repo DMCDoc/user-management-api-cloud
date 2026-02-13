@@ -1,10 +1,9 @@
-package com.dmcdoc.usermanagement.core.model;
+package com.dmcdoc.usermanagement.Kds.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
 import java.util.UUID;
 
 @Getter
@@ -13,10 +12,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "orders", indexes = {
-        @Index(name = "idx_order_tenant_rest", columnList = "tenant_id, restaurant_id")
+@Table(name = "menu_items", indexes = {
+        @Index(name = "idx_menu_tenant_rest", columnList = "tenant_id, restaurant_id")
 })
-public class Order {
+public class MenuItem {
     @Id
     @Column(name = "id", columnDefinition = "UUID")
     private UUID id;
@@ -27,19 +26,15 @@ public class Order {
     @Column(name = "restaurant_id", columnDefinition = "UUID", nullable = false)
     private UUID restaurantId;
 
-    @Column(name = "user_id", columnDefinition = "UUID", nullable = false)
-    private UUID userId;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(name = "status")
-    private String status;
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal price;
 
-    @Column(name = "total", precision = 12, scale = 2)
-    private BigDecimal total;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
+    @Column(name = "available", nullable = false)
     @Builder.Default
-    private List<OrderItem> items = new ArrayList<>();
+    private boolean available = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default

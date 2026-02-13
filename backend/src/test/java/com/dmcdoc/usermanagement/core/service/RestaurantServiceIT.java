@@ -1,5 +1,7 @@
 package com.dmcdoc.usermanagement.core.service;
 
+import com.dmcdoc.usermanagement.Kds.service.RestaurantService;
+import com.dmcdoc.usermanagement.Kds.service.RestaurantServiceImpl;
 import com.dmcdoc.usermanagement.config.jpa.HibernateTenantFilterConfig;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.tenant.TenantContext;

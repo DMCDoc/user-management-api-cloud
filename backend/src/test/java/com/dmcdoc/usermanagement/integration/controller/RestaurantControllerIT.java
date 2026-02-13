@@ -1,7 +1,7 @@
 package com.dmcdoc.usermanagement.integration.controller;
 
+import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
-import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.support.AbstractMultiTenantIT;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 

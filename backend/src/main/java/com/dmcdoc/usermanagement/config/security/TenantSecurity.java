@@ -1,6 +1,6 @@
 package com.dmcdoc.usermanagement.config.security;
 
-import com.dmcdoc.usermanagement.core.repository.RestaurantRepository;
+import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.repository.RoleRepository;
 import com.dmcdoc.usermanagement.tenant.SystemTenant;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
