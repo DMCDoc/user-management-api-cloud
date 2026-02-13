@@ -1,7 +1,9 @@
-package com.dmcdoc.usermanagement.Kds.model;
+package com.dmcdoc.usermanagement.kds.model;
 
+import com.dmcdoc.usermanagement.core.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -15,15 +17,13 @@ import java.util.UUID;
 @Table(name = "menu_items", indexes = {
         @Index(name = "idx_menu_tenant_rest", columnList = "tenant_id, restaurant_id")
 })
-public class MenuItem {
+public class MenuItem extends BaseTenantEntity {
+
     @Id
-    @Column(name = "id", columnDefinition = "UUID")
+    @GeneratedValue
     private UUID id;
 
-    @Column(name = "tenant_id", columnDefinition = "UUID", nullable = false)
-    private UUID tenantId;
-
-    @Column(name = "restaurant_id", columnDefinition = "UUID", nullable = false)
+    @Column(name = "restaurant_id", nullable = false)
     private UUID restaurantId;
 
     @Column(nullable = false)
@@ -32,7 +32,7 @@ public class MenuItem {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal price;
 
-    @Column(name = "available", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private boolean available = true;
 

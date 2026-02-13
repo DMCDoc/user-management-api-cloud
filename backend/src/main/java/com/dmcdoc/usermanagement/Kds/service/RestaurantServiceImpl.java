@@ -1,7 +1,7 @@
-package com.dmcdoc.usermanagement.Kds.service;
+package com.dmcdoc.usermanagement.kds.service;
 
-import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
+import com.dmcdoc.usermanagement.kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.tenant.TenantContext;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

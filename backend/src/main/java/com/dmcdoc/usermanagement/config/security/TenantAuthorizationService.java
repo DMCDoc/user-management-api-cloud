@@ -3,7 +3,7 @@ package com.dmcdoc.usermanagement.config.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
+import com.dmcdoc.usermanagement.kds.repository.RestaurantRepository;
 
 import java.util.UUID;
 

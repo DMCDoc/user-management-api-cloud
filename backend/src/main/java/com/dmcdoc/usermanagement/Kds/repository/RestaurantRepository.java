@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.Kds.repository;
+package com.dmcdoc.usermanagement.kds.repository;
 
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.TenantAwareRepository;

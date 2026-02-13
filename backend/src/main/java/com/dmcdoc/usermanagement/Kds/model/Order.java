@@ -1,10 +1,13 @@
-package com.dmcdoc.usermanagement.Kds.model;
+package com.dmcdoc.usermanagement.kds.model;
 
+import com.dmcdoc.usermanagement.core.model.BaseTenantEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -16,32 +19,35 @@ import java.util.UUID;
 @Table(name = "orders", indexes = {
         @Index(name = "idx_order_tenant_rest", columnList = "tenant_id, restaurant_id")
 })
-public class Order {
+public class Order extends BaseTenantEntity {
+
     @Id
-    @Column(name = "id", columnDefinition = "UUID")
+    @GeneratedValue
     private UUID id;
 
-    @Column(name = "tenant_id", columnDefinition = "UUID", nullable = false)
-    private UUID tenantId;
-
-    @Column(name = "restaurant_id", columnDefinition = "UUID", nullable = false)
+    @Column(name = "restaurant_id", nullable = false)
     private UUID restaurantId;
 
-    @Column(name = "user_id", columnDefinition = "UUID", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status;
 
-    @Column(name = "total", precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal total;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private Instant createdAt = Instant.now();
+
+    public void addItem(OrderItem item) {
+        item.setOrder(this);
+        this.items.add(item);
+    }
 }

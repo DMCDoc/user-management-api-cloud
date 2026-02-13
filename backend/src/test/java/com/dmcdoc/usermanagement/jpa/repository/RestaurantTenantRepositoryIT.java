@@ -4,9 +4,9 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.dmcdoc.usermanagement.Kds.repository.RestaurantRepository;
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 import com.dmcdoc.usermanagement.core.repository.TenantAwareRepository;
+import com.dmcdoc.usermanagement.kds.repository.RestaurantRepository;
 
 class RestaurantTenantRepositoryIT
         extends AbstractTenantAwareRepositoryIT<Restaurant> {

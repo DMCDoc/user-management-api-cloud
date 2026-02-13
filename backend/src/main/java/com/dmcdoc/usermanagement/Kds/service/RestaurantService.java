@@ -1,4 +1,4 @@
-package com.dmcdoc.usermanagement.Kds.service;
+package com.dmcdoc.usermanagement.kds.service;
 
 import com.dmcdoc.usermanagement.core.model.Restaurant;
 
