@@ -1,20 +1,28 @@
 -------------------------------------------------------------------------------
 Test set: com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.003 s <<< FAILURE! -- in com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
+Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.004 s <<< FAILURE! -- in com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest
 com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403 -- Time elapsed: 0.001 s <<< FAILURE!
-org.opentest4j.AssertionFailedError: Unexpected exception type thrown, expected: <org.springframework.web.server.ResponseStatusException> but was: <com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException>
-	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
-	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:67)
+org.opentest4j.AssertionFailedError: Expected org.springframework.web.server.ResponseStatusException to be thrown, but nothing was thrown.
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:73)
 	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:35)
 	at org.junit.jupiter.api.Assertions.assertThrows(Assertions.java:3128)
 	at com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.noTenantInStrict_throws403(TenantResolverTest.java:51)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
-Caused by: com.dmcdoc.usermanagement.tenant.exception.InvalidTenantIdentifierException: Invalid tenant identifier
-	at com.dmcdoc.usermanagement.tenant.TenantResolver.resolve(TenantResolver.java:52)
-	at com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.lambda$noTenantInStrict_throws403$0(TenantResolverTest.java:51)
-	at org.junit.jupiter.api.AssertThrows.assertThrows(AssertThrows.java:53)
-	... 6 more
+
+com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.headerTenantAllowed_returnsUuid -- Time elapsed: 0 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <e5bad2af-9b67-4b1b-9978-a4cde5b95313> but was: <f09f0459-b8fc-47b3-a2ea-7fafe71384ac>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
+	at com.dmcdoc.usermanagement.unit.tenant.TenantResolverTest.headerTenantAllowed_returnsUuid(TenantResolverTest.java:35)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
 

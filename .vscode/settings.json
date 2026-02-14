@@ -4,10 +4,20 @@
     "java.import.maven.enabled": true,
     "java.autobuild.enabled": true,
     "java.test.report.showPassedTests": true,
+    "java.test.defaultConfig": "customConfig",
     "java.test.config": [
         {
             "name": "customConfig",
-            "workingDirectory": "${workspaceFolder}"
+            "workingDirectory": "${workspaceFolder}",
+            "env": {
+                "DOCKER_HOST": "npipe:////./pipe/docker_engine",
+                "DOCKER_CONTEXT": "default",
+                "TESTCONTAINERS_DOCKER_CLIENT_STRATEGY": "org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy"
+            },
+            "vmArgs": [
+                "-Ddocker.host=npipe:////./pipe/docker_engine",
+                "-Ddocker.client.strategy=org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy"
+            ]
         }
     ],
     "git.ignoreLimitWarning": true
