@@ -57,6 +57,8 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - xpack.security.enabled=false
+  # Pour une démo SaaS → parfait.
+#en vraie prod → on activera security + credentials.
     ulimits:
       memlock:
         soft: -1

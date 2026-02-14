@@ -40,3 +40,31 @@ public class OrderEventPublisher {
                 event);
     }
 }
+/*
+ * TODO:Important : ton routingKey tenantId
+ * 
+ * Tu avais :
+ * 
+ * String routingKey = event.getTenantId().toString();
+ * 
+ * 
+ * Si tu veux faire du multi-tenant par routing key, il faut alors :
+ * 
+ * ROUTING_CREATED = "order.created.*"
+ * 
+ * 
+ * et envoyer :
+ * 
+ * "order.created." + tenantId
+ * 
+ * 
+ * Mais dans ta config actuelle tu utilises :
+ * 
+ * order.created
+ * order.status.updated
+ * 
+ * 
+ * Donc reste simple pour l’instant.
+ * On pourra ajouter le partitionnement tenant plus tard.
+ * 
+ */

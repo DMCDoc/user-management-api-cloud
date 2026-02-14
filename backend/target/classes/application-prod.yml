@@ -31,8 +31,12 @@ spring:
 
 app:
   base-url: ${APP_BASE_URL}
+
+security:
   jwt:
     secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:3600000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 memcached:
   host: ${MEMCACHED_HOST}

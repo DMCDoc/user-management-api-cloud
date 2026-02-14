@@ -9,5 +9,6 @@
             "name": "customConfig",
             "workingDirectory": "${workspaceFolder}"
         }
-    ]
+    ],
+    "git.ignoreLimitWarning": true
 }

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,17 @@ public class TenantAuthorizationFilter extends OncePerRequestFilter {
     private final TenantResolver tenantResolver;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/actuator")
+                || path.equals("/ping")
+                || path.startsWith("/error");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -31,8 +43,8 @@ public class TenantAuthorizationFilter extends OncePerRequestFilter {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Pas authentifié → laisser Spring Security gérer
-        if (auth == null || !auth.isAuthenticated()) {
+        // Anonymous/unauthenticated: let Spring Security rules apply
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -69,3 +81,12 @@ public class TenantAuthorizationFilter extends OncePerRequestFilter {
         response.getWriter().write("Tenant access forbidden");
     }
 }
+
+/*
+ * TODO: Mais en prod réelle tu ne voudras peut-être pas exposer
+ * /actuator/metrics librement.
+ * 
+ * Pour une démo SaaS → OK.
+ * 
+ * Pour prod réelle → il faudra restreindre par IP ou rôle.
+ */
