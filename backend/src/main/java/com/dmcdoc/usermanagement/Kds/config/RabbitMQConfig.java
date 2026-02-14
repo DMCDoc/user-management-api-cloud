@@ -51,7 +51,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingCreated(
             @Qualifier("orderCreatedQueue") Queue orderCreatedQueue,
-            TopicExchange orderExchange) {
+            @Qualifier("orderExchange") TopicExchange orderExchange) {
         return BindingBuilder.bind(orderCreatedQueue)
                 .to(orderExchange)
                 .with(ROUTING_CREATED);
@@ -60,7 +60,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingStatus(
             @Qualifier("orderStatusQueue") Queue orderStatusQueue,
-            TopicExchange orderExchange) {
+            @Qualifier("orderExchange") TopicExchange orderExchange) {
         return BindingBuilder.bind(orderStatusQueue)
                 .to(orderExchange)
                 .with(ROUTING_STATUS);
@@ -69,9 +69,10 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingDLQ(
             @Qualifier("deadLetterQueue") Queue deadLetterQueue,
-            TopicExchange deadLetterExchange) {
+            @Qualifier("deadLetterExchange") TopicExchange deadLetterExchange) {
         return BindingBuilder.bind(deadLetterQueue)
                 .to(deadLetterExchange)
                 .with("#");
     }
 }
+

@@ -117,7 +117,7 @@ services:
     volumes:
       - .:/app
       - ~/.m2:/root/.m2
-    command: ["/bin/sh", "-c", "./mvnw -pl backend -am install -DskipTests && ./mvnw -pl backend spring-boot:run"]
+    command: ["/bin/sh", "-c", "mvn -pl backend -am install -DskipTests && mvn -pl backend spring-boot:run"]
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/actuator/health | grep '\"status\":\"UP\"' || exit 1"]
       <<: *default-health
